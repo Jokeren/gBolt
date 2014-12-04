@@ -1,0 +1,148 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ARGH	gspan_utils.h	/^	const static char *ARGH[N_ARG] = { "-file", "-support", "-sep"};$/;"	m	namespace:gspan
+COMMON_H	common.h	2;"	d
+DATABASE_H	database.h	2;"	d
+DEFAULT	gspan_utils.h	/^		DEFAULT,$/;"	e	enum:gspan::SEP_TYPE
+DataBase	database.h	/^			DataBase(){};$/;"	f	class:gspan::DataBase
+DataBase	database.h	/^	class DataBase {$/;"	c	namespace:gspan
+DfsCodes	graph.h	/^	typedef std::vector<struct dfs_code_t> DfsCodes;$/;"	t	namespace:gspan
+Edges	graph.h	/^	typedef std::vector<const struct edge_t *> Edges;$/;"	t	namespace:gspan
+GRAPH_H	graph.h	2;"	d
+GSPAN_ERROR	common.h	/^	GSPAN_ERROR,$/;"	e	enum:GSpanReturnCode
+GSPAN_H	gspan.h	2;"	d
+GSPAN_NCOUNT	common.h	/^	GSPAN_NCOUNT$/;"	e	enum:GSpanReturnCode
+GSPAN_SUCCESS	common.h	/^	GSPAN_SUCCESS,$/;"	e	enum:GSpanReturnCode
+GSPAN_UTILS_H	gspan_utils.h	2;"	d
+GSPAN_WARNING	common.h	/^	GSPAN_WARNING,$/;"	e	enum:GSpanReturnCode
+GSpan	gspan.h	/^			GSpan() {};$/;"	f	class:gspan::GSpan
+GSpan	gspan.h	/^			GSpan(const char *file_path, uint32_t support) :$/;"	f	class:gspan::GSpan
+GSpan	gspan.h	/^	class GSpan {$/;"	c	namespace:gspan
+GSpanReturnCode	common.h	/^enum GSpanReturnCode {$/;"	g
+Graph	graph.h	/^			Graph() : id(0) {};$/;"	f	class:gspan::Graph
+Graph	graph.h	/^	class Graph {$/;"	c	namespace:gspan
+HISTORY_H	history.h	2;"	d
+History	history.h	/^			History(const struct pre_dfs_t *pre_dfs) : $/;"	f	class:gspan::History
+History	history.h	/^	class History {$/;"	c	namespace:gspan
+Input	common.h	/^typedef std::vector<std::vector<std::string> > Input;$/;"	t
+MAX_LENGTH	seperator.cc	/^static const uint32_t MAX_LENGTH = 1000;$/;"	v	file:
+N_ARG	gspan_utils.h	/^	const static uint32_t N_ARG = 3;$/;"	m	namespace:gspan
+Projection	graph.h	/^	typedef std::vector<struct pre_dfs_t> Projection;$/;"	t	namespace:gspan
+ProjectionMap	gspan.h	/^			typedef std::map<struct dfs_code_t, Projection, struct dfs_code_project_compare_t> ProjectionMap;$/;"	t	class:gspan::GSpan
+ProjectionMapBackward	gspan.h	/^			typedef std::map<struct dfs_code_t, Projection, struct dfs_code_backward_compare_t> ProjectionMapBackward;$/;"	t	class:gspan::GSpan
+ProjectionMapForward	gspan.h	/^			typedef std::map<struct dfs_code_t, Projection, struct dfs_code_forward_compare_t> ProjectionMapForward;$/;"	t	class:gspan::GSpan
+SEPERATOR_H	seperator.h	2;"	d
+SEP_TYPE	gspan_utils.h	/^	enum SEP_TYPE {$/;"	g	namespace:gspan
+SEP_TYPE_NCOUNT	gspan_utils.h	/^		SEP_TYPE_NCOUNT$/;"	e	enum:gspan::SEP_TYPE
+Seperator	seperator.h	/^		Seperator(const char* token): _m_token(token) {$/;"	f	class:gspan::Seperator
+Seperator	seperator.h	/^class Seperator {$/;"	c	namespace:gspan
+Vertice	graph.h	/^	typedef std::vector<struct vertex_t> Vertice;$/;"	t	namespace:gspan
+_m_dfs_codes	gspan.h	/^			DfsCodes _m_dfs_codes;$/;"	m	class:gspan::GSpan
+_m_edges	history.h	/^			Edges _m_edges;$/;"	m	class:gspan::History
+_m_file_path	gspan.h	/^			const char *_m_file_path;$/;"	m	class:gspan::GSpan
+_m_frequent_labels	gspan.h	/^			std::set<uint32_t> _m_frequent_labels;$/;"	m	class:gspan::GSpan
+_m_graph	database.h	/^			std::vector<Graph> _m_graph;$/;"	m	class:gspan::DataBase
+_m_graphs	gspan.h	/^			std::vector<Graph> _m_graphs;$/;"	m	class:gspan::GSpan
+_m_has_edges	history.h	/^			std::vector<bool> _m_has_edges;	$/;"	m	class:gspan::History
+_m_has_vertice	history.h	/^			std::vector<bool> _m_has_vertice;	$/;"	m	class:gspan::History
+_m_instance	database.h	/^			static DataBase *_m_instance;$/;"	m	class:gspan::DataBase
+_m_min_dfs_codes	gspan.h	/^			DfsCodes _m_min_dfs_codes;$/;"	m	class:gspan::GSpan
+_m_min_graph	gspan.h	/^			Graph _m_min_graph;$/;"	m	class:gspan::GSpan
+_m_nsupport	gspan.h	/^			uint32_t _m_nsupport;$/;"	m	class:gspan::GSpan
+_m_seperator	gspan.h	/^			Seperator *_m_seperator;$/;"	m	class:gspan::GSpan
+_m_start	history.h	/^			const struct pre_dfs_t *_m_start;$/;"	m	class:gspan::History	typeref:struct:gspan::History::pre_dfs_t
+_m_support	gspan.h	/^			double _m_support;$/;"	m	class:gspan::GSpan
+_m_token	seperator.h	/^		const char* _m_token;	$/;"	m	class:gspan::Seperator
+_m_vertice	graph.h	/^			Vertice _m_vertice;$/;"	m	class:gspan::Graph
+build	history.cc	/^	void History::build()$/;"	f	class:gspan::History
+build_min_graph	gspan_count.cc	/^	void GSpan::build_min_graph()$/;"	f	class:gspan::GSpan
+build_right_most_path	gspan_extend.cc	/^	void GSpan::build_right_most_path(std::vector<uint32_t>& right_most_path)$/;"	f	class:gspan::GSpan
+build_right_most_path_min	gspan_extend.cc	/^	void GSpan::build_right_most_path_min(std::vector<uint32_t>& right_most_path)$/;"	f	class:gspan::GSpan
+clear	graph.h	/^			void clear()$/;"	f	class:gspan::Graph
+counting_support	gspan_count.cc	/^	uint32_t GSpan::counting_support(const Projection& projection)$/;"	f	class:gspan::GSpan
+dfs_code_backward_compare_t	graph.h	/^	struct dfs_code_backward_compare_t {$/;"	s	namespace:gspan
+dfs_code_forward_compare_t	graph.h	/^	struct dfs_code_forward_compare_t {$/;"	s	namespace:gspan
+dfs_code_project_compare_t	graph.h	/^	struct dfs_code_project_compare_t {$/;"	s	namespace:gspan
+dfs_code_t	graph.h	/^	struct dfs_code_t {$/;"	s	namespace:gspan
+edge	graph.h	/^		const struct edge_t *edge;$/;"	m	struct:gspan::pre_dfs_t	typeref:struct:gspan::pre_dfs_t::edge_t
+edge_label	graph.h	/^		uint32_t edge_label;$/;"	m	struct:gspan::dfs_code_t
+edge_labels	graph.h	/^		std::vector<uint32_t> edge_labels;$/;"	m	struct:gspan::history_t
+edge_t	graph.h	/^	struct edge_t {$/;"	s	namespace:gspan
+edges	graph.h	/^		std::vector<struct edge_t> edges;$/;"	m	struct:gspan::vertex_t
+enumerate	gspan_extend.cc	/^	void GSpan::enumerate(const Projection& projection, const std::vector<uint32_t>& right_most_path,$/;"	f	class:gspan::GSpan
+execute	gspan_init.cc	/^	void GSpan::execute(const char *seperator_type, const char *file_path, double support) $/;"	f	class:gspan::GSpan
+file_path	gspan_utils.h	/^		char *file_path;$/;"	m	struct:gspan::parameters_t
+find_frequent_nodes	gspan_mining.cc	/^	GSpanReturnCode GSpan::find_frequent_nodes() $/;"	f	class:gspan::GSpan
+from	graph.h	/^		uint32_t from;$/;"	m	struct:gspan::dfs_code_t
+from	graph.h	/^		uint32_t from;$/;"	m	struct:gspan::edge_t
+from_label	graph.h	/^		uint32_t from_label;$/;"	m	struct:gspan::dfs_code_t
+get_backward	gspan_extend.cc	/^	void GSpan::get_backward(const struct pre_dfs_t *prev_dfs, const std::vector<uint32_t>& right_most_path, const History *p_history,$/;"	f	class:gspan::GSpan
+get_edge	history.h	/^			const struct edge_t* get_edge(size_t idx) const{$/;"	f	class:gspan::History
+get_first_forward	gspan_extend.cc	/^	void GSpan::get_first_forward(const struct pre_dfs_t *prev_dfs, const std::vector<uint32_t>& right_most_path, const History *p_history,$/;"	f	class:gspan::GSpan
+get_forward_init	gspan_extend.cc	/^	bool GSpan::get_forward_init(const struct vertex_t& vertex, const Graph& graph, Edges& edges)$/;"	f	class:gspan::GSpan
+get_graph	database.h	/^			std::vector<Graph> get_graph() {$/;"	f	class:gspan::DataBase
+get_id	graph.h	/^			uint32_t get_id() const$/;"	f	class:gspan::Graph
+get_instance	database.h	/^			static DataBase *get_instance() {$/;"	f	class:gspan::DataBase
+get_narg	gspan_utils.cc	/^	uint32_t get_narg()$/;"	f	namespace:gspan
+get_other_forward	gspan_extend.cc	/^	void GSpan::get_other_forward(const struct pre_dfs_t *prev_dfs, const std::vector<uint32_t>& right_most_path, const History *p_history,$/;"	f	class:gspan::GSpan
+get_parameters	gspan_utils.cc	/^	uint32_t get_parameters(struct parameters_t *p_parameters, int argc, char *argv[])$/;"	f	namespace:gspan
+get_seperator	gspan_utils.cc	/^	void get_seperator(const struct parameters_t *p_parameters,$/;"	f	namespace:gspan
+get_vertex	graph.h	/^			const struct vertex_t& get_vertex(size_t idx) const {$/;"	f	class:gspan::Graph
+get_vertex	graph.h	/^			struct vertex_t& get_vertex(size_t idx) {$/;"	f	class:gspan::Graph
+gspan	database.cc	/^namespace gspan {$/;"	n	file:
+gspan	database.h	/^namespace gspan {$/;"	n
+gspan	graph.h	/^namespace gspan {$/;"	n
+gspan	gspan.h	/^namespace gspan {$/;"	n
+gspan	gspan_count.cc	/^namespace gspan {$/;"	n	file:
+gspan	gspan_extend.cc	/^namespace gspan {$/;"	n	file:
+gspan	gspan_init.cc	/^namespace gspan {$/;"	n	file:
+gspan	gspan_mining.cc	/^namespace gspan {$/;"	n	file:
+gspan	gspan_utils.cc	/^namespace gspan {$/;"	n	file:
+gspan	gspan_utils.h	/^namespace gspan {$/;"	n
+gspan	history.cc	/^namespace gspan {$/;"	n	file:
+gspan	history.h	/^namespace gspan{$/;"	n
+gspan	seperator.cc	/^namespace gspan {$/;"	n	file:
+gspan	seperator.h	/^namespace gspan {$/;"	n
+has_edges	history.h	/^			bool has_edges(size_t idx) const {$/;"	f	class:gspan::History
+has_vertice	history.h	/^			bool has_vertice(size_t idx) const {$/;"	f	class:gspan::History
+history_t	graph.h	/^	struct history_t {$/;"	s	namespace:gspan
+id	graph.h	/^			uint32_t id;$/;"	m	class:gspan::Graph
+id	graph.h	/^		uint32_t id;		$/;"	m	struct:gspan::vertex_t
+id	graph.h	/^		uint32_t id;	$/;"	m	struct:gspan::pre_dfs_t
+id	graph.h	/^		uint32_t id;$/;"	m	struct:gspan::edge_t
+is_min	gspan_count.cc	/^	bool GSpan::is_min()$/;"	f	class:gspan::GSpan
+judge_backward	gspan_count.cc	/^	bool GSpan::judge_backward(const std::vector<uint32_t>& right_most_path, const Projection& projection, $/;"	f	class:gspan::GSpan
+judge_forward	gspan_count.cc	/^	bool GSpan::judge_forward(const std::vector<uint32_t>& right_most_path, const Projection& projection, $/;"	f	class:gspan::GSpan
+label	graph.h	/^		uint32_t label;$/;"	m	struct:gspan::edge_t
+label	graph.h	/^		uint32_t label;$/;"	m	struct:gspan::vertex_t
+main	main.cc	/^int main(int argc, char *argv[])$/;"	f
+objects	Makefile	/^objects=main.o seperator.o gspan_utils.o gspan_init.o gspan_mining.o database.o gspan_extend.o \\$/;"	m
+operator ()	graph.h	/^		bool operator() (const struct dfs_code_t& first,$/;"	f	struct:gspan::dfs_code_backward_compare_t
+operator ()	graph.h	/^		bool operator() (const struct dfs_code_t& first,$/;"	f	struct:gspan::dfs_code_forward_compare_t
+operator ()	graph.h	/^		bool operator() (const struct dfs_code_t& first,$/;"	f	struct:gspan::dfs_code_project_compare_t
+parameters_t	gspan_utils.h	/^	struct parameters_t {$/;"	s	namespace:gspan
+pre_dfs_t	graph.h	/^	struct pre_dfs_t {$/;"	s	namespace:gspan
+prev	graph.h	/^		const struct pre_dfs_t *prev;$/;"	m	struct:gspan::pre_dfs_t	typeref:struct:gspan::pre_dfs_t::pre_dfs_t
+print_parameters	gspan_utils.cc	/^	void print_parameters(const struct parameters_t *p_parameters)$/;"	f	namespace:gspan
+project	gspan_mining.cc	/^	GSpanReturnCode GSpan::project() $/;"	f	class:gspan::GSpan
+projection_min	gspan_count.cc	/^	bool GSpan::projection_min(const Projection& projection)$/;"	f	class:gspan::GSpan
+push_graph	database.h	/^			void push_graph(const Graph& graph) {$/;"	f	class:gspan::DataBase
+read_input	gspan_init.cc	/^	GSpanReturnCode GSpan::read_input(Input& input) $/;"	f	class:gspan::GSpan
+resize	graph.h	/^			void resize(size_t s)$/;"	f	class:gspan::Graph
+sep_type	gspan_utils.h	/^		int sep_type;$/;"	m	struct:gspan::parameters_t
+seperate	seperator.cc	/^	uint32_t Seperator::seperate(const char* file_path, Input& stream) {$/;"	f	class:gspan::Seperator
+set_id	graph.h	/^			void set_id(uint32_t id) $/;"	f	class:gspan::Graph
+set_vertice	graph.h	/^			void set_vertice(const Vertice& vertice) $/;"	f	class:gspan::Graph
+size	graph.h	/^			size_t size() const$/;"	f	class:gspan::Graph
+subgraph_mining	gspan_mining.cc	/^	GSpanReturnCode GSpan::subgraph_mining(Projection& projection)$/;"	f	class:gspan::GSpan
+support	gspan_utils.h	/^		double support;$/;"	m	struct:gspan::parameters_t
+to	graph.h	/^		uint32_t to;$/;"	m	struct:gspan::dfs_code_t
+to	graph.h	/^		uint32_t to;$/;"	m	struct:gspan::edge_t
+to_label	graph.h	/^		uint32_t to_label;$/;"	m	struct:gspan::dfs_code_t
+usage	gspan_utils.cc	/^	void usage()$/;"	f	namespace:gspan
+vertex_labels	graph.h	/^		std::vector<uint32_t> vertex_labels;$/;"	m	struct:gspan::history_t
+vertex_t	graph.h	/^	struct vertex_t {$/;"	s	namespace:gspan

@@ -1,0 +1,9 @@
+g++ -g -O2 -pthread   -c -o main.o main.cc
+In file included from main.cc:2:0:
+gspan.h:100:9: error: expected ‘;’ at end of member declaration
+   void *GSpan gspan_entry;
+         ^
+gspan.h:100:15: error: ‘gspan_entry’ does not name a type
+   void *GSpan gspan_entry;
+               ^
+make: *** [main.o] Error 1

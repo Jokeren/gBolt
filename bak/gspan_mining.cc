@@ -31,103 +31,27 @@ namespace gspan {
 		return GSPAN_SUCCESS;
 	}
 
-	GSpanReturnCode GSpan::reconstruct(Input& input)
+	GSpanReturnCode GSpan::reconstruct()
 	{
-		Graph graph;
-		Vertice vertice;
-		std::vector<uint32_t> labels;
-		std::map<uint32_t, uint32_t> id_map;
+		for (size_t i = 0; i < _m_graphs.size(); ++i) {
+			for (size_t j = 0; j < _m_graphs[i].size(); ++j) {
+				const struct vertex_t& vertex = _m_graphs[i].get_vertex(j);	
 
-		DataBase *database = DataBase::get_instance();
-		database->clear();
+				for (size_t k = 0; k < vertex
+			}
 
-		uint32_t graph_idx = 0;
-		uint32_t edge_id = 0;
-		uint32_t vertex_id = 0;
-
-		for (size_t i = 0; i < input.size(); ++i) {
-			if (input[i][0] == "t") {
-				if (i != 0) {
-					graph.set_nedges(edge_id);
-					graph.set_vertice(vertice);
-					edge_id = 0;
-					vertex_id = 0;
-					database->push_graph(graph);	
-					graph.clear();
-					vertice.clear();
-					labels.clear();
-					id_map.clear();
-				}
-
-				char indicator, seperator;
-				uint32_t idx;
-				indicator = input[i][0][0];
-				seperator = input[i][1][0];
-				sscanf(input[i][2].c_str(), "%u", &idx);
-
-				if (graph_idx != idx) {
-					fprintf(stderr, "reading input warning! %u %u\n", graph_idx, idx);	
-				}
-				graph.set_id(idx);
-
-				++graph_idx;
-			} else if (input[i][0] == "v") {
-				char indicator;
-				uint32_t id, label;
-				indicator = input[i][0][0];
-				sscanf(input[i][1].c_str(), "%u", &id);
-				sscanf(input[i][2].c_str(), "%u", &label);
-
-				struct vertex_t vertex;
-				labels.push_back(label);
-
-				if (_m_frequent_labels.find(label) != _m_frequent_labels.end()) {
-					vertex.label = label;	
-					vertex.id = vertex_id;
-					vertice.push_back(vertex);
-					id_map[id] = vertex_id;
-					++vertex_id;
-				}
-			} else if (input[i][0] == "e") {
-				char indicator;
-				uint32_t from, to, label;
-				indicator = input[i][0][0];
-				sscanf(input[i][1].c_str(), "%u", &from);
-				sscanf(input[i][2].c_str(), "%u", &to);
-				sscanf(input[i][3].c_str(), "%u", &label);
-				//debug
-				//printf("edge label %u\n", label);
-
-				uint32_t label_from = labels[from];
-				uint32_t label_to = labels[to];
-
-				if (_m_frequent_labels.find(label_from) == _m_frequent_labels.end() ||
-						_m_frequent_labels.find(label_to) == _m_frequent_labels.end())
-					continue;
-
-				struct edge_t edge;
-				edge.from = id_map[from];
-				edge.to = id_map[to];
-				edge.label = label;
-				edge.id = edge_id;
-				++edge_id;
-
-				//first edge
-				vertice[id_map[from]].edges.push_back(edge);
-
-				//second edge
-				edge.from = id_map[to];
-				edge.to = id_map[from];
-				vertice[id_map[to]].edges.push_back(edge);
-			} else {
-				fprintf(stderr, "reading input warning!");	
+			for (std::set<uint32_t>::iterator it = s.begin(); it != s.end(); ++it) {
+				++labels[*it];
 			}
 		}
 
-		graph.set_vertice(vertice);
-		database->push_graph(graph);	
+		for (std::map<uint32_t, uint32_t>::iterator it = labels.begin(); it != labels.end(); ++it) {
+			if (it->second >= _m_nsupport) {
+				_m_frequent_labels.insert(std::make_pair(it->first, it->second));
+			}
+		}
 
-		return GSPAN_SUCCESS;
+
 	}
 
 	GSpanReturnCode GSpan::project() 
@@ -141,6 +65,8 @@ namespace gspan {
 			const Graph& graph = _m_graphs[i];
 			for (size_t j = 0; j < graph.size(); ++j) {
 				const struct vertex_t& vertex = graph.get_vertex(j);	
+				if (_m_frequent_labels.find(vertex.label) == _m_frequent_labels.end()) 
+					continue;
 
 				Edges edges;	
 				if (get_forward_init(vertex, graph, edges)) {
@@ -169,22 +95,14 @@ namespace gspan {
 			}
 		}	
 
-		std::vector<bool> has_labels;
 		//start sub graph mining
+		int32_t prev_label = -1;
 		for (ProjectionMap::reverse_iterator it = projection_map.rbegin(); it != projection_map.rend(); ++it) {
-			has_labels.resize(std::max(static_cast<size_t>((it->first).from_label + 1), 
-						has_labels.size()));
-			has_labels.resize(std::max(static_cast<size_t>((it->first).to_label + 1),
-					   	has_labels.size()));
+			if (prev_label != (it->first).from_label) {
+				prev_label = (it->first).from_label;
+				uint32_t nsupport = _m_frequent_labels[prev_label];
 
-			if (!has_labels[(it->first).from_label]) {
-				has_labels[(it->first).from_label] = true;
-				report((it->first).from_label, _m_frequent_labels[(it->first).from_label]);
-			}
-
-			if (!has_labels[(it->first).to_label]) {
-				has_labels[(it->first).to_label] = true;
-				report((it->first).to_label, _m_frequent_labels[(it->first).to_label]);
+				report(prev_label, nsupport);
 			}
 
 			//another parital pruneing, like apriori
@@ -258,7 +176,7 @@ namespace gspan {
 			subgraph_mining(it->second);
 			_m_dfs_codes.pop_back();
 		}
-
+		
 		return GSPAN_SUCCESS;
 	}
 

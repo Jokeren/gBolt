@@ -1,0 +1,3969 @@
+*** File /home/rzhou/Codes/gSpan/src/gspan_init.cc:
+                #include "sys/time.h"
+                #include "gspan.h"
+                #include "seperator.h"
+                #include "database.h"
+                
+                namespace gspan {
+                
+                	void GSpan::execute(const char *seperator_type, const char *file_path, double support) 
+       ##### -> 	{
+                		_m_seperator = new Seperator(seperator_type);
+                		_m_file_path = file_path;
+                		_m_support = support;
+                
+                		Input gspan_input;				
+                
+                		_m_seperator->seperate(_m_file_path, gspan_input);
+                
+                		//debug
+                		//printf("seperate\n");
+                		if (GSPAN_SUCCESS != read_input(gspan_input)) {
+                			fprintf(stderr, "read input error!");
+                			exit(GSPAN_ERROR);
+                		}
+                
+                		//debug
+                		//printf("find_frequent\n");
+                		//init graphs using in this turn
+                		if (GSPAN_SUCCESS != find_frequent_nodes()) {
+                			fprintf(stderr, "find frequent nodes error!");
+                			exit(GSPAN_ERROR);
+                		}	
+                
+                		if (GSPAN_SUCCESS != reconstruct(gspan_input)) {
+                			fprintf(stderr, "find frequent nodes error!");
+                			exit(GSPAN_ERROR);
+                		}	
+                
+                		//_m_graphs.clear();
+                		DataBase *database = DataBase::get_instance();
+                		_m_graphs = database->get_graph();
+                
+                	timeval t1, t2;
+                	double elapsed_time = 0.0f;
+                	gettimeofday(&t1, NULL);
+                		//debug
+                		//printf("project\n");
+                		if (GSPAN_SUCCESS != project()) {
+                			fprintf(stderr, "projection nodes error!");
+                			exit(GSPAN_ERROR);
+                		}	
+                	gettimeofday(&t2, NULL);
+                	elapsed_time = (t2.tv_sec - t1.tv_sec) * 1000.0; 
+                	elapsed_time += (t2.tv_usec - t1.tv_usec) / 1000.0;
+                	printf("elapsed time->execute %f\n", elapsed_time);
+                	}
+                
+                	GSpanReturnCode GSpan::read_input(Input& input) 
+           1 -> 	{
+                		Graph graph;
+                		Vertice vertice;
+                
+                		DataBase *database = DataBase::get_instance();
+                
+                		uint32_t graph_idx = 0;
+                		uint32_t edge_id = 0;
+                		for (size_t i = 0; i < input.size(); ++i) {
+                			if (input[i][0] == "t") {
+                				if (i != 0) {
+                					graph.set_nedges(edge_id);
+                					graph.set_vertice(vertice);
+                					edge_id = 0;
+                					database->push_graph(graph);	
+                					graph.clear();
+                					vertice.clear();
+                				}
+                
+                				char indicator, seperator;
+                				uint32_t idx;
+                				indicator = input[i][0][0];
+                				seperator = input[i][1][0];
+                				sscanf(input[i][2].c_str(), "%u", &idx);
+                
+                				if (graph_idx != idx) {
+                					fprintf(stderr, "reading input warning! %u %u\n", graph_idx, idx);	
+                				}
+                				graph.set_id(idx);
+                
+                				++graph_idx;
+                			} else if (input[i][0] == "v") {
+                				char indicator;
+                				uint32_t id, label;
+                				indicator = input[i][0][0];
+                				sscanf(input[i][1].c_str(), "%u", &id);
+                				sscanf(input[i][2].c_str(), "%u", &label);
+                
+                				struct vertex_t vertex;
+                				vertex.id = id;
+                				vertex.label = label;	
+                
+                				vertice.push_back(vertex);
+                			} else if (input[i][0] == "e") {
+                				char indicator;
+                				uint32_t from, to, label;
+                				indicator = input[i][0][0];
+                				sscanf(input[i][1].c_str(), "%u", &from);
+                				sscanf(input[i][2].c_str(), "%u", &to);
+                				sscanf(input[i][3].c_str(), "%u", &label);
+                				//debug
+                				//printf("edge label %u\n", label);
+                
+                				struct edge_t edge;
+                				edge.from = from;
+                				edge.to = to;
+                				edge.label = label;
+                				edge.id = edge_id;
+                				++edge_id;
+                
+                				//first edge
+                				vertice[from].edges.push_back(edge);
+                
+                				//second edge
+                				edge.from = to;
+                				edge.to = from;
+                				vertice[to].edges.push_back(edge);
+                			} else {
+                				fprintf(stderr, "reading input warning!");	
+                			}
+                		}
+                
+                		graph.set_vertice(vertice);
+                		database->push_graph(graph);	
+                		
+                		_m_nsupport = static_cast<uint32_t>(graph_idx * _m_support);
+                
+                		return GSPAN_SUCCESS;
+                	}
+                	
+                }//namespace gspan
+                
+                
+
+
+Top 10 Lines:
+
+     Line      Count
+
+       58          1
+
+Execution Summary:
+
+        2   Executable lines in this file
+        2   Lines executed
+   100.00   Percent of the file executed
+
+        1   Total number of line executions
+     0.50   Average executions per line
+
+
+*** File /home/rzhou/Codes/gSpan/src/history.cc:
+                #include <algorithm>
+                #include "history.h"
+                
+                namespace gspan {
+                	void History::build()
+      102184 -> 	{
+                		_m_has_edges.resize(_m_graph.get_nedges() + 1);
+                		_m_has_vertice.resize(_m_graph.size() + 1);
+                
+                		const struct pre_dfs_t *start = _m_start;
+                
+                		while (start != NULL) {
+                			_m_edges.push_back(start->edge);
+                
+                			_m_has_edges[start->edge->id] = true;
+                
+                			_m_has_vertice[start->edge->from] = true;
+                
+                			_m_has_vertice[start->edge->to] = true;
+                
+                			start = start->prev;
+                		}
+                
+                		//important
+                		std::reverse(_m_edges.begin(), _m_edges.end());
+                	}
+                }//namespace gspan
+
+
+Top 10 Lines:
+
+     Line      Count
+
+        6     102184
+
+Execution Summary:
+
+        1   Executable lines in this file
+        1   Lines executed
+   100.00   Percent of the file executed
+
+   102184   Total number of line executions
+102184.00   Average executions per line
+
+
+*** File /home/rzhou/Codes/gSpan/src/gspan_extend.cc:
+                #include "gspan.h"
+                #include "history.h"
+                
+                namespace gspan {
+                	void GSpan::build_right_most_path(const DfsCodes& dfs_codes, 
+                			std::vector<uint32_t>& right_most_path)
+         491 -> 	{
+                		int32_t prev_id = -1;
+                
+                		for (size_t i = dfs_codes.size(); i > 0; --i) {
+                			if (dfs_codes[i - 1].from < dfs_codes[i - 1].to && 
+                					(right_most_path.empty() || prev_id == dfs_codes[i - 1].to)) {
+                				prev_id = dfs_codes[i - 1].from;
+                				right_most_path.push_back(i - 1);
+                			}
+                		}
+                	}
+                
+                	void GSpan::enumerate(const Projection& projection, const std::vector<uint32_t>& right_most_path,
+                			ProjectionMapBackward& projection_map_backward, ProjectionMapForward& projection_map_forward, uint32_t min_label)
+          68 -> 	{
+                		for (size_t i = 0; i < projection.size(); ++i) {
+                			History *p_history = new History(&(projection[i]), _m_graphs[projection[i].id]);
+                			p_history->build();
+                
+                			get_backward(&(projection[i]), right_most_path, p_history, projection_map_backward);
+                
+                			get_first_forward(&(projection[i]), right_most_path, p_history, projection_map_forward, min_label);
+                
+                			get_other_forward(&(projection[i]), right_most_path, p_history, projection_map_forward, min_label);
+                
+                			delete(p_history);
+                		}
+                		
+                #ifdef DEBUG
+                			struct dfs_code_t dfs_code;
+                			dfs_code.from = 1;
+                			dfs_code.to = 2;
+                			dfs_code.from_label = 0;
+                			dfs_code.to_label = 1;
+                			dfs_code.edge_label = 0;
+                			int32_t prev_id = -1;
+                			uint32_t size = 0;
+                			
+                			for (size_t i = 0; i < projection_map_forward[dfs_code].size(); ++i) {
+                				if (projection_map_forward[dfs_code][i].id != prev_id) {
+                					prev_id = projection_map_forward[dfs_code][i].id;
+                					size++;
+                				}
+                
+                				printf("%u\n", size);
+                				printf("graph_id %u\n", projection_map_forward[dfs_code][i].id);
+                
+                				const struct pre_dfs_t *p = &(projection_map_forward[dfs_code][i]);
+                				printf("%u %u %u\n", p->edge->from, p->edge->to, p->edge->label);
+                
+                				p = p->prev;
+                				while (p) {
+                					printf("%u %u %u\n", p->edge->from, p->edge->to, p->edge->label);
+                					p = p->prev;
+                				}
+                				printf("\n");
+                			}
+                #endif
+                
+                	}
+                
+                	bool GSpan::get_forward_init(const struct vertex_t& vertex, const Graph& graph, Edges& edges)
+        8307 -> 	{
+                		for (size_t i = 0; i < vertex.edges.size(); ++i) {
+                			uint32_t to = vertex.edges[i].to;
+                			const struct vertex_t& next_vertex = graph.get_vertex(to);
+                			//partial pruning, if the first label is greater than the second label, then there must be
+                			//another graph whose second label is greater than the first label.
+                			if (vertex.label <= next_vertex.label) {
+                				edges.push_back(&(vertex.edges[i]));
+                			}
+                		}
+                
+                		return !edges.empty();
+                	}
+                
+                	void GSpan::get_backward(const struct pre_dfs_t *prev_dfs, const std::vector<uint32_t>& right_most_path, const History *p_history,
+                			ProjectionMapBackward& projection_map_backward)
+       99568 -> 	{
+                		const struct edge_t *last_edge = p_history->get_edge(right_most_path[0]);
+                
+                		const Graph& graph = _m_graphs[prev_dfs->id];
+                		const struct vertex_t& last_node = graph.get_vertex(last_edge->to);
+                
+                		for (size_t i = right_most_path.size(); i > 1; --i) {
+                			const struct edge_t *edge = p_history->get_edge(right_most_path[i - 1]);
+                
+                			for (size_t j = 0; j < (last_node.edges).size(); ++j) {
+                				if (p_history->has_edges((last_node.edges[j]).id))
+                					continue;
+                
+                				if (!p_history->has_vertice((last_node.edges[j]).to)) 
+                					continue;
+                
+                				const struct vertex_t& from_node = graph.get_vertex(edge->from);
+                				const struct vertex_t& to_node = graph.get_vertex(edge->to);
+                				if (last_node.edges[j].to == edge->from &&
+                						(last_node.edges[j].label > edge->label ||
+                						 (last_node.edges[j].label == edge->label &&
+                						  last_node.label >= to_node.label))) {
+                					uint32_t from_id = _m_dfs_codes[right_most_path[0]].to;
+                					uint32_t to_id = _m_dfs_codes[right_most_path[i - 1]].from; 
+                					struct dfs_code_t dfs_code;
+                
+                					dfs_code.from = from_id;
+                					dfs_code.to = to_id;
+                					dfs_code.from_label = last_node.label;
+                					dfs_code.to_label = from_node.label;
+                					dfs_code.edge_label = (last_node.edges[j]).label;
+                
+                					struct pre_dfs_t pre_dfs;
+                					pre_dfs.id = graph.get_id();
+                					pre_dfs.edge = &(last_node.edges[j]); 
+                					pre_dfs.prev = prev_dfs;
+                					projection_map_backward[dfs_code].push_back(pre_dfs);		
+                				}
+                			}
+                		}
+                	}
+                
+                	void GSpan::get_first_forward(const struct pre_dfs_t *prev_dfs, const std::vector<uint32_t>& right_most_path, const History *p_history,
+                			ProjectionMapForward& projection_map_forward, uint32_t min_label)
+       99568 -> 	{
+                		const struct edge_t *last_edge = p_history->get_edge(right_most_path[0]);
+                
+                		const Graph& graph = _m_graphs[prev_dfs->id];
+                		const struct vertex_t& last_node = graph.get_vertex(last_edge->to);
+                
+                		for (size_t i = 0; i < (last_node.edges).size(); ++i) {
+                			const struct edge_t *edge = &(last_node.edges[i]);
+                			const struct vertex_t& to_node = graph.get_vertex(edge->to);
+                
+                			//partial pruning: if this label is less than the minimum label, then there
+                			//should exist another lexicographical order which renders the same letters, but
+                			//in the asecending order
+                
+                			//question: can we perform the same partial pruning as other extending methods?
+                			//no, we cannot, for this time, the extending id is greater the the last node
+                			if (p_history->has_vertice(edge->to) || to_node.label < min_label)
+                				continue;
+                
+                			uint32_t to_id = _m_dfs_codes[right_most_path[0]].to;
+                			struct dfs_code_t dfs_code;
+                
+                			dfs_code.from = to_id;
+                			dfs_code.to = to_id + 1;
+                			dfs_code.from_label = last_node.label;
+                			dfs_code.to_label = to_node.label;
+                			dfs_code.edge_label = edge->label;
+                
+                			struct pre_dfs_t pre_dfs;
+                			pre_dfs.id = graph.get_id();
+                			pre_dfs.edge = edge; 
+                			pre_dfs.prev = prev_dfs;
+                
+                #ifdef	DEBUG
+                			printf("size %zu\n", projection_map_forward[dfs_code].size());
+                #endif
+                			projection_map_forward[dfs_code].push_back(pre_dfs);		
+                		}
+                	}
+                
+                	void GSpan::get_other_forward(const struct pre_dfs_t *prev_dfs, const std::vector<uint32_t>& right_most_path, const History *p_history,
+                			ProjectionMapForward& projection_map_forward, uint32_t min_label)
+       99568 -> 	{
+                		const Graph& graph = _m_graphs[prev_dfs->id];
+                
+                		for (size_t i = 0; i < right_most_path.size(); ++i) {
+                			const struct edge_t *cur_edge = p_history->get_edge(right_most_path[i]);
+                			const struct vertex_t& cur_node = graph.get_vertex(cur_edge->from);
+                			const struct vertex_t& cur_to = graph.get_vertex(cur_edge->to);
+                
+                			for (size_t j = 0; j < cur_node.edges.size(); ++j) {
+                				const struct vertex_t& to_node = graph.get_vertex(cur_node.edges[j].to);
+                
+                				//another partial pruning, guarantees that extending label is greater 
+                				//than the minimum one
+                				if (to_node.id == cur_to.id || 
+                						p_history->has_vertice(to_node.id) || to_node.label < min_label)
+                					continue;
+                
+                				if (cur_edge->label < cur_node.edges[j].label ||
+                						(cur_edge->label == cur_node.edges[j].label && 
+                						 cur_to.label <= to_node.label)) {
+                
+                					uint32_t from_id = _m_dfs_codes[right_most_path[i]].from;
+                					uint32_t to_id = _m_dfs_codes[right_most_path[0]].to;
+                					struct dfs_code_t dfs_code;
+                
+                					dfs_code.from = from_id;
+                					dfs_code.to = to_id + 1;
+                					dfs_code.from_label = cur_node.label;
+                					dfs_code.edge_label = cur_node.edges[j].label;
+                					dfs_code.to_label = to_node.label;
+                
+                					struct pre_dfs_t pre_dfs;
+                					pre_dfs.id = graph.get_id();
+                					pre_dfs.edge = &(cur_node.edges[j]); 
+                					pre_dfs.prev = prev_dfs;
+                					projection_map_forward[dfs_code].push_back(pre_dfs);		
+                				}
+                			}
+                		}
+                	}
+                }//namespace gspan
+
+
+Top 10 Lines:
+
+     Line      Count
+
+       85      99568
+      129      99568
+      171      99568
+       69       8307
+        7        491
+       21         68
+
+Execution Summary:
+
+        6   Executable lines in this file
+        6   Lines executed
+   100.00   Percent of the file executed
+
+   307570   Total number of line executions
+ 51261.67   Average executions per line
+
+
+*** File /home/rzhou/Codes/gSpan/src/gspan_mining.cc:
+                #include <map>
+                #include "gspan.h"
+                #include "database.h"
+                
+                namespace gspan {
+                	GSpanReturnCode GSpan::find_frequent_nodes() 
+           1 -> 	{
+                		DataBase *database = DataBase::get_instance();
+                		_m_graphs = database->get_graph();
+                
+                		std::map<uint32_t, uint32_t> labels;
+                
+                		for (size_t i = 0; i < _m_graphs.size(); ++i) {
+                			std::set<uint32_t> s;
+                			for (size_t j = 0; j < _m_graphs[i].size(); ++j) {
+                				const struct vertex_t& vertex = _m_graphs[i].get_vertex(j);	
+                				s.insert(vertex.label);	
+                			}
+                
+                			for (std::set<uint32_t>::iterator it = s.begin(); it != s.end(); ++it) {
+                				++labels[*it];
+                			}
+                		}
+                
+                		for (std::map<uint32_t, uint32_t>::iterator it = labels.begin(); it != labels.end(); ++it) {
+                			if (it->second >= _m_nsupport) {
+                				_m_frequent_labels.insert(std::make_pair(it->first, it->second));
+                			}
+                		}
+                
+                		return GSPAN_SUCCESS;
+                	}
+                
+                	GSpanReturnCode GSpan::reconstruct(Input& input)
+           1 -> 	{
+                		Graph graph;
+                		Vertice vertice;
+                		std::vector<uint32_t> labels;
+                		std::map<uint32_t, uint32_t> id_map;
+                
+                		DataBase *database = DataBase::get_instance();
+                		database->clear();
+                
+                		uint32_t graph_idx = 0;
+                		uint32_t edge_id = 0;
+                		uint32_t vertex_id = 0;
+                
+                		for (size_t i = 0; i < input.size(); ++i) {
+                			if (input[i][0] == "t") {
+                				if (i != 0) {
+                					graph.set_nedges(edge_id);
+                					graph.set_vertice(vertice);
+                					edge_id = 0;
+                					vertex_id = 0;
+                					database->push_graph(graph);	
+                					graph.clear();
+                					vertice.clear();
+                					labels.clear();
+                					id_map.clear();
+                				}
+                
+                				char indicator, seperator;
+                				uint32_t idx;
+                				indicator = input[i][0][0];
+                				seperator = input[i][1][0];
+                				sscanf(input[i][2].c_str(), "%u", &idx);
+                
+                				if (graph_idx != idx) {
+                					fprintf(stderr, "reading input warning! %u %u\n", graph_idx, idx);	
+                				}
+                				graph.set_id(idx);
+                
+                				++graph_idx;
+                			} else if (input[i][0] == "v") {
+                				char indicator;
+                				uint32_t id, label;
+                				indicator = input[i][0][0];
+                				sscanf(input[i][1].c_str(), "%u", &id);
+                				sscanf(input[i][2].c_str(), "%u", &label);
+                
+                				struct vertex_t vertex;
+                				labels.push_back(label);
+                
+                				if (_m_frequent_labels.find(label) != _m_frequent_labels.end()) {
+                					vertex.label = label;	
+                					vertex.id = vertex_id;
+                					vertice.push_back(vertex);
+                					id_map[id] = vertex_id;
+                					++vertex_id;
+                				}
+                			} else if (input[i][0] == "e") {
+                				char indicator;
+                				uint32_t from, to, label;
+                				indicator = input[i][0][0];
+                				sscanf(input[i][1].c_str(), "%u", &from);
+                				sscanf(input[i][2].c_str(), "%u", &to);
+                				sscanf(input[i][3].c_str(), "%u", &label);
+                				//debug
+                				//printf("edge label %u\n", label);
+                
+                				uint32_t label_from = labels[from];
+                				uint32_t label_to = labels[to];
+                
+                				if (_m_frequent_labels.find(label_from) == _m_frequent_labels.end() ||
+                						_m_frequent_labels.find(label_to) == _m_frequent_labels.end())
+                					continue;
+                
+                				struct edge_t edge;
+                				edge.from = id_map[from];
+                				edge.to = id_map[to];
+                				edge.label = label;
+                				edge.id = edge_id;
+                				++edge_id;
+                
+                				//first edge
+                				vertice[id_map[from]].edges.push_back(edge);
+                
+                				//second edge
+                				edge.from = id_map[to];
+                				edge.to = id_map[from];
+                				vertice[id_map[to]].edges.push_back(edge);
+                			} else {
+                				fprintf(stderr, "reading input warning!");	
+                			}
+                		}
+                
+                		graph.set_vertice(vertice);
+                		database->push_graph(graph);	
+                
+                		return GSPAN_SUCCESS;
+                	}
+                
+                	GSpanReturnCode GSpan::project() 
+           1 -> 	{
+                		//Notice: the original graph has not been reconstructed!!!
+                		//one optimization point
+                		ProjectionMap projection_map;
+                
+                		//construct the first edge
+                		for (size_t i = 0; i < _m_graphs.size(); ++i) {
+                			const Graph& graph = _m_graphs[i];
+                			for (size_t j = 0; j < graph.size(); ++j) {
+                				const struct vertex_t& vertex = graph.get_vertex(j);	
+                
+                				Edges edges;	
+                				if (get_forward_init(vertex, graph, edges)) {
+                					for (size_t k = 0; k < edges.size(); ++k) {
+                						struct dfs_code_t dfs_code;
+                						//push dfs code according to the same edge label
+                						const struct vertex_t& vertex_from = graph.get_vertex(edges[k]->from);
+                						dfs_code.from_label = vertex_from.label;
+                						dfs_code.from = 0;
+                
+                						dfs_code.edge_label = edges[k]->label;
+                
+                						const struct vertex_t& vertex_to = graph.get_vertex(edges[k]->to);
+                						dfs_code.to = 1;
+                						dfs_code.to_label = vertex_to.label;
+                
+                						//push_back all the graphs
+                						struct pre_dfs_t pre_dfs;
+                						pre_dfs.id = _m_graphs[i].get_id();
+                						pre_dfs.edge = edges[k];
+                						pre_dfs.prev = NULL;
+                
+                						projection_map[dfs_code].push_back(pre_dfs);
+                					}
+                				}
+                			}
+                		}	
+                
+                		//start sub graph mining
+                		int32_t prev_label = -1;
+                		for (ProjectionMap::reverse_iterator it = projection_map.rbegin(); it != projection_map.rend(); ++it) {
+                			if (prev_label != (it->first).from_label) {
+                				prev_label = (it->first).from_label;
+                				uint32_t nsupport = _m_frequent_labels[prev_label];
+                
+                				report(prev_label, nsupport);
+                			}
+                
+                			//another parital pruneing, like apriori
+                			if ((it->second).size() < _m_nsupport)
+                				continue;
+                
+                			_m_dfs_codes.push_back((struct dfs_code_t)
+                					{0, 1, (it->first).from_label, (it->first).edge_label, (it->first).to_label});
+                
+                	//		if ((it->second)[0].id != 0) {
+                	//			uint32_t aa = 0;
+                	//			uint32_t bb = 0;
+                	//			uint32_t cc = 0;
+                	//		}
+                			subgraph_mining(it->second);
+                
+                			_m_dfs_codes.pop_back();		
+                		}
+                
+                		return GSPAN_SUCCESS;
+                	}
+                
+                	GSpanReturnCode GSpan::subgraph_mining(Projection& projection)
+           7 -> 	{
+                		uint32_t nsupport = counting_support(projection);
+                		if (nsupport < _m_nsupport) 
+                			return GSPAN_SUCCESS;
+                
+                		//debug
+                		bool flag = is_min();
+                		if (!flag)
+                			return GSPAN_SUCCESS;
+                
+                		report(nsupport);
+                #ifdef DEBUG
+                		printf("subgraph_mining here0\n");
+                #endif
+                		std::vector<uint32_t> right_most_path;
+                		build_right_most_path(_m_dfs_codes, right_most_path);
+                
+                		uint32_t min_label = _m_dfs_codes[0].from_label;
+                		//enumerate backward paths and forward paths by different rules
+                		//
+                #ifdef DEBUG
+                		printf("subgraph_mining here1\n");
+                #endif
+                		ProjectionMapBackward projection_map_backward;
+                		ProjectionMapForward projection_map_forward;
+                		enumerate(projection, right_most_path, projection_map_backward, 
+                				projection_map_forward, min_label);
+                #ifdef DEBUG
+                		printf("subgraph_mining here2\n");
+                #endif
+                
+                		//recursive mining according to the paper, 
+                		//which should be in the order of the first backward to the last backward,
+                		//and then followed by the last forward to the first forward
+                		
+                		for (ProjectionMapBackward::iterator it = projection_map_backward.begin();
+                				it != projection_map_backward.end(); ++it) {
+                			_m_dfs_codes.push_back((struct dfs_code_t)
+                					{(it->first).from, (it->first).to, (it->first).from_label, (it->first).edge_label, (it->first).to_label});
+                			subgraph_mining(it->second);
+                			_m_dfs_codes.pop_back();
+                		}	
+                
+                		for (ProjectionMapForward::reverse_iterator it = projection_map_forward.rbegin();
+                				it != projection_map_forward.rend(); ++it) {
+                			_m_dfs_codes.push_back((struct dfs_code_t) 
+                					{(it->first).from, (it->first).to, (it->first).from_label, (it->first).edge_label, (it->first).to_label});
+                			subgraph_mining(it->second);
+                			_m_dfs_codes.pop_back();
+                		}
+                		
+                		return GSPAN_SUCCESS;
+                	}
+                
+                	void GSpan::report(uint32_t label, uint32_t nsupport)
+           6 -> 	{
+                		printf("t # %u * %u\n", _m_report_idx, nsupport);
+                		++_m_report_idx;
+                
+                		printf("v 0 %u\n", label);
+                		printf("\n");
+                	}
+                
+                	void GSpan::report(uint32_t nsupport)
+          68 -> 	{
+                		printf("t # %u * %u\n", _m_report_idx, nsupport);
+                		++_m_report_idx;
+                
+                		Graph graph;
+                		build_graph(graph);
+                		
+                		for (size_t i = 0; i < graph.size(); ++i) {
+                			const struct vertex_t& vertex = graph.get_vertex(i);
+                			printf("v %u %u\n", vertex.id, vertex.label);
+                		}
+                
+                		for (size_t i = 0; i < _m_dfs_codes.size(); ++i) {
+                			printf("e %u %u %u\n", _m_dfs_codes[i].from, _m_dfs_codes[i].to, 
+                				_m_dfs_codes[i].edge_label);
+                		}
+                
+                		printf("\n");
+                	}
+                } // namespace gspan
+
+
+Top 10 Lines:
+
+     Line      Count
+
+      267         68
+      203          7
+      258          6
+        7          1
+       35          1
+      134          1
+
+Execution Summary:
+
+        6   Executable lines in this file
+        6   Lines executed
+   100.00   Percent of the file executed
+
+       84   Total number of line executions
+    14.00   Average executions per line
+
+
+*** File /home/rzhou/Codes/gSpan/src/gspan_count.cc:
+                #include <algorithm>
+                #include "gspan.h"
+                #include "history.h"
+                
+                namespace gspan {
+                	uint32_t GSpan::counting_support(const Projection& projection)
+         334 -> 	{
+                		int32_t prev_id = -1;
+                		uint32_t size = 0;
+                
+                		for (size_t i = 0; i < projection.size(); ++i) {
+                			if (prev_id != projection[i].id) {
+                				prev_id = projection[i].id;
+                				++size;
+                			} else {
+                				//do nothing
+                			}
+                		}
+                
+                		return size;
+                	}
+                
+                	void GSpan::build_graph(Graph& graph)
+         170 -> 	{
+                		uint32_t edge_id = 0;
+                		Vertice vertice;
+                
+                		for (size_t i = 0; i < _m_dfs_codes.size(); ++i) {
+                			//debug
+                			//printf("%u %u here0\n", _m_dfs_codes[i].from, _m_dfs_codes[i].to);
+                			vertice.resize(std::max(static_cast<size_t>(_m_dfs_codes[i].from + 1), 
+                						vertice.size()));
+                			vertice.resize(std::max(static_cast<size_t>(_m_dfs_codes[i].to + 1),
+                					   	vertice.size()));
+                
+                			//debug
+                			//printf("%u %u here1\n", _m_dfs_codes[i].from, _m_dfs_codes[i].to);
+                
+                			vertice[_m_dfs_codes[i].from].label = _m_dfs_codes[i].from_label;
+                			vertice[_m_dfs_codes[i].from].id = _m_dfs_codes[i].from;
+                			vertice[_m_dfs_codes[i].to].label = _m_dfs_codes[i].to_label;
+                			vertice[_m_dfs_codes[i].to].id = _m_dfs_codes[i].to;
+                
+                			//debug
+                			//printf("%u %u here2\n", _m_dfs_codes[i].from, _m_dfs_codes[i].to);
+                			struct edge_t edge;
+                			edge.from = _m_dfs_codes[i].from;
+                			edge.to = _m_dfs_codes[i].to;
+                			edge.label = _m_dfs_codes[i].edge_label;
+                			edge.id = edge_id;
+                			++edge_id;
+                			//debug
+                			//printf("%u %u here3\n", edge.from, edge.to);
+                
+                			vertice[edge.from].edges.push_back(edge);
+                
+                			//debug
+                			//printf("%u %u here4\n", _m_dfs_codes[i].from, _m_dfs_codes[i].to);
+                			//second edge
+                			edge.from = _m_dfs_codes[i].to;
+                			edge.to = _m_dfs_codes[i].from;
+                			//please change it, very tricky
+                			vertice[edge.from].edges.push_back(edge);
+                			//debug
+                			//printf("%u %u here5\n", _m_dfs_codes[i].from, _m_dfs_codes[i].to);
+                		}
+                
+                		graph.set_nedges(edge_id);
+                		graph.set_vertice(vertice);
+                	}
+                
+                	bool GSpan::is_min()
+         108 -> 	{
+                		//debug
+                #ifdef DEBUG
+                		printf("is_min size %zu\n", _m_dfs_codes.size());
+                #endif
+                
+                		if (_m_dfs_codes.size() == 1)
+                			return true;
+                
+                		_m_min_graph.clear();
+                
+                #ifdef DEBUG
+                		printf("is_min here0\n");
+                #endif
+                		build_graph(_m_min_graph);
+                
+                		_m_min_dfs_codes.clear();
+                		ProjectionMap projection_map;
+                
+                		for (size_t j = 0; j < _m_min_graph.size(); ++j) {
+                			const struct vertex_t& vertex = _m_min_graph.get_vertex(j);	
+                			Edges edges;	
+                
+                			if (get_forward_init(vertex, _m_min_graph, edges)) {
+                				for (size_t k = 0; k < edges.size(); ++k) {
+                					struct dfs_code_t dfs_code;
+                					//push dfs code according to the same edge label
+                					const struct vertex_t& vertex_from = _m_min_graph.get_vertex(edges[k]->from);
+                					dfs_code.from_label = vertex_from.label;
+                					dfs_code.from = 0;
+                
+                					dfs_code.edge_label = edges[k]->label;
+                
+                					const struct vertex_t& vertex_to = _m_min_graph.get_vertex(edges[k]->to);
+                					dfs_code.to = 1;
+                					dfs_code.to_label = vertex_to.label;
+                
+                					//push_back all the graphs
+                					struct pre_dfs_t pre_dfs;
+                					pre_dfs.id = 0;
+                					pre_dfs.edge = edges[k];
+                					pre_dfs.prev = NULL;
+                
+                					projection_map[dfs_code].push_back(pre_dfs);
+                				}
+                			}
+                		}
+                
+                
+                		ProjectionMap::iterator it = projection_map.begin();
+                		_m_min_dfs_codes.push_back((struct dfs_code_t) {0, 1, 
+                				(it->first).from_label, (it->first).edge_label, (it->first).to_label});
+                
+                		if (_m_dfs_codes[_m_min_dfs_codes.size() - 1] != _m_min_dfs_codes[_m_min_dfs_codes.size() - 1])
+                			return false;
+                
+                		return projection_min(it->second);
+                	}
+                
+                	bool GSpan::judge_backward(const std::vector<uint32_t>& right_most_path, const Projection& projection, 
+                			ProjectionMapBackward& projection_map_backward, uint32_t min_label)
+         423 -> 	{
+                		// i > 1, because it cannot reach the path itself
+                		for (size_t i = right_most_path.size(); i > 1; --i) {
+                			for (size_t j = 0; j < projection.size(); ++j) {
+                				History *p_history = new History(&(projection[j]), _m_min_graph);
+                				p_history->build();
+                
+                				const struct edge_t *last_edge = p_history->get_edge(right_most_path[0]);
+                				const struct vertex_t& last_node = _m_min_graph.get_vertex(last_edge->to);
+                
+                				const struct edge_t *edge = p_history->get_edge(right_most_path[i - 1]);
+                				const struct vertex_t& to_node = _m_min_graph.get_vertex(edge->to);
+                				const struct vertex_t& from_node = _m_min_graph.get_vertex(edge->from);
+                
+                				for (size_t k = 0; k < last_node.edges.size(); ++k) {
+                					if (p_history->has_edges(last_node.edges[k].id))
+                						continue;
+                
+                					if (!p_history->has_vertice(last_node.edges[k].to))
+                						continue;
+                
+                					if (last_node.edges[k].to == edge->from && 
+                							(last_node.edges[k].label > edge->label ||
+                							 (last_node.edges[k].label == edge->label &&
+                							  last_node.label > to_node.label))) {
+                						uint32_t from_id = _m_min_dfs_codes[right_most_path[0]].to;
+                						uint32_t to_id = _m_min_dfs_codes[right_most_path[i - 1]].from; 
+                
+                						struct dfs_code_t dfs_code;
+                						dfs_code.from = from_id;
+                						dfs_code.to = to_id;
+                						dfs_code.from_label = last_node.label;
+                						dfs_code.to_label = from_node.label;
+                						dfs_code.edge_label = (last_node.edges[k]).label;
+                
+                						struct pre_dfs_t pre_dfs;
+                						pre_dfs.id = 0;
+                						pre_dfs.edge = &(last_node.edges[k]); 
+                						pre_dfs.prev = &(projection[j]);
+                						projection_map_backward[dfs_code].push_back(pre_dfs);		
+                					}
+                				}
+                			}
+                
+                			if (projection_map_backward.size() != 0) 
+                				return true;
+                		}
+                		return false;
+                	}
+                
+                
+                	bool GSpan::judge_forward(const std::vector<uint32_t>& right_most_path, const Projection& projection, 
+                			ProjectionMapForward& projection_map_forward, uint32_t min_label)
+         423 -> 	{
+                		for (size_t i = 0; i < projection.size(); ++i) {
+                			History *p_history = new History(&(projection[i]), _m_min_graph);
+                			p_history->build();
+                
+                			const struct edge_t *last_edge = p_history->get_edge(right_most_path[0]);
+                			const struct vertex_t& last_node = _m_min_graph.get_vertex(last_edge->to);
+                
+                			for (size_t j = 0; j < (last_node.edges).size(); ++j) {
+                				const struct edge_t *edge = &(last_node.edges[j]);
+                				const struct vertex_t& to_node = _m_min_graph.get_vertex(edge->to);
+                
+                				//partial pruning: if this label is less than the minimum label, then there
+                				//should exist another lexicographical order which renders the same letters, but
+                				//in the asecending order
+                
+                				//question: can we perform the same partial pruning as other extending methods?
+                				//no, we cannot, for this time, the extending id is greater the the last node
+                				if (p_history->has_vertice(edge->to) || to_node.label < min_label)
+                					continue;
+                
+                				uint32_t to_id = _m_min_dfs_codes[right_most_path[0]].to;
+                				struct dfs_code_t dfs_code;
+                				dfs_code.from = to_id;
+                				dfs_code.to = to_id + 1;
+                				dfs_code.from_label = last_node.label;
+                				dfs_code.to_label = to_node.label;
+                				dfs_code.edge_label = edge->label;
+                
+                				struct pre_dfs_t pre_dfs;
+                				pre_dfs.id = 0;
+                				pre_dfs.edge = edge; 
+                				pre_dfs.prev = &(projection[i]);
+                				projection_map_forward[dfs_code].push_back(pre_dfs);		
+                			}
+                		}
+                
+                		if (projection_map_forward.size() == 0) {
+                			for (size_t i = 0; i < right_most_path.size(); ++i) {
+                				for (size_t j = 0; j < projection.size(); ++j) {
+                					History *p_history = new History(&(projection[j]), _m_min_graph);
+                					p_history->build();
+                
+                					const struct edge_t *cur_edge = p_history->get_edge(right_most_path[i]);
+                					const struct vertex_t& cur_node = _m_min_graph.get_vertex(cur_edge->from);
+                					const struct vertex_t& cur_to = _m_min_graph.get_vertex(cur_edge->to);
+                
+                					for (size_t k = 0; k < cur_node.edges.size(); ++k) {
+                						const struct vertex_t& to_node = _m_min_graph.get_vertex(cur_node.edges[k].to);
+                
+                						//another partial pruning, guarantees that extending label is greater 
+                						//than the minimum one
+                						if (cur_edge->to == to_node.id ||
+                								p_history->has_vertice(to_node.id) || 
+                								to_node.label < min_label)
+                							continue;
+                
+                						if (cur_edge->label < cur_node.edges[k].label ||
+                								(cur_edge->label == cur_node.edges[k].label && 
+                								 cur_to.label <= to_node.label)) {
+                							uint32_t from_id = _m_min_dfs_codes[right_most_path[i]].from;
+                							uint32_t to_id = _m_min_dfs_codes[right_most_path[0]].to;
+                							struct dfs_code_t dfs_code;
+                
+                							dfs_code.from = from_id;
+                							dfs_code.to = to_id + 1;
+                							dfs_code.from_label = cur_node.label;
+                							dfs_code.edge_label = cur_node.edges[k].label;
+                							dfs_code.to_label = to_node.label;
+                
+                							struct pre_dfs_t pre_dfs;
+                							pre_dfs.id = 0;
+                							pre_dfs.edge = &(cur_node.edges[k]); 
+                							pre_dfs.prev = &(projection[j]);
+                							projection_map_forward[dfs_code].push_back(pre_dfs);		
+                						}
+                					}
+                				}
+                
+                				if (projection_map_forward.size() != 0)
+                					break;
+                			}
+                		}
+                
+                		if (projection_map_forward.size() != 0)
+                			return true;
+                		else
+                			return false;
+                	}
+                
+                	bool GSpan::projection_min(const Projection& projection)
+          93 -> 	{
+                		std::vector<uint32_t> right_most_path;
+                		build_right_most_path(_m_min_dfs_codes, right_most_path);
+                
+                
+                		ProjectionMapBackward projection_map_backward;
+                
+                		uint32_t min_label = _m_min_dfs_codes[0].from_label;
+                
+                		if (judge_backward(right_most_path, projection, projection_map_backward, min_label)) {
+                			ProjectionMapBackward::iterator it = projection_map_backward.begin();	
+                
+                			_m_min_dfs_codes.push_back((struct dfs_code_t) {(it->first).from, (it->first).to, 
+                					(it->first).from_label, (it->first).edge_label, (it->first).to_label});
+                
+                			if (_m_dfs_codes[_m_min_dfs_codes.size() - 1] != _m_min_dfs_codes[_m_min_dfs_codes.size() - 1])
+                				return false;
+                
+                			return projection_min(it->second);
+                		}
+                
+                		ProjectionMapForward projection_map_forward;
+                
+                		if (judge_forward(right_most_path, projection, projection_map_forward, min_label)) {
+                			ProjectionMapForward::iterator it = projection_map_forward.begin();
+                
+                			_m_min_dfs_codes.push_back((struct dfs_code_t) {(it->first).from, (it->first).to, 
+                					(it->first).from_label, (it->first).edge_label, (it->first).to_label});
+                
+                			if (_m_dfs_codes[_m_min_dfs_codes.size() - 1] != _m_min_dfs_codes[_m_min_dfs_codes.size() - 1])
+                				return false;
+                
+                			return projection_min(it->second);
+                		}
+                
+                		return true;
+                	}
+                }
+
+
+Top 10 Lines:
+
+     Line      Count
+
+      134        423
+      187        423
+        7        334
+       24        170
+       73        108
+      278         93
+
+Execution Summary:
+
+        6   Executable lines in this file
+        6   Lines executed
+   100.00   Percent of the file executed
+
+     1551   Total number of line executions
+   258.50   Average executions per line
+
+
+*** File /usr/include/c++/4.8/bits/stl_tree.h:
+                // RB tree implementation -*- C++ -*-
+                
+                // Copyright (C) 2001-2013 Free Software Foundation, Inc.
+                //
+                // This file is part of the GNU ISO C++ Library.  This library is free
+                // software; you can redistribute it and/or modify it under the
+                // terms of the GNU General Public License as published by the
+                // Free Software Foundation; either version 3, or (at your option)
+                // any later version.
+                
+                // This library is distributed in the hope that it will be useful,
+                // but WITHOUT ANY WARRANTY; without even the implied warranty of
+                // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+                // GNU General Public License for more details.
+                
+                // Under Section 7 of GPL version 3, you are granted additional
+                // permissions described in the GCC Runtime Library Exception, version
+                // 3.1, as published by the Free Software Foundation.
+                
+                // You should have received a copy of the GNU General Public License and
+                // a copy of the GCC Runtime Library Exception along with this program;
+                // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+                // <http://www.gnu.org/licenses/>.
+                
+                /*
+                 *
+                 * Copyright (c) 1996,1997
+                 * Silicon Graphics Computer Systems, Inc.
+                 *
+                 * Permission to use, copy, modify, distribute and sell this software
+                 * and its documentation for any purpose is hereby granted without fee,
+                 * provided that the above copyright notice appear in all copies and
+                 * that both that copyright notice and this permission notice appear
+                 * in supporting documentation.  Silicon Graphics makes no
+                 * representations about the suitability of this software for any
+                 * purpose.  It is provided "as is" without express or implied warranty.
+                 *
+                 *
+                 * Copyright (c) 1994
+                 * Hewlett-Packard Company
+                 *
+                 * Permission to use, copy, modify, distribute and sell this software
+                 * and its documentation for any purpose is hereby granted without fee,
+                 * provided that the above copyright notice appear in all copies and
+                 * that both that copyright notice and this permission notice appear
+                 * in supporting documentation.  Hewlett-Packard Company makes no
+                 * representations about the suitability of this software for any
+                 * purpose.  It is provided "as is" without express or implied warranty.
+                 *
+                 *
+                 */
+                
+                /** @file bits/stl_tree.h
+                 *  This is an internal header file, included by other library headers.
+                 *  Do not attempt to use it directly. @headername{map,set}
+                 */
+                
+                #ifndef _STL_TREE_H
+                #define _STL_TREE_H 1
+                
+                #include <bits/stl_algobase.h>
+                #include <bits/allocator.h>
+                #include <bits/stl_function.h>
+                #include <bits/cpp_type_traits.h>
+                #if __cplusplus >= 201103L
+                #include <bits/alloc_traits.h>
+                #endif
+                
+                namespace std _GLIBCXX_VISIBILITY(default)
+                {
+                _GLIBCXX_BEGIN_NAMESPACE_VERSION
+                
+                  // Red-black tree class, designed for use in implementing STL
+                  // associative containers (set, multiset, map, and multimap). The
+                  // insertion and deletion algorithms are based on those in Cormen,
+                  // Leiserson, and Rivest, Introduction to Algorithms (MIT Press,
+                  // 1990), except that
+                  //
+                  // (1) the header cell is maintained with links not only to the root
+                  // but also to the leftmost node of the tree, to enable constant
+                  // time begin(), and to the rightmost node of the tree, to enable
+                  // linear time performance when used with the generic set algorithms
+                  // (set_union, etc.)
+                  // 
+                  // (2) when a node being deleted has two children its successor node
+                  // is relinked into its place, rather than copied, so that the only
+                  // iterators invalidated are those referring to the deleted node.
+                
+                  enum _Rb_tree_color { _S_red = false, _S_black = true };
+                
+                  struct _Rb_tree_node_base
+                  {
+                    typedef _Rb_tree_node_base* _Base_ptr;
+                    typedef const _Rb_tree_node_base* _Const_Base_ptr;
+                
+                    _Rb_tree_color	_M_color;
+                    _Base_ptr		_M_parent;
+                    _Base_ptr		_M_left;
+                    _Base_ptr		_M_right;
+                
+                    static _Base_ptr
+                    _S_minimum(_Base_ptr __x)
+                    {
+                      while (__x->_M_left != 0) __x = __x->_M_left;
+                      return __x;
+                    }
+                
+                    static _Const_Base_ptr
+                    _S_minimum(_Const_Base_ptr __x)
+                    {
+                      while (__x->_M_left != 0) __x = __x->_M_left;
+                      return __x;
+                    }
+                
+                    static _Base_ptr
+                    _S_maximum(_Base_ptr __x)
+                    {
+                      while (__x->_M_right != 0) __x = __x->_M_right;
+                      return __x;
+                    }
+                
+                    static _Const_Base_ptr
+                    _S_maximum(_Const_Base_ptr __x)
+                    {
+                      while (__x->_M_right != 0) __x = __x->_M_right;
+                      return __x;
+                    }
+                  };
+                
+                  template<typename _Val>
+                    struct _Rb_tree_node : public _Rb_tree_node_base
+                    {
+                      typedef _Rb_tree_node<_Val>* _Link_type;
+                      _Val _M_value_field;
+                
+                #if __cplusplus >= 201103L
+                      template<typename... _Args>
+                        _Rb_tree_node(_Args&&... __args)
+                	: _Rb_tree_node_base(),
+                	  _M_value_field(std::forward<_Args>(__args)...) { }
+                #endif
+                    };
+                
+                  _GLIBCXX_PURE _Rb_tree_node_base*
+                  _Rb_tree_increment(_Rb_tree_node_base* __x) throw ();
+                
+                  _GLIBCXX_PURE const _Rb_tree_node_base*
+                  _Rb_tree_increment(const _Rb_tree_node_base* __x) throw ();
+                
+                  _GLIBCXX_PURE _Rb_tree_node_base*
+                  _Rb_tree_decrement(_Rb_tree_node_base* __x) throw ();
+                
+                  _GLIBCXX_PURE const _Rb_tree_node_base*
+                  _Rb_tree_decrement(const _Rb_tree_node_base* __x) throw ();
+                
+                  template<typename _Tp>
+                    struct _Rb_tree_iterator
+                    {
+                      typedef _Tp  value_type;
+                      typedef _Tp& reference;
+                      typedef _Tp* pointer;
+                
+                      typedef bidirectional_iterator_tag iterator_category;
+                      typedef ptrdiff_t                  difference_type;
+                
+                      typedef _Rb_tree_iterator<_Tp>        _Self;
+                      typedef _Rb_tree_node_base::_Base_ptr _Base_ptr;
+                      typedef _Rb_tree_node<_Tp>*           _Link_type;
+                
+                      _Rb_tree_iterator()
+                      : _M_node() { }
+                
+                      explicit
+                      _Rb_tree_iterator(_Link_type __x)
+                      : _M_node(__x) { }
+                
+                      reference
+                      operator*() const
+                      { return static_cast<_Link_type>(_M_node)->_M_value_field; }
+                
+                      pointer
+                      operator->() const
+                      { return std::__addressof(static_cast<_Link_type>
+                				(_M_node)->_M_value_field); }
+                
+                      _Self&
+                      operator++()
+                      {
+                	_M_node = _Rb_tree_increment(_M_node);
+                	return *this;
+                      }
+                
+                      _Self
+                      operator++(int)
+                      {
+                	_Self __tmp = *this;
+                	_M_node = _Rb_tree_increment(_M_node);
+                	return __tmp;
+                      }
+                
+                      _Self&
+                      operator--()
+                      {
+                	_M_node = _Rb_tree_decrement(_M_node);
+                	return *this;
+                      }
+                
+                      _Self
+                      operator--(int)
+                      {
+                	_Self __tmp = *this;
+                	_M_node = _Rb_tree_decrement(_M_node);
+                	return __tmp;
+                      }
+                
+                      bool
+                      operator==(const _Self& __x) const
+                      { return _M_node == __x._M_node; }
+                
+                      bool
+                      operator!=(const _Self& __x) const
+                      { return _M_node != __x._M_node; }
+                
+                      _Base_ptr _M_node;
+                  };
+                
+                  template<typename _Tp>
+                    struct _Rb_tree_const_iterator
+                    {
+                      typedef _Tp        value_type;
+                      typedef const _Tp& reference;
+                      typedef const _Tp* pointer;
+                
+                      typedef _Rb_tree_iterator<_Tp> iterator;
+                
+                      typedef bidirectional_iterator_tag iterator_category;
+                      typedef ptrdiff_t                  difference_type;
+                
+                      typedef _Rb_tree_const_iterator<_Tp>        _Self;
+                      typedef _Rb_tree_node_base::_Const_Base_ptr _Base_ptr;
+                      typedef const _Rb_tree_node<_Tp>*           _Link_type;
+                
+                      _Rb_tree_const_iterator()
+                      : _M_node() { }
+                
+                      explicit
+                      _Rb_tree_const_iterator(_Link_type __x)
+                      : _M_node(__x) { }
+                
+                      _Rb_tree_const_iterator(const iterator& __it)
+                      : _M_node(__it._M_node) { }
+                
+                      iterator
+                      _M_const_cast() const
+                      { return iterator(static_cast<typename iterator::_Link_type>
+                			(const_cast<typename iterator::_Base_ptr>(_M_node))); }
+                
+                      reference
+                      operator*() const
+                      { return static_cast<_Link_type>(_M_node)->_M_value_field; }
+                
+                      pointer
+                      operator->() const
+                      { return std::__addressof(static_cast<_Link_type>
+                				(_M_node)->_M_value_field); }
+                
+                      _Self&
+                      operator++()
+                      {
+                	_M_node = _Rb_tree_increment(_M_node);
+                	return *this;
+                      }
+                
+                      _Self
+                      operator++(int)
+                      {
+                	_Self __tmp = *this;
+                	_M_node = _Rb_tree_increment(_M_node);
+                	return __tmp;
+                      }
+                
+                      _Self&
+                      operator--()
+                      {
+                	_M_node = _Rb_tree_decrement(_M_node);
+                	return *this;
+                      }
+                
+                      _Self
+                      operator--(int)
+                      {
+                	_Self __tmp = *this;
+                	_M_node = _Rb_tree_decrement(_M_node);
+                	return __tmp;
+                      }
+                
+                      bool
+                      operator==(const _Self& __x) const
+                      { return _M_node == __x._M_node; }
+                
+                      bool
+                      operator!=(const _Self& __x) const
+                      { return _M_node != __x._M_node; }
+                
+                      _Base_ptr _M_node;
+                    };
+                
+                  template<typename _Val>
+                    inline bool
+                    operator==(const _Rb_tree_iterator<_Val>& __x,
+                               const _Rb_tree_const_iterator<_Val>& __y)
+                    { return __x._M_node == __y._M_node; }
+                
+                  template<typename _Val>
+                    inline bool
+                    operator!=(const _Rb_tree_iterator<_Val>& __x,
+                               const _Rb_tree_const_iterator<_Val>& __y)
+                    { return __x._M_node != __y._M_node; }
+                
+                  void
+                  _Rb_tree_insert_and_rebalance(const bool __insert_left,
+                                                _Rb_tree_node_base* __x,
+                                                _Rb_tree_node_base* __p,
+                                                _Rb_tree_node_base& __header) throw ();
+                
+                  _Rb_tree_node_base*
+                  _Rb_tree_rebalance_for_erase(_Rb_tree_node_base* const __z,
+                			       _Rb_tree_node_base& __header) throw ();
+                
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc = allocator<_Val> >
+                    class _Rb_tree
+                    {
+                      typedef typename _Alloc::template rebind<_Rb_tree_node<_Val> >::other
+                              _Node_allocator;
+                
+                    protected:
+                      typedef _Rb_tree_node_base* 		_Base_ptr;
+                      typedef const _Rb_tree_node_base* 	_Const_Base_ptr;
+                
+                    public:
+                      typedef _Key 				key_type;
+                      typedef _Val 				value_type;
+                      typedef value_type* 			pointer;
+                      typedef const value_type* 		const_pointer;
+                      typedef value_type& 			reference;
+                      typedef const value_type& 		const_reference;
+                      typedef _Rb_tree_node<_Val>* 		_Link_type;
+                      typedef const _Rb_tree_node<_Val>*	_Const_Link_type;
+                      typedef size_t 				size_type;
+                      typedef ptrdiff_t 			difference_type;
+                      typedef _Alloc 				allocator_type;
+                
+                      _Node_allocator&
+                      _M_get_Node_allocator() _GLIBCXX_NOEXCEPT
+                      { return *static_cast<_Node_allocator*>(&this->_M_impl); }
+                      
+                      const _Node_allocator&
+                      _M_get_Node_allocator() const _GLIBCXX_NOEXCEPT
+                      { return *static_cast<const _Node_allocator*>(&this->_M_impl); }
+                
+                      allocator_type
+                      get_allocator() const _GLIBCXX_NOEXCEPT
+                      { return allocator_type(_M_get_Node_allocator()); }
+                
+                    protected:
+                      _Link_type
+                      _M_get_node()
+                      { return _M_impl._Node_allocator::allocate(1); }
+                
+                      void
+                      _M_put_node(_Link_type __p)
+                      { _M_impl._Node_allocator::deallocate(__p, 1); }
+                
+                #if __cplusplus < 201103L
+                      _Link_type
+                      _M_create_node(const value_type& __x)
+                      {
+                	_Link_type __tmp = _M_get_node();
+                	__try
+                	  { get_allocator().construct
+                	      (std::__addressof(__tmp->_M_value_field), __x); }
+                	__catch(...)
+                	  {
+                	    _M_put_node(__tmp);
+                	    __throw_exception_again;
+                	  }
+                	return __tmp;
+                      }
+                
+                      void
+                      _M_destroy_node(_Link_type __p)
+                      {
+                	get_allocator().destroy(std::__addressof(__p->_M_value_field));
+                	_M_put_node(__p);
+                      }
+                #else
+                      template<typename... _Args>
+                        _Link_type
+                        _M_create_node(_Args&&... __args)
+                	{
+                	  _Link_type __tmp = _M_get_node();
+                	  __try
+                	    {
+                	      allocator_traits<_Node_allocator>::
+                		construct(_M_get_Node_allocator(), __tmp,
+                			  std::forward<_Args>(__args)...);
+                	    }
+                	  __catch(...)
+                	    {
+                	      _M_put_node(__tmp);
+                	      __throw_exception_again;
+                	    }
+                	  return __tmp;
+                	}
+                
+                      void
+                      _M_destroy_node(_Link_type __p)
+                      {
+                	_M_get_Node_allocator().destroy(__p);
+                	_M_put_node(__p);
+                      }
+                #endif
+                
+                      _Link_type
+                      _M_clone_node(_Const_Link_type __x)
+                      {
+                	_Link_type __tmp = _M_create_node(__x->_M_value_field);
+                	__tmp->_M_color = __x->_M_color;
+                	__tmp->_M_left = 0;
+                	__tmp->_M_right = 0;
+                	return __tmp;
+                      }
+                
+                    protected:
+                      template<typename _Key_compare, 
+                	       bool _Is_pod_comparator = __is_pod(_Key_compare)>
+                        struct _Rb_tree_impl : public _Node_allocator
+                        {
+                	  _Key_compare		_M_key_compare;
+                	  _Rb_tree_node_base 	_M_header;
+                	  size_type 		_M_node_count; // Keeps track of size of tree.
+                
+                	  _Rb_tree_impl()
+                	  : _Node_allocator(), _M_key_compare(), _M_header(),
+                	    _M_node_count(0)
+                	  { _M_initialize(); }
+                
+                	  _Rb_tree_impl(const _Key_compare& __comp, const _Node_allocator& __a)
+                	  : _Node_allocator(__a), _M_key_compare(__comp), _M_header(),
+                	    _M_node_count(0)
+                	  { _M_initialize(); }
+                
+                #if __cplusplus >= 201103L
+                	  _Rb_tree_impl(const _Key_compare& __comp, _Node_allocator&& __a)
+                	  : _Node_allocator(std::move(__a)), _M_key_compare(__comp),
+                	    _M_header(), _M_node_count(0)
+                	  { _M_initialize(); }
+                #endif
+                
+                	private:
+                	  void
+                	  _M_initialize()
+                	  {
+                	    this->_M_header._M_color = _S_red;
+                	    this->_M_header._M_parent = 0;
+                	    this->_M_header._M_left = &this->_M_header;
+                	    this->_M_header._M_right = &this->_M_header;
+                	  }	    
+                	};
+                
+                      _Rb_tree_impl<_Compare> _M_impl;
+                
+                    protected:
+                      _Base_ptr&
+                      _M_root()
+                      { return this->_M_impl._M_header._M_parent; }
+                
+                      _Const_Base_ptr
+                      _M_root() const
+                      { return this->_M_impl._M_header._M_parent; }
+                
+                      _Base_ptr&
+                      _M_leftmost()
+                      { return this->_M_impl._M_header._M_left; }
+                
+                      _Const_Base_ptr
+                      _M_leftmost() const
+                      { return this->_M_impl._M_header._M_left; }
+                
+                      _Base_ptr&
+                      _M_rightmost()
+                      { return this->_M_impl._M_header._M_right; }
+                
+                      _Const_Base_ptr
+                      _M_rightmost() const
+                      { return this->_M_impl._M_header._M_right; }
+                
+                      _Link_type
+                      _M_begin()
+                      { return static_cast<_Link_type>(this->_M_impl._M_header._M_parent); }
+                
+                      _Const_Link_type
+                      _M_begin() const
+                      {
+                	return static_cast<_Const_Link_type>
+                	  (this->_M_impl._M_header._M_parent);
+                      }
+                
+                      _Link_type
+                      _M_end()
+                      { return static_cast<_Link_type>(&this->_M_impl._M_header); }
+                
+                      _Const_Link_type
+                      _M_end() const
+                      { return static_cast<_Const_Link_type>(&this->_M_impl._M_header); }
+                
+                      static const_reference
+                      _S_value(_Const_Link_type __x)
+                      { return __x->_M_value_field; }
+                
+                      static const _Key&
+                      _S_key(_Const_Link_type __x)
+                      { return _KeyOfValue()(_S_value(__x)); }
+                
+                      static _Link_type
+                      _S_left(_Base_ptr __x)
+                      { return static_cast<_Link_type>(__x->_M_left); }
+                
+                      static _Const_Link_type
+                      _S_left(_Const_Base_ptr __x)
+                      { return static_cast<_Const_Link_type>(__x->_M_left); }
+                
+                      static _Link_type
+                      _S_right(_Base_ptr __x)
+                      { return static_cast<_Link_type>(__x->_M_right); }
+                
+                      static _Const_Link_type
+                      _S_right(_Const_Base_ptr __x)
+                      { return static_cast<_Const_Link_type>(__x->_M_right); }
+                
+                      static const_reference
+                      _S_value(_Const_Base_ptr __x)
+                      { return static_cast<_Const_Link_type>(__x)->_M_value_field; }
+                
+                      static const _Key&
+                      _S_key(_Const_Base_ptr __x)
+                      { return _KeyOfValue()(_S_value(__x)); }
+                
+                      static _Base_ptr
+                      _S_minimum(_Base_ptr __x)
+                      { return _Rb_tree_node_base::_S_minimum(__x); }
+                
+                      static _Const_Base_ptr
+                      _S_minimum(_Const_Base_ptr __x)
+                      { return _Rb_tree_node_base::_S_minimum(__x); }
+                
+                      static _Base_ptr
+                      _S_maximum(_Base_ptr __x)
+                      { return _Rb_tree_node_base::_S_maximum(__x); }
+                
+                      static _Const_Base_ptr
+                      _S_maximum(_Const_Base_ptr __x)
+                      { return _Rb_tree_node_base::_S_maximum(__x); }
+                
+                    public:
+                      typedef _Rb_tree_iterator<value_type>       iterator;
+                      typedef _Rb_tree_const_iterator<value_type> const_iterator;
+                
+                      typedef std::reverse_iterator<iterator>       reverse_iterator;
+                      typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+                
+                    private:
+                      pair<_Base_ptr, _Base_ptr>
+                      _M_get_insert_unique_pos(const key_type& __k);
+                
+                      pair<_Base_ptr, _Base_ptr>
+                      _M_get_insert_equal_pos(const key_type& __k);
+                
+                      pair<_Base_ptr, _Base_ptr>
+                      _M_get_insert_hint_unique_pos(const_iterator __pos,
+                				    const key_type& __k);
+                
+                      pair<_Base_ptr, _Base_ptr>
+                      _M_get_insert_hint_equal_pos(const_iterator __pos,
+                				   const key_type& __k);
+                
+                #if __cplusplus >= 201103L
+                      template<typename _Arg>
+                        iterator
+                        _M_insert_(_Base_ptr __x, _Base_ptr __y, _Arg&& __v);
+                
+                      iterator
+                      _M_insert_node(_Base_ptr __x, _Base_ptr __y, _Link_type __z);
+                
+                      template<typename _Arg>
+                        iterator
+                        _M_insert_lower(_Base_ptr __y, _Arg&& __v);
+                
+                      template<typename _Arg>
+                        iterator
+                        _M_insert_equal_lower(_Arg&& __x);
+                
+                      iterator
+                      _M_insert_lower_node(_Base_ptr __p, _Link_type __z);
+                
+                      iterator
+                      _M_insert_equal_lower_node(_Link_type __z);
+                #else
+                      iterator
+                      _M_insert_(_Base_ptr __x, _Base_ptr __y,
+                		 const value_type& __v);
+                
+                      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+                      // 233. Insertion hints in associative containers.
+                      iterator
+                      _M_insert_lower(_Base_ptr __y, const value_type& __v);
+                
+                      iterator
+                      _M_insert_equal_lower(const value_type& __x);
+                #endif
+                
+                      _Link_type
+                      _M_copy(_Const_Link_type __x, _Link_type __p);
+                
+                      void
+                      _M_erase(_Link_type __x);
+                
+                      iterator
+                      _M_lower_bound(_Link_type __x, _Link_type __y,
+                		     const _Key& __k);
+                
+                      const_iterator
+                      _M_lower_bound(_Const_Link_type __x, _Const_Link_type __y,
+                		     const _Key& __k) const;
+                
+                      iterator
+                      _M_upper_bound(_Link_type __x, _Link_type __y,
+                		     const _Key& __k);
+                
+                      const_iterator
+                      _M_upper_bound(_Const_Link_type __x, _Const_Link_type __y,
+                		     const _Key& __k) const;
+                
+                    public:
+                      // allocation/deallocation
+                      _Rb_tree() { }
+                
+                      _Rb_tree(const _Compare& __comp,
+                	       const allocator_type& __a = allocator_type())
+                      : _M_impl(__comp, _Node_allocator(__a)) { }
+                
+                      _Rb_tree(const _Rb_tree& __x)
+                      : _M_impl(__x._M_impl._M_key_compare, __x._M_get_Node_allocator())
+                      {
+                	if (__x._M_root() != 0)
+                	  {
+                	    _M_root() = _M_copy(__x._M_begin(), _M_end());
+                	    _M_leftmost() = _S_minimum(_M_root());
+                	    _M_rightmost() = _S_maximum(_M_root());
+                	    _M_impl._M_node_count = __x._M_impl._M_node_count;
+                	  }
+                      }
+                
+                #if __cplusplus >= 201103L
+                      _Rb_tree(_Rb_tree&& __x);
+                #endif
+                
+                      ~_Rb_tree() _GLIBCXX_NOEXCEPT
+                      { _M_erase(_M_begin()); }
+                
+                      _Rb_tree&
+                      operator=(const _Rb_tree& __x);
+                
+                      // Accessors.
+                      _Compare
+                      key_comp() const
+                      { return _M_impl._M_key_compare; }
+                
+                      iterator
+                      begin() _GLIBCXX_NOEXCEPT
+                      { 
+                	return iterator(static_cast<_Link_type>
+                			(this->_M_impl._M_header._M_left));
+                      }
+                
+                      const_iterator
+                      begin() const _GLIBCXX_NOEXCEPT
+                      { 
+                	return const_iterator(static_cast<_Const_Link_type>
+                			      (this->_M_impl._M_header._M_left));
+                      }
+                
+                      iterator
+                      end() _GLIBCXX_NOEXCEPT
+                      { return iterator(static_cast<_Link_type>(&this->_M_impl._M_header)); }
+                
+                      const_iterator
+                      end() const _GLIBCXX_NOEXCEPT
+                      { 
+                	return const_iterator(static_cast<_Const_Link_type>
+                			      (&this->_M_impl._M_header));
+                      }
+                
+                      reverse_iterator
+                      rbegin() _GLIBCXX_NOEXCEPT
+                      { return reverse_iterator(end()); }
+                
+                      const_reverse_iterator
+                      rbegin() const _GLIBCXX_NOEXCEPT
+                      { return const_reverse_iterator(end()); }
+                
+                      reverse_iterator
+                      rend() _GLIBCXX_NOEXCEPT
+                      { return reverse_iterator(begin()); }
+                
+                      const_reverse_iterator
+                      rend() const _GLIBCXX_NOEXCEPT
+                      { return const_reverse_iterator(begin()); }
+                
+                      bool
+                      empty() const _GLIBCXX_NOEXCEPT
+                      { return _M_impl._M_node_count == 0; }
+                
+                      size_type
+                      size() const _GLIBCXX_NOEXCEPT 
+                      { return _M_impl._M_node_count; }
+                
+                      size_type
+                      max_size() const _GLIBCXX_NOEXCEPT
+                      { return _M_get_Node_allocator().max_size(); }
+                
+                      void
+                      swap(_Rb_tree& __t);      
+                
+                      // Insert/erase.
+                #if __cplusplus >= 201103L
+                      template<typename _Arg>
+                        pair<iterator, bool>
+                        _M_insert_unique(_Arg&& __x);
+                
+                      template<typename _Arg>
+                        iterator
+                        _M_insert_equal(_Arg&& __x);
+                
+                      template<typename _Arg>
+                        iterator
+                        _M_insert_unique_(const_iterator __position, _Arg&& __x);
+                
+                      template<typename _Arg>
+                        iterator
+                        _M_insert_equal_(const_iterator __position, _Arg&& __x);
+                
+                      template<typename... _Args>
+                	pair<iterator, bool>
+                	_M_emplace_unique(_Args&&... __args);
+                
+                      template<typename... _Args>
+                	iterator
+                	_M_emplace_equal(_Args&&... __args);
+                
+                      template<typename... _Args>
+                	iterator
+                	_M_emplace_hint_unique(const_iterator __pos, _Args&&... __args);
+                
+                      template<typename... _Args>
+                	iterator
+                	_M_emplace_hint_equal(const_iterator __pos, _Args&&... __args);
+                #else
+                      pair<iterator, bool>
+                      _M_insert_unique(const value_type& __x);
+                
+                      iterator
+                      _M_insert_equal(const value_type& __x);
+                
+                      iterator
+                      _M_insert_unique_(const_iterator __position, const value_type& __x);
+                
+                      iterator
+                      _M_insert_equal_(const_iterator __position, const value_type& __x);
+                #endif
+                
+                      template<typename _InputIterator>
+                        void
+                        _M_insert_unique(_InputIterator __first, _InputIterator __last);
+                
+                      template<typename _InputIterator>
+                        void
+                        _M_insert_equal(_InputIterator __first, _InputIterator __last);
+                
+                    private:
+                      void
+                      _M_erase_aux(const_iterator __position);
+                
+                      void
+                      _M_erase_aux(const_iterator __first, const_iterator __last);
+                
+                    public:
+                #if __cplusplus >= 201103L
+                      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+                      // DR 130. Associative erase should return an iterator.
+                      _GLIBCXX_ABI_TAG_CXX11
+                      iterator
+                      erase(const_iterator __position)
+                      {
+                	const_iterator __result = __position;
+                	++__result;
+                	_M_erase_aux(__position);
+                	return __result._M_const_cast();
+                      }
+                
+                      // LWG 2059.
+                      _GLIBCXX_ABI_TAG_CXX11
+                      iterator
+                      erase(iterator __position)
+                      {
+                	iterator __result = __position;
+                	++__result;
+                	_M_erase_aux(__position);
+                	return __result;
+                      }
+                #else
+                      void
+                      erase(iterator __position)
+                      { _M_erase_aux(__position); }
+                
+                      void
+                      erase(const_iterator __position)
+                      { _M_erase_aux(__position); }
+                #endif
+                      size_type
+                      erase(const key_type& __x);
+                
+                #if __cplusplus >= 201103L
+                      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+                      // DR 130. Associative erase should return an iterator.
+                      _GLIBCXX_ABI_TAG_CXX11
+                      iterator
+                      erase(const_iterator __first, const_iterator __last)
+                      {
+                	_M_erase_aux(__first, __last);
+                	return __last._M_const_cast();
+                      }
+                #else
+                      void
+                      erase(iterator __first, iterator __last)
+                      { _M_erase_aux(__first, __last); }
+                
+                      void
+                      erase(const_iterator __first, const_iterator __last)
+                      { _M_erase_aux(__first, __last); }
+                #endif
+                      void
+                      erase(const key_type* __first, const key_type* __last);
+                
+                      void
+                      clear() _GLIBCXX_NOEXCEPT
+                      {
+                        _M_erase(_M_begin());
+                        _M_leftmost() = _M_end();
+                        _M_root() = 0;
+                        _M_rightmost() = _M_end();
+                        _M_impl._M_node_count = 0;
+                      }
+                
+                      // Set operations.
+                      iterator
+                      find(const key_type& __k);
+                
+                      const_iterator
+                      find(const key_type& __k) const;
+                
+                      size_type
+                      count(const key_type& __k) const;
+                
+                      iterator
+                      lower_bound(const key_type& __k)
+                      { return _M_lower_bound(_M_begin(), _M_end(), __k); }
+                
+                      const_iterator
+                      lower_bound(const key_type& __k) const
+                      { return _M_lower_bound(_M_begin(), _M_end(), __k); }
+                
+                      iterator
+                      upper_bound(const key_type& __k)
+                      { return _M_upper_bound(_M_begin(), _M_end(), __k); }
+                
+                      const_iterator
+                      upper_bound(const key_type& __k) const
+                      { return _M_upper_bound(_M_begin(), _M_end(), __k); }
+                
+                      pair<iterator, iterator>
+                      equal_range(const key_type& __k);
+                
+                      pair<const_iterator, const_iterator>
+                      equal_range(const key_type& __k) const;
+                
+                      // Debugging.
+                      bool
+                      __rb_verify() const;
+                    };
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    inline bool
+                    operator==(const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __x,
+                	       const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __y)
+                    {
+                      return __x.size() == __y.size()
+                	     && std::equal(__x.begin(), __x.end(), __y.begin());
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    inline bool
+                    operator<(const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __x,
+                	      const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __y)
+                    {
+                      return std::lexicographical_compare(__x.begin(), __x.end(), 
+                					  __y.begin(), __y.end());
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    inline bool
+                    operator!=(const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __x,
+                	       const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __y)
+                    { return !(__x == __y); }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    inline bool
+                    operator>(const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __x,
+                	      const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __y)
+                    { return __y < __x; }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    inline bool
+                    operator<=(const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __x,
+                	       const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __y)
+                    { return !(__y < __x); }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    inline bool
+                    operator>=(const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __x,
+                	       const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __y)
+                    { return !(__x < __y); }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    inline void
+                    swap(_Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __x,
+                	 _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __y)
+                    { __x.swap(__y); }
+                
+                #if __cplusplus >= 201103L
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _Rb_tree(_Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>&& __x)
+                    : _M_impl(__x._M_impl._M_key_compare,
+                	      std::move(__x._M_get_Node_allocator()))
+                    {
+                      if (__x._M_root() != 0)
+                	{
+                	  _M_root() = __x._M_root();
+                	  _M_leftmost() = __x._M_leftmost();
+                	  _M_rightmost() = __x._M_rightmost();
+                	  _M_root()->_M_parent = _M_end();
+                
+                	  __x._M_root() = 0;
+                	  __x._M_leftmost() = __x._M_end();
+                	  __x._M_rightmost() = __x._M_end();
+                
+                	  this->_M_impl._M_node_count = __x._M_impl._M_node_count;
+                	  __x._M_impl._M_node_count = 0;
+                	}
+                    }
+                #endif
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>&
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    operator=(const _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __x)
+                    {
+                      if (this != &__x)
+                	{
+                	  // Note that _Key may be a constant type.
+                	  clear();
+                	  _M_impl._M_key_compare = __x._M_impl._M_key_compare;
+                	  if (__x._M_root() != 0)
+                	    {
+                	      _M_root() = _M_copy(__x._M_begin(), _M_end());
+                	      _M_leftmost() = _S_minimum(_M_root());
+                	      _M_rightmost() = _S_maximum(_M_root());
+                	      _M_impl._M_node_count = __x._M_impl._M_node_count;
+                	    }
+                	}
+                      return *this;
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                #if __cplusplus >= 201103L
+                    template<typename _Arg>
+                #endif
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::iterator
+        8672 ->     _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                #if __cplusplus >= 201103L
+                    _M_insert_(_Base_ptr __x, _Base_ptr __p, _Arg&& __v)
+                #else
+                    _M_insert_(_Base_ptr __x, _Base_ptr __p, const _Val& __v)
+                #endif
+                    {
+                      bool __insert_left = (__x != 0 || __p == _M_end()
+                			    || _M_impl._M_key_compare(_KeyOfValue()(__v),
+                						      _S_key(__p)));
+                
+                      _Link_type __z = _M_create_node(_GLIBCXX_FORWARD(_Arg, __v));
+                
+                      _Rb_tree_insert_and_rebalance(__insert_left, __z, __p,
+                				    this->_M_impl._M_header);
+                      ++_M_impl._M_node_count;
+                      return iterator(__z);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                #if __cplusplus >= 201103L
+                    template<typename _Arg>
+                #endif
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::iterator
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                #if __cplusplus >= 201103L
+                    _M_insert_lower(_Base_ptr __p, _Arg&& __v)
+                #else
+                    _M_insert_lower(_Base_ptr __p, const _Val& __v)
+                #endif
+                    {
+                      bool __insert_left = (__p == _M_end()
+                			    || !_M_impl._M_key_compare(_S_key(__p),
+                						       _KeyOfValue()(__v)));
+                
+                      _Link_type __z = _M_create_node(_GLIBCXX_FORWARD(_Arg, __v));
+                
+                      _Rb_tree_insert_and_rebalance(__insert_left, __z, __p,
+                				    this->_M_impl._M_header);
+                      ++_M_impl._M_node_count;
+                      return iterator(__z);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                #if __cplusplus >= 201103L
+                    template<typename _Arg>
+                #endif
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::iterator
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                #if __cplusplus >= 201103L
+                    _M_insert_equal_lower(_Arg&& __v)
+                #else
+                    _M_insert_equal_lower(const _Val& __v)
+                #endif
+                    {
+                      _Link_type __x = _M_begin();
+                      _Link_type __y = _M_end();
+                      while (__x != 0)
+                	{
+                	  __y = __x;
+                	  __x = !_M_impl._M_key_compare(_S_key(__x), _KeyOfValue()(__v)) ?
+                	        _S_left(__x) : _S_right(__x);
+                	}
+                      return _M_insert_lower(__y, _GLIBCXX_FORWARD(_Arg, __v));
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KoV,
+                           typename _Compare, typename _Alloc>
+                    typename _Rb_tree<_Key, _Val, _KoV, _Compare, _Alloc>::_Link_type
+                    _Rb_tree<_Key, _Val, _KoV, _Compare, _Alloc>::
+                    _M_copy(_Const_Link_type __x, _Link_type __p)
+                    {
+                      // Structural copy.  __x and __p must be non-null.
+                      _Link_type __top = _M_clone_node(__x);
+                      __top->_M_parent = __p;
+                
+                      __try
+                	{
+                	  if (__x->_M_right)
+                	    __top->_M_right = _M_copy(_S_right(__x), __top);
+                	  __p = __top;
+                	  __x = _S_left(__x);
+                
+                	  while (__x != 0)
+                	    {
+                	      _Link_type __y = _M_clone_node(__x);
+                	      __p->_M_left = __y;
+                	      __y->_M_parent = __p;
+                	      if (__x->_M_right)
+                		__y->_M_right = _M_copy(_S_right(__x), __y);
+                	      __p = __y;
+                	      __x = _S_left(__x);
+                	    }
+                	}
+                      __catch(...)
+                	{
+                	  _M_erase(__top);
+                	  __throw_exception_again;
+                	}
+                      return __top;
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    void
+        1767 ->     _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_erase(_Link_type __x)
+                    {
+                      // Erase without rebalancing.
+                      while (__x != 0)
+                	{
+                	  _M_erase(_S_right(__x));
+                	  _Link_type __y = _S_left(__x);
+                	  _M_destroy_node(__x);
+                	  __x = __y;
+                	}
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                		      _Compare, _Alloc>::iterator
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_lower_bound(_Link_type __x, _Link_type __y,
+                		   const _Key& __k)
+                    {
+                      while (__x != 0)
+                	if (!_M_impl._M_key_compare(_S_key(__x), __k))
+                	  __y = __x, __x = _S_left(__x);
+                	else
+                	  __x = _S_right(__x);
+                      return iterator(__y);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                		      _Compare, _Alloc>::const_iterator
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_lower_bound(_Const_Link_type __x, _Const_Link_type __y,
+                		   const _Key& __k) const
+                    {
+                      while (__x != 0)
+                	if (!_M_impl._M_key_compare(_S_key(__x), __k))
+                	  __y = __x, __x = _S_left(__x);
+                	else
+                	  __x = _S_right(__x);
+                      return const_iterator(__y);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                		      _Compare, _Alloc>::iterator
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_upper_bound(_Link_type __x, _Link_type __y,
+                		   const _Key& __k)
+                    {
+                      while (__x != 0)
+                	if (_M_impl._M_key_compare(__k, _S_key(__x)))
+                	  __y = __x, __x = _S_left(__x);
+                	else
+                	  __x = _S_right(__x);
+                      return iterator(__y);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                		      _Compare, _Alloc>::const_iterator
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_upper_bound(_Const_Link_type __x, _Const_Link_type __y,
+                		   const _Key& __k) const
+                    {
+                      while (__x != 0)
+                	if (_M_impl._M_key_compare(__k, _S_key(__x)))
+                	  __y = __x, __x = _S_left(__x);
+                	else
+                	  __x = _S_right(__x);
+                      return const_iterator(__y);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    pair<typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			   _Compare, _Alloc>::iterator,
+                	 typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			   _Compare, _Alloc>::iterator>
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    equal_range(const _Key& __k)
+                    {
+                      _Link_type __x = _M_begin();
+                      _Link_type __y = _M_end();
+                      while (__x != 0)
+                	{
+                	  if (_M_impl._M_key_compare(_S_key(__x), __k))
+                	    __x = _S_right(__x);
+                	  else if (_M_impl._M_key_compare(__k, _S_key(__x)))
+                	    __y = __x, __x = _S_left(__x);
+                	  else
+                	    {
+                	      _Link_type __xu(__x), __yu(__y);
+                	      __y = __x, __x = _S_left(__x);
+                	      __xu = _S_right(__xu);
+                	      return pair<iterator,
+                		          iterator>(_M_lower_bound(__x, __y, __k),
+                				    _M_upper_bound(__xu, __yu, __k));
+                	    }
+                	}
+                      return pair<iterator, iterator>(iterator(__y),
+                				      iterator(__y));
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    pair<typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			   _Compare, _Alloc>::const_iterator,
+                	 typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			   _Compare, _Alloc>::const_iterator>
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    equal_range(const _Key& __k) const
+                    {
+                      _Const_Link_type __x = _M_begin();
+                      _Const_Link_type __y = _M_end();
+                      while (__x != 0)
+                	{
+                	  if (_M_impl._M_key_compare(_S_key(__x), __k))
+                	    __x = _S_right(__x);
+                	  else if (_M_impl._M_key_compare(__k, _S_key(__x)))
+                	    __y = __x, __x = _S_left(__x);
+                	  else
+                	    {
+                	      _Const_Link_type __xu(__x), __yu(__y);
+                	      __y = __x, __x = _S_left(__x);
+                	      __xu = _S_right(__xu);
+                	      return pair<const_iterator,
+                		          const_iterator>(_M_lower_bound(__x, __y, __k),
+                					  _M_upper_bound(__xu, __yu, __k));
+                	    }
+                	}
+                      return pair<const_iterator, const_iterator>(const_iterator(__y),
+                						  const_iterator(__y));
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    void
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    swap(_Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __t)
+                    {
+                      if (_M_root() == 0)
+                	{
+                	  if (__t._M_root() != 0)
+                	    {
+                	      _M_root() = __t._M_root();
+                	      _M_leftmost() = __t._M_leftmost();
+                	      _M_rightmost() = __t._M_rightmost();
+                	      _M_root()->_M_parent = _M_end();
+                	      
+                	      __t._M_root() = 0;
+                	      __t._M_leftmost() = __t._M_end();
+                	      __t._M_rightmost() = __t._M_end();
+                	    }
+                	}
+                      else if (__t._M_root() == 0)
+                	{
+                	  __t._M_root() = _M_root();
+                	  __t._M_leftmost() = _M_leftmost();
+                	  __t._M_rightmost() = _M_rightmost();
+                	  __t._M_root()->_M_parent = __t._M_end();
+                	  
+                	  _M_root() = 0;
+                	  _M_leftmost() = _M_end();
+                	  _M_rightmost() = _M_end();
+                	}
+                      else
+                	{
+                	  std::swap(_M_root(),__t._M_root());
+                	  std::swap(_M_leftmost(),__t._M_leftmost());
+                	  std::swap(_M_rightmost(),__t._M_rightmost());
+                	  
+                	  _M_root()->_M_parent = _M_end();
+                	  __t._M_root()->_M_parent = __t._M_end();
+                	}
+                      // No need to swap header's color as it does not change.
+                      std::swap(this->_M_impl._M_node_count, __t._M_impl._M_node_count);
+                      std::swap(this->_M_impl._M_key_compare, __t._M_impl._M_key_compare);
+                      
+                      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+                      // 431. Swapping containers with unequal allocators.
+                      std::__alloc_swap<_Node_allocator>::
+                	_S_do_it(_M_get_Node_allocator(), __t._M_get_Node_allocator());
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    pair<typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			   _Compare, _Alloc>::_Base_ptr,
+                	 typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			   _Compare, _Alloc>::_Base_ptr>
+         886 ->     _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_get_insert_unique_pos(const key_type& __k)
+                    {
+                      typedef pair<_Base_ptr, _Base_ptr> _Res;
+                      _Link_type __x = _M_begin();
+                      _Link_type __y = _M_end();
+                      bool __comp = true;
+                      while (__x != 0)
+                	{
+                	  __y = __x;
+                	  __comp = _M_impl._M_key_compare(__k, _S_key(__x));
+                	  __x = __comp ? _S_left(__x) : _S_right(__x);
+                	}
+                      iterator __j = iterator(__y);
+                      if (__comp)
+                	{
+                	  if (__j == begin())
+                	    return _Res(__x, __y);
+                	  else
+                	    --__j;
+                	}
+                      if (_M_impl._M_key_compare(_S_key(__j._M_node), __k))
+                	return _Res(__x, __y);
+                      return _Res(__j._M_node, 0);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    pair<typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			   _Compare, _Alloc>::_Base_ptr,
+                	 typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			   _Compare, _Alloc>::_Base_ptr>
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_get_insert_equal_pos(const key_type& __k)
+                    {
+                      typedef pair<_Base_ptr, _Base_ptr> _Res;
+                      _Link_type __x = _M_begin();
+                      _Link_type __y = _M_end();
+                      while (__x != 0)
+                	{
+                	  __y = __x;
+                	  __x = _M_impl._M_key_compare(__k, _S_key(__x)) ?
+                	        _S_left(__x) : _S_right(__x);
+                	}
+                      return _Res(__x, __y);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                #if __cplusplus >= 201103L
+                    template<typename _Arg>
+                #endif
+                    pair<typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			   _Compare, _Alloc>::iterator, bool>
+        9189 ->     _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                #if __cplusplus >= 201103L
+                    _M_insert_unique(_Arg&& __v)
+                #else
+                    _M_insert_unique(const _Val& __v)
+                #endif
+                    {
+                      typedef pair<iterator, bool> _Res;
+                      pair<_Base_ptr, _Base_ptr> __res
+                	= _M_get_insert_unique_pos(_KeyOfValue()(__v));
+                
+                      if (__res.second)
+                	return _Res(_M_insert_(__res.first, __res.second,
+                			       _GLIBCXX_FORWARD(_Arg, __v)),
+                		    true);
+                
+                      return _Res(iterator(static_cast<_Link_type>(__res.first)), false);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                #if __cplusplus >= 201103L
+                    template<typename _Arg>
+                #endif
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::iterator
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                #if __cplusplus >= 201103L
+                    _M_insert_equal(_Arg&& __v)
+                #else
+                    _M_insert_equal(const _Val& __v)
+                #endif
+                    {
+                      pair<_Base_ptr, _Base_ptr> __res
+                	= _M_get_insert_equal_pos(_KeyOfValue()(__v));
+                      return _M_insert_(__res.first, __res.second, _GLIBCXX_FORWARD(_Arg, __v));
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    pair<typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			   _Compare, _Alloc>::_Base_ptr,
+                         typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			   _Compare, _Alloc>::_Base_ptr>
+        8679 ->     _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_get_insert_hint_unique_pos(const_iterator __position,
+                				  const key_type& __k)
+                    {
+                      iterator __pos = __position._M_const_cast();
+                      typedef pair<_Base_ptr, _Base_ptr> _Res;
+                
+                      // end()
+                      if (__pos._M_node == _M_end())
+                	{
+                	  if (size() > 0
+                	      && _M_impl._M_key_compare(_S_key(_M_rightmost()), __k))
+                	    return _Res(0, _M_rightmost());
+                	  else
+                	    return _M_get_insert_unique_pos(__k);
+                	}
+                      else if (_M_impl._M_key_compare(__k, _S_key(__pos._M_node)))
+                	{
+                	  // First, try before...
+                	  iterator __before = __pos;
+                	  if (__pos._M_node == _M_leftmost()) // begin()
+                	    return _Res(_M_leftmost(), _M_leftmost());
+                	  else if (_M_impl._M_key_compare(_S_key((--__before)._M_node), __k))
+                	    {
+                	      if (_S_right(__before._M_node) == 0)
+                		return _Res(0, __before._M_node);
+                	      else
+                		return _Res(__pos._M_node, __pos._M_node);
+                	    }
+                	  else
+                	    return _M_get_insert_unique_pos(__k);
+                	}
+                      else if (_M_impl._M_key_compare(_S_key(__pos._M_node), __k))
+                	{
+                	  // ... then try after.
+                	  iterator __after = __pos;
+                	  if (__pos._M_node == _M_rightmost())
+                	    return _Res(0, _M_rightmost());
+                	  else if (_M_impl._M_key_compare(__k, _S_key((++__after)._M_node)))
+                	    {
+                	      if (_S_right(__pos._M_node) == 0)
+                		return _Res(0, __pos._M_node);
+                	      else
+                		return _Res(__after._M_node, __after._M_node);
+                	    }
+                	  else
+                	    return _M_get_insert_unique_pos(__k);
+                	}
+                      else
+                	// Equivalent keys.
+                	return _Res(__pos._M_node, 0);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                #if __cplusplus >= 201103L
+                    template<typename _Arg>
+                #endif
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::iterator
+          14 ->     _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                #if __cplusplus >= 201103L
+                    _M_insert_unique_(const_iterator __position, _Arg&& __v)
+                #else
+                    _M_insert_unique_(const_iterator __position, const _Val& __v)
+                #endif
+                    {
+                      pair<_Base_ptr, _Base_ptr> __res
+                	= _M_get_insert_hint_unique_pos(__position, _KeyOfValue()(__v));
+                
+                      if (__res.second)
+                	return _M_insert_(__res.first, __res.second,
+                			  _GLIBCXX_FORWARD(_Arg, __v));
+                      return iterator(static_cast<_Link_type>(__res.first));
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    pair<typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			   _Compare, _Alloc>::_Base_ptr,
+                         typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			   _Compare, _Alloc>::_Base_ptr>
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_get_insert_hint_equal_pos(const_iterator __position, const key_type& __k)
+                    {
+                      iterator __pos = __position._M_const_cast();
+                      typedef pair<_Base_ptr, _Base_ptr> _Res;
+                
+                      // end()
+                      if (__pos._M_node == _M_end())
+                	{
+                	  if (size() > 0
+                	      && !_M_impl._M_key_compare(__k, _S_key(_M_rightmost())))
+                	    return _Res(0, _M_rightmost());
+                	  else
+                	    return _M_get_insert_equal_pos(__k);
+                	}
+                      else if (!_M_impl._M_key_compare(_S_key(__pos._M_node), __k))
+                	{
+                	  // First, try before...
+                	  iterator __before = __pos;
+                	  if (__pos._M_node == _M_leftmost()) // begin()
+                	    return _Res(_M_leftmost(), _M_leftmost());
+                	  else if (!_M_impl._M_key_compare(__k, _S_key((--__before)._M_node)))
+                	    {
+                	      if (_S_right(__before._M_node) == 0)
+                		return _Res(0, __before._M_node);
+                	      else
+                		return _Res(__pos._M_node, __pos._M_node);
+                	    }
+                	  else
+                	    return _M_get_insert_equal_pos(__k);
+                	}
+                      else
+                	{
+                	  // ... then try after.  
+                	  iterator __after = __pos;
+                	  if (__pos._M_node == _M_rightmost())
+                	    return _Res(0, _M_rightmost());
+                	  else if (!_M_impl._M_key_compare(_S_key((++__after)._M_node), __k))
+                	    {
+                	      if (_S_right(__pos._M_node) == 0)
+                		return _Res(0, __pos._M_node);
+                	      else
+                		return _Res(__after._M_node, __after._M_node);
+                	    }
+                	  else
+                	    return _Res(0, 0);
+                	}
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                #if __cplusplus >= 201103L
+                    template<typename _Arg>
+                #endif
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::iterator
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                #if __cplusplus >= 201103L
+                    _M_insert_equal_(const_iterator __position, _Arg&& __v)
+                #else
+                    _M_insert_equal_(const_iterator __position, const _Val& __v)
+                #endif
+                    {
+                      pair<_Base_ptr, _Base_ptr> __res
+                	= _M_get_insert_hint_equal_pos(__position, _KeyOfValue()(__v));
+                
+                      if (__res.second)
+                	return _M_insert_(__res.first, __res.second,
+                			  _GLIBCXX_FORWARD(_Arg, __v));
+                
+                      return _M_insert_equal_lower(_GLIBCXX_FORWARD(_Arg, __v));
+                    }
+                
+                #if __cplusplus >= 201103L
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::iterator
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_insert_node(_Base_ptr __x, _Base_ptr __p, _Link_type __z)
+                    {
+                      bool __insert_left = (__x != 0 || __p == _M_end()
+                			    || _M_impl._M_key_compare(_S_key(__z),
+                						      _S_key(__p)));
+                
+                      _Rb_tree_insert_and_rebalance(__insert_left, __z, __p,
+                				    this->_M_impl._M_header);
+                      ++_M_impl._M_node_count;
+                      return iterator(__z);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::iterator
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_insert_lower_node(_Base_ptr __p, _Link_type __z)
+                    {
+                      bool __insert_left = (__p == _M_end()
+                			    || !_M_impl._M_key_compare(_S_key(__p),
+                						       _S_key(__z)));
+                
+                      _Rb_tree_insert_and_rebalance(__insert_left, __z, __p,
+                				    this->_M_impl._M_header);
+                      ++_M_impl._M_node_count;
+                      return iterator(__z);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::iterator
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_insert_equal_lower_node(_Link_type __z)
+                    {
+                      _Link_type __x = _M_begin();
+                      _Link_type __y = _M_end();
+                      while (__x != 0)
+                	{
+                	  __y = __x;
+                	  __x = !_M_impl._M_key_compare(_S_key(__x), _S_key(__z)) ?
+                	        _S_left(__x) : _S_right(__x);
+                	}
+                      return _M_insert_lower_node(__y, __z);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    template<typename... _Args>
+                      pair<typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                			     _Compare, _Alloc>::iterator, bool>
+                      _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                      _M_emplace_unique(_Args&&... __args)
+                      {
+                	_Link_type __z = _M_create_node(std::forward<_Args>(__args)...);
+                
+                	__try
+                	  {
+                	    typedef pair<iterator, bool> _Res;
+                	    auto __res = _M_get_insert_unique_pos(_S_key(__z));
+                	    if (__res.second)
+                	      return _Res(_M_insert_node(__res.first, __res.second, __z), true);
+                	
+                	    _M_destroy_node(__z);
+                	    return _Res(iterator(static_cast<_Link_type>(__res.first)), false);
+                	  }
+                	__catch(...)
+                	  {
+                	    _M_destroy_node(__z);
+                	    __throw_exception_again;
+                	  }
+                      }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    template<typename... _Args>
+                      typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::iterator
+                      _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                      _M_emplace_equal(_Args&&... __args)
+                      {
+                	_Link_type __z = _M_create_node(std::forward<_Args>(__args)...);
+                
+                	__try
+                	  {
+                	    auto __res = _M_get_insert_equal_pos(_S_key(__z));
+                	    return _M_insert_node(__res.first, __res.second, __z);
+                	  }
+                	__catch(...)
+                	  {
+                	    _M_destroy_node(__z);
+                	    __throw_exception_again;
+                	  }
+                      }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    template<typename... _Args>
+                      typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::iterator
+                      _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                      _M_emplace_hint_unique(const_iterator __pos, _Args&&... __args)
+                      {
+                	_Link_type __z = _M_create_node(std::forward<_Args>(__args)...);
+                
+                	__try
+                	  {
+                	    auto __res = _M_get_insert_hint_unique_pos(__pos, _S_key(__z));
+                
+                	    if (__res.second)
+                	      return _M_insert_node(__res.first, __res.second, __z);
+                
+                	    _M_destroy_node(__z);
+                	    return iterator(static_cast<_Link_type>(__res.first));
+                	  }
+                	__catch(...)
+                	  {
+                	    _M_destroy_node(__z);
+                	    __throw_exception_again;
+                	  }
+                      }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    template<typename... _Args>
+                      typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::iterator
+                      _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                      _M_emplace_hint_equal(const_iterator __pos, _Args&&... __args)
+                      {
+                	_Link_type __z = _M_create_node(std::forward<_Args>(__args)...);
+                
+                	__try
+                	  {
+                	    auto __res = _M_get_insert_hint_equal_pos(__pos, _S_key(__z));
+                
+                	    if (__res.second)
+                	      return _M_insert_node(__res.first, __res.second, __z);
+                
+                	    return _M_insert_equal_lower_node(__z);
+                	  }
+                	__catch(...)
+                	  {
+                	    _M_destroy_node(__z);
+                	    __throw_exception_again;
+                	  }
+                      }
+                #endif
+                
+                  template<typename _Key, typename _Val, typename _KoV,
+                           typename _Cmp, typename _Alloc>
+                    template<class _II>
+                      void
+                      _Rb_tree<_Key, _Val, _KoV, _Cmp, _Alloc>::
+                      _M_insert_unique(_II __first, _II __last)
+                      {
+                	for (; __first != __last; ++__first)
+                	  _M_insert_unique_(end(), *__first);
+                      }
+                
+                  template<typename _Key, typename _Val, typename _KoV,
+                           typename _Cmp, typename _Alloc>
+                    template<class _II>
+                      void
+                      _Rb_tree<_Key, _Val, _KoV, _Cmp, _Alloc>::
+                      _M_insert_equal(_II __first, _II __last)
+                      {
+                	for (; __first != __last; ++__first)
+                	  _M_insert_equal_(end(), *__first);
+                      }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    void
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_erase_aux(const_iterator __position)
+                    {
+                      _Link_type __y =
+                	static_cast<_Link_type>(_Rb_tree_rebalance_for_erase
+                				(const_cast<_Base_ptr>(__position._M_node),
+                				 this->_M_impl._M_header));
+                      _M_destroy_node(__y);
+                      --_M_impl._M_node_count;
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    void
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    _M_erase_aux(const_iterator __first, const_iterator __last)
+                    {
+                      if (__first == begin() && __last == end())
+                	clear();
+                      else
+                	while (__first != __last)
+                	  erase(__first++);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::size_type
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    erase(const _Key& __x)
+                    {
+                      pair<iterator, iterator> __p = equal_range(__x);
+                      const size_type __old_size = size();
+                      erase(__p.first, __p.second);
+                      return __old_size - size();
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    void
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    erase(const _Key* __first, const _Key* __last)
+                    {
+                      while (__first != __last)
+                	erase(*__first++);
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                		      _Compare, _Alloc>::iterator
+       26342 ->     _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    find(const _Key& __k)
+                    {
+                      iterator __j = _M_lower_bound(_M_begin(), _M_end(), __k);
+                      return (__j == end()
+                	      || _M_impl._M_key_compare(__k,
+                					_S_key(__j._M_node))) ? end() : __j;
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue,
+                		      _Compare, _Alloc>::const_iterator
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    find(const _Key& __k) const
+                    {
+                      const_iterator __j = _M_lower_bound(_M_begin(), _M_end(), __k);
+                      return (__j == end()
+                	      || _M_impl._M_key_compare(__k, 
+                					_S_key(__j._M_node))) ? end() : __j;
+                    }
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::size_type
+                    _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+                    count(const _Key& __k) const
+                    {
+                      pair<const_iterator, const_iterator> __p = equal_range(__k);
+                      const size_type __n = std::distance(__p.first, __p.second);
+                      return __n;
+                    }
+                
+                  _GLIBCXX_PURE unsigned int
+                  _Rb_tree_black_count(const _Rb_tree_node_base* __node,
+                                       const _Rb_tree_node_base* __root) throw ();
+                
+                  template<typename _Key, typename _Val, typename _KeyOfValue,
+                           typename _Compare, typename _Alloc>
+                    bool
+                    _Rb_tree<_Key,_Val,_KeyOfValue,_Compare,_Alloc>::__rb_verify() const
+                    {
+                      if (_M_impl._M_node_count == 0 || begin() == end())
+                	return _M_impl._M_node_count == 0 && begin() == end()
+                	       && this->_M_impl._M_header._M_left == _M_end()
+                	       && this->_M_impl._M_header._M_right == _M_end();
+                
+                      unsigned int __len = _Rb_tree_black_count(_M_leftmost(), _M_root());
+                      for (const_iterator __it = begin(); __it != end(); ++__it)
+                	{
+                	  _Const_Link_type __x = static_cast<_Const_Link_type>(__it._M_node);
+                	  _Const_Link_type __L = _S_left(__x);
+                	  _Const_Link_type __R = _S_right(__x);
+                
+                	  if (__x->_M_color == _S_red)
+                	    if ((__L && __L->_M_color == _S_red)
+                		|| (__R && __R->_M_color == _S_red))
+                	      return false;
+                
+                	  if (__L && _M_impl._M_key_compare(_S_key(__x), _S_key(__L)))
+                	    return false;
+                	  if (__R && _M_impl._M_key_compare(_S_key(__R), _S_key(__x)))
+                	    return false;
+                
+                	  if (!__L && !__R && _Rb_tree_black_count(__x, _M_root()) != __len)
+                	    return false;
+                	}
+                
+                      if (_M_leftmost() != _Rb_tree_node_base::_S_minimum(_M_root()))
+                	return false;
+                      if (_M_rightmost() != _Rb_tree_node_base::_S_maximum(_M_root()))
+                	return false;
+                      return true;
+                    }
+                
+                _GLIBCXX_END_NAMESPACE_VERSION
+                } // namespace
+                
+                #endif
+
+
+Top 10 Lines:
+
+     Line      Count
+
+     1789      26342
+     1368       9189
+     1411       8679
+     1012       8672
+     1119       1767
+     1314        886
+     1470         14
+
+Execution Summary:
+
+        7   Executable lines in this file
+        7   Lines executed
+   100.00   Percent of the file executed
+
+    55549   Total number of line executions
+  7935.57   Average executions per line
+
+
+*** File /usr/include/c++/4.8/bits/vector.tcc:
+                // Vector implementation (out of line) -*- C++ -*-
+                
+                // Copyright (C) 2001-2013 Free Software Foundation, Inc.
+                //
+                // This file is part of the GNU ISO C++ Library.  This library is free
+                // software; you can redistribute it and/or modify it under the
+                // terms of the GNU General Public License as published by the
+                // Free Software Foundation; either version 3, or (at your option)
+                // any later version.
+                
+                // This library is distributed in the hope that it will be useful,
+                // but WITHOUT ANY WARRANTY; without even the implied warranty of
+                // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+                // GNU General Public License for more details.
+                
+                // Under Section 7 of GPL version 3, you are granted additional
+                // permissions described in the GCC Runtime Library Exception, version
+                // 3.1, as published by the Free Software Foundation.
+                
+                // You should have received a copy of the GNU General Public License and
+                // a copy of the GCC Runtime Library Exception along with this program;
+                // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+                // <http://www.gnu.org/licenses/>.
+                
+                /*
+                 *
+                 * Copyright (c) 1994
+                 * Hewlett-Packard Company
+                 *
+                 * Permission to use, copy, modify, distribute and sell this software
+                 * and its documentation for any purpose is hereby granted without fee,
+                 * provided that the above copyright notice appear in all copies and
+                 * that both that copyright notice and this permission notice appear
+                 * in supporting documentation.  Hewlett-Packard Company makes no
+                 * representations about the suitability of this software for any
+                 * purpose.  It is provided "as is" without express or implied warranty.
+                 *
+                 *
+                 * Copyright (c) 1996
+                 * Silicon Graphics Computer Systems, Inc.
+                 *
+                 * Permission to use, copy, modify, distribute and sell this software
+                 * and its documentation for any purpose is hereby granted without fee,
+                 * provided that the above copyright notice appear in all copies and
+                 * that both that copyright notice and this permission notice appear
+                 * in supporting documentation.  Silicon Graphics makes no
+                 * representations about the suitability of this  software for any
+                 * purpose.  It is provided "as is" without express or implied warranty.
+                 */
+                
+                /** @file bits/vector.tcc
+                 *  This is an internal header file, included by other library headers.
+                 *  Do not attempt to use it directly. @headername{vector}
+                 */
+                
+                #ifndef _VECTOR_TCC
+                #define _VECTOR_TCC 1
+                
+                namespace std _GLIBCXX_VISIBILITY(default)
+                {
+                _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
+                
+                  template<typename _Tp, typename _Alloc>
+                    void
+                    vector<_Tp, _Alloc>::
+                    reserve(size_type __n)
+                    {
+                      if (__n > this->max_size())
+                	__throw_length_error(__N("vector::reserve"));
+                      if (this->capacity() < __n)
+                	{
+                	  const size_type __old_size = size();
+                	  pointer __tmp = _M_allocate_and_copy(__n,
+                	    _GLIBCXX_MAKE_MOVE_IF_NOEXCEPT_ITERATOR(this->_M_impl._M_start),
+                	    _GLIBCXX_MAKE_MOVE_IF_NOEXCEPT_ITERATOR(this->_M_impl._M_finish));
+                	  std::_Destroy(this->_M_impl._M_start, this->_M_impl._M_finish,
+                			_M_get_Tp_allocator());
+                	  _M_deallocate(this->_M_impl._M_start,
+                			this->_M_impl._M_end_of_storage
+                			- this->_M_impl._M_start);
+                	  this->_M_impl._M_start = __tmp;
+                	  this->_M_impl._M_finish = __tmp + __old_size;
+                	  this->_M_impl._M_end_of_storage = this->_M_impl._M_start + __n;
+                	}
+                    }
+                
+                #if __cplusplus >= 201103L
+                  template<typename _Tp, typename _Alloc>
+                    template<typename... _Args>
+                      void
+                      vector<_Tp, _Alloc>::
+                      emplace_back(_Args&&... __args)
+                      {
+                	if (this->_M_impl._M_finish != this->_M_impl._M_end_of_storage)
+                	  {
+                	    _Alloc_traits::construct(this->_M_impl, this->_M_impl._M_finish,
+                				     std::forward<_Args>(__args)...);
+                	    ++this->_M_impl._M_finish;
+                	  }
+                	else
+                	  _M_emplace_back_aux(std::forward<_Args>(__args)...);
+                      }
+                #endif
+                
+                  template<typename _Tp, typename _Alloc>
+                    typename vector<_Tp, _Alloc>::iterator
+                    vector<_Tp, _Alloc>::
+                    insert(iterator __position, const value_type& __x)
+                    {
+                      const size_type __n = __position - begin();
+                      if (this->_M_impl._M_finish != this->_M_impl._M_end_of_storage
+                	  && __position == end())
+                	{
+                	  _Alloc_traits::construct(this->_M_impl, this->_M_impl._M_finish, __x);
+                	  ++this->_M_impl._M_finish;
+                	}
+                      else
+                	{
+                #if __cplusplus >= 201103L
+                	  if (this->_M_impl._M_finish != this->_M_impl._M_end_of_storage)
+                	    {
+                	      _Tp __x_copy = __x;
+                	      _M_insert_aux(__position, std::move(__x_copy));
+                	    }
+                	  else
+                #endif
+                	    _M_insert_aux(__position, __x);
+                	}
+                      return iterator(this->_M_impl._M_start + __n);
+                    }
+                
+                  template<typename _Tp, typename _Alloc>
+                    typename vector<_Tp, _Alloc>::iterator
+                    vector<_Tp, _Alloc>::
+                    erase(iterator __position)
+                    {
+                      if (__position + 1 != end())
+                	_GLIBCXX_MOVE3(__position + 1, end(), __position);
+                      --this->_M_impl._M_finish;
+                      _Alloc_traits::destroy(this->_M_impl, this->_M_impl._M_finish);
+                      return __position;
+                    }
+                
+                  template<typename _Tp, typename _Alloc>
+                    typename vector<_Tp, _Alloc>::iterator
+                    vector<_Tp, _Alloc>::
+                    erase(iterator __first, iterator __last)
+                    {
+                      if (__first != __last)
+                	{
+                	  if (__last != end())
+                	    _GLIBCXX_MOVE3(__last, end(), __first);
+                	  _M_erase_at_end(__first.base() + (end() - __last));
+                	}
+                      return __first;
+                    }
+                
+                  template<typename _Tp, typename _Alloc>
+                    vector<_Tp, _Alloc>&
+        8840 ->     vector<_Tp, _Alloc>::
+                    operator=(const vector<_Tp, _Alloc>& __x)
+                    {
+                      if (&__x != this)
+                	{
+                #if __cplusplus >= 201103L
+                	  if (_Alloc_traits::_S_propagate_on_copy_assign())
+                	    {
+                	      if (!_Alloc_traits::_S_always_equal()
+                	          && _M_get_Tp_allocator() != __x._M_get_Tp_allocator())
+                	        {
+                		  // replacement allocator cannot free existing storage
+                		  this->clear();
+                		  _M_deallocate(this->_M_impl._M_start,
+                				this->_M_impl._M_end_of_storage
+                				- this->_M_impl._M_start);
+                		  this->_M_impl._M_start = nullptr;
+                		  this->_M_impl._M_finish = nullptr;
+                		  this->_M_impl._M_end_of_storage = nullptr;
+                		}
+                	      std::__alloc_on_copy(_M_get_Tp_allocator(),
+                				   __x._M_get_Tp_allocator());
+                	    }
+                #endif
+                	  const size_type __xlen = __x.size();
+                	  if (__xlen > capacity())
+                	    {
+                	      pointer __tmp = _M_allocate_and_copy(__xlen, __x.begin(),
+                						   __x.end());
+                	      std::_Destroy(this->_M_impl._M_start, this->_M_impl._M_finish,
+                			    _M_get_Tp_allocator());
+                	      _M_deallocate(this->_M_impl._M_start,
+                			    this->_M_impl._M_end_of_storage
+                			    - this->_M_impl._M_start);
+                	      this->_M_impl._M_start = __tmp;
+                	      this->_M_impl._M_end_of_storage = this->_M_impl._M_start + __xlen;
+                	    }
+                	  else if (size() >= __xlen)
+                	    {
+                	      std::_Destroy(std::copy(__x.begin(), __x.end(), begin()),
+                			    end(), _M_get_Tp_allocator());
+                	    }
+                	  else
+                	    {
+                	      std::copy(__x._M_impl._M_start, __x._M_impl._M_start + size(),
+                			this->_M_impl._M_start);
+                	      std::__uninitialized_copy_a(__x._M_impl._M_start + size(),
+                					  __x._M_impl._M_finish,
+                					  this->_M_impl._M_finish,
+                					  _M_get_Tp_allocator());
+                	    }
+                	  this->_M_impl._M_finish = this->_M_impl._M_start + __xlen;
+                	}
+                      return *this;
+                    }
+                
+                  template<typename _Tp, typename _Alloc>
+                    void
+                    vector<_Tp, _Alloc>::
+                    _M_fill_assign(size_t __n, const value_type& __val)
+                    {
+                      if (__n > capacity())
+                	{
+                	  vector __tmp(__n, __val, _M_get_Tp_allocator());
+                	  __tmp.swap(*this);
+                	}
+                      else if (__n > size())
+                	{
+                	  std::fill(begin(), end(), __val);
+                	  std::__uninitialized_fill_n_a(this->_M_impl._M_finish,
+                					__n - size(), __val,
+                					_M_get_Tp_allocator());
+                	  this->_M_impl._M_finish += __n - size();
+                	}
+                      else
+                        _M_erase_at_end(std::fill_n(this->_M_impl._M_start, __n, __val));
+                    }
+                
+                  template<typename _Tp, typename _Alloc>
+                    template<typename _InputIterator>
+                      void
+                      vector<_Tp, _Alloc>::
+                      _M_assign_aux(_InputIterator __first, _InputIterator __last,
+                		    std::input_iterator_tag)
+                      {
+                	pointer __cur(this->_M_impl._M_start);
+                	for (; __first != __last && __cur != this->_M_impl._M_finish;
+                	     ++__cur, ++__first)
+                	  *__cur = *__first;
+                	if (__first == __last)
+                	  _M_erase_at_end(__cur);
+                	else
+                	  insert(end(), __first, __last);
+                      }
+                
+                  template<typename _Tp, typename _Alloc>
+                    template<typename _ForwardIterator>
+                      void
+                      vector<_Tp, _Alloc>::
+                      _M_assign_aux(_ForwardIterator __first, _ForwardIterator __last,
+                		    std::forward_iterator_tag)
+                      {
+                	const size_type __len = std::distance(__first, __last);
+                
+                	if (__len > capacity())
+                	  {
+                	    pointer __tmp(_M_allocate_and_copy(__len, __first, __last));
+                	    std::_Destroy(this->_M_impl._M_start, this->_M_impl._M_finish,
+                			  _M_get_Tp_allocator());
+                	    _M_deallocate(this->_M_impl._M_start,
+                			  this->_M_impl._M_end_of_storage
+                			  - this->_M_impl._M_start);
+                	    this->_M_impl._M_start = __tmp;
+                	    this->_M_impl._M_finish = this->_M_impl._M_start + __len;
+                	    this->_M_impl._M_end_of_storage = this->_M_impl._M_finish;
+                	  }
+                	else if (size() >= __len)
+                	  _M_erase_at_end(std::copy(__first, __last, this->_M_impl._M_start));
+                	else
+                	  {
+                	    _ForwardIterator __mid = __first;
+                	    std::advance(__mid, size());
+                	    std::copy(__first, __mid, this->_M_impl._M_start);
+                	    this->_M_impl._M_finish =
+                	      std::__uninitialized_copy_a(__mid, __last,
+                					  this->_M_impl._M_finish,
+                					  _M_get_Tp_allocator());
+                	  }
+                      }
+                
+                #if __cplusplus >= 201103L
+                  template<typename _Tp, typename _Alloc>
+                    template<typename... _Args>
+                      typename vector<_Tp, _Alloc>::iterator
+                      vector<_Tp, _Alloc>::
+                      emplace(iterator __position, _Args&&... __args)
+                      {
+                	const size_type __n = __position - begin();
+                	if (this->_M_impl._M_finish != this->_M_impl._M_end_of_storage
+                	    && __position == end())
+                	  {
+                	    _Alloc_traits::construct(this->_M_impl, this->_M_impl._M_finish,
+                				     std::forward<_Args>(__args)...);
+                	    ++this->_M_impl._M_finish;
+                	  }
+                	else
+                	  _M_insert_aux(__position, std::forward<_Args>(__args)...);
+                	return iterator(this->_M_impl._M_start + __n);
+                      }
+                
+                  template<typename _Tp, typename _Alloc>
+                    template<typename... _Args>
+                      void
+                      vector<_Tp, _Alloc>::
+                      _M_insert_aux(iterator __position, _Args&&... __args)
+                #else
+                  template<typename _Tp, typename _Alloc>
+                    void
+      432608 ->     vector<_Tp, _Alloc>::
+                    _M_insert_aux(iterator __position, const _Tp& __x)
+                #endif
+                    {
+                      if (this->_M_impl._M_finish != this->_M_impl._M_end_of_storage)
+                	{
+                	  _Alloc_traits::construct(this->_M_impl, this->_M_impl._M_finish,
+                			           _GLIBCXX_MOVE(*(this->_M_impl._M_finish
+                				                   - 1)));
+                	  ++this->_M_impl._M_finish;
+                #if __cplusplus < 201103L
+                	  _Tp __x_copy = __x;
+                #endif
+                	  _GLIBCXX_MOVE_BACKWARD3(__position.base(),
+                				  this->_M_impl._M_finish - 2,
+                				  this->_M_impl._M_finish - 1);
+                #if __cplusplus < 201103L
+                	  *__position = __x_copy;
+                #else
+                	  *__position = _Tp(std::forward<_Args>(__args)...);
+                #endif
+                	}
+                      else
+                	{
+                	  const size_type __len =
+                	    _M_check_len(size_type(1), "vector::_M_insert_aux");
+                	  const size_type __elems_before = __position - begin();
+                	  pointer __new_start(this->_M_allocate(__len));
+                	  pointer __new_finish(__new_start);
+                	  __try
+                	    {
+                	      // The order of the three operations is dictated by the C++0x
+                	      // case, where the moves could alter a new element belonging
+                	      // to the existing vector.  This is an issue only for callers
+                	      // taking the element by const lvalue ref (see 23.1/13).
+                	      _Alloc_traits::construct(this->_M_impl,
+                		                       __new_start + __elems_before,
+                #if __cplusplus >= 201103L
+                				       std::forward<_Args>(__args)...);
+                #else
+                	                               __x);
+                #endif
+                	      __new_finish = 0;
+                
+                	      __new_finish
+                		= std::__uninitialized_move_if_noexcept_a
+                		(this->_M_impl._M_start, __position.base(),
+                		 __new_start, _M_get_Tp_allocator());
+                
+                	      ++__new_finish;
+                
+                	      __new_finish
+                		= std::__uninitialized_move_if_noexcept_a
+                		(__position.base(), this->_M_impl._M_finish,
+                		 __new_finish, _M_get_Tp_allocator());
+                	    }
+                          __catch(...)
+                	    {
+                	      if (!__new_finish)
+                		_Alloc_traits::destroy(this->_M_impl,
+                		                       __new_start + __elems_before);
+                	      else
+                		std::_Destroy(__new_start, __new_finish, _M_get_Tp_allocator());
+                	      _M_deallocate(__new_start, __len);
+                	      __throw_exception_again;
+                	    }
+                	  std::_Destroy(this->_M_impl._M_start, this->_M_impl._M_finish,
+                			_M_get_Tp_allocator());
+                	  _M_deallocate(this->_M_impl._M_start,
+                			this->_M_impl._M_end_of_storage
+                			- this->_M_impl._M_start);
+                	  this->_M_impl._M_start = __new_start;
+                	  this->_M_impl._M_finish = __new_finish;
+                	  this->_M_impl._M_end_of_storage = __new_start + __len;
+                	}
+                    }
+                
+                #if __cplusplus >= 201103L
+                  template<typename _Tp, typename _Alloc>
+                    template<typename... _Args>
+                      void
+                      vector<_Tp, _Alloc>::
+                      _M_emplace_back_aux(_Args&&... __args)
+                      {
+                	const size_type __len =
+                	  _M_check_len(size_type(1), "vector::_M_emplace_back_aux");
+                	pointer __new_start(this->_M_allocate(__len));
+                	pointer __new_finish(__new_start);
+                	__try
+                	  {
+                	    _Alloc_traits::construct(this->_M_impl, __new_start + size(),
+                				     std::forward<_Args>(__args)...);
+                	    __new_finish = 0;
+                
+                	    __new_finish
+                	      = std::__uninitialized_move_if_noexcept_a
+                	      (this->_M_impl._M_start, this->_M_impl._M_finish,
+                	       __new_start, _M_get_Tp_allocator());
+                
+                	    ++__new_finish;
+                	  }
+                	__catch(...)
+                	  {
+                	    if (!__new_finish)
+                	      _Alloc_traits::destroy(this->_M_impl, __new_start + size());
+                	    else
+                	      std::_Destroy(__new_start, __new_finish, _M_get_Tp_allocator());
+                	    _M_deallocate(__new_start, __len);
+                	    __throw_exception_again;
+                	  }
+                	std::_Destroy(this->_M_impl._M_start, this->_M_impl._M_finish,
+                		      _M_get_Tp_allocator());
+                	_M_deallocate(this->_M_impl._M_start,
+                		      this->_M_impl._M_end_of_storage
+                		      - this->_M_impl._M_start);
+                	this->_M_impl._M_start = __new_start;
+                	this->_M_impl._M_finish = __new_finish;
+                	this->_M_impl._M_end_of_storage = __new_start + __len;
+                      }
+                #endif
+                
+                  template<typename _Tp, typename _Alloc>
+                    void
+       19913 ->     vector<_Tp, _Alloc>::
+                    _M_fill_insert(iterator __position, size_type __n, const value_type& __x)
+                    {
+                      if (__n != 0)
+                	{
+                	  if (size_type(this->_M_impl._M_end_of_storage
+                			- this->_M_impl._M_finish) >= __n)
+                	    {
+                	      value_type __x_copy = __x;
+                	      const size_type __elems_after = end() - __position;
+                	      pointer __old_finish(this->_M_impl._M_finish);
+                	      if (__elems_after > __n)
+                		{
+                		  std::__uninitialized_move_a(this->_M_impl._M_finish - __n,
+                					      this->_M_impl._M_finish,
+                					      this->_M_impl._M_finish,
+                					      _M_get_Tp_allocator());
+                		  this->_M_impl._M_finish += __n;
+                		  _GLIBCXX_MOVE_BACKWARD3(__position.base(),
+                					  __old_finish - __n, __old_finish);
+                		  std::fill(__position.base(), __position.base() + __n,
+                			    __x_copy);
+                		}
+                	      else
+                		{
+                		  std::__uninitialized_fill_n_a(this->_M_impl._M_finish,
+                						__n - __elems_after,
+                						__x_copy,
+                						_M_get_Tp_allocator());
+                		  this->_M_impl._M_finish += __n - __elems_after;
+                		  std::__uninitialized_move_a(__position.base(), __old_finish,
+                					      this->_M_impl._M_finish,
+                					      _M_get_Tp_allocator());
+                		  this->_M_impl._M_finish += __elems_after;
+                		  std::fill(__position.base(), __old_finish, __x_copy);
+                		}
+                	    }
+                	  else
+                	    {
+                	      const size_type __len =
+                		_M_check_len(__n, "vector::_M_fill_insert");
+                	      const size_type __elems_before = __position - begin();
+                	      pointer __new_start(this->_M_allocate(__len));
+                	      pointer __new_finish(__new_start);
+                	      __try
+                		{
+                		  // See _M_insert_aux above.
+                		  std::__uninitialized_fill_n_a(__new_start + __elems_before,
+                						__n, __x,
+                						_M_get_Tp_allocator());
+                		  __new_finish = 0;
+                
+                		  __new_finish
+                		    = std::__uninitialized_move_if_noexcept_a
+                		    (this->_M_impl._M_start, __position.base(),
+                		     __new_start, _M_get_Tp_allocator());
+                
+                		  __new_finish += __n;
+                
+                		  __new_finish
+                		    = std::__uninitialized_move_if_noexcept_a
+                		    (__position.base(), this->_M_impl._M_finish,
+                		     __new_finish, _M_get_Tp_allocator());
+                		}
+                	      __catch(...)
+                		{
+                		  if (!__new_finish)
+                		    std::_Destroy(__new_start + __elems_before,
+                				  __new_start + __elems_before + __n,
+                				  _M_get_Tp_allocator());
+                		  else
+                		    std::_Destroy(__new_start, __new_finish,
+                				  _M_get_Tp_allocator());
+                		  _M_deallocate(__new_start, __len);
+                		  __throw_exception_again;
+                		}
+                	      std::_Destroy(this->_M_impl._M_start, this->_M_impl._M_finish,
+                			    _M_get_Tp_allocator());
+                	      _M_deallocate(this->_M_impl._M_start,
+                			    this->_M_impl._M_end_of_storage
+                			    - this->_M_impl._M_start);
+                	      this->_M_impl._M_start = __new_start;
+                	      this->_M_impl._M_finish = __new_finish;
+                	      this->_M_impl._M_end_of_storage = __new_start + __len;
+                	    }
+                	}
+                    }
+                
+                #if __cplusplus >= 201103L
+                  template<typename _Tp, typename _Alloc>
+                    void
+                    vector<_Tp, _Alloc>::
+                    _M_default_append(size_type __n)
+                    {
+                      if (__n != 0)
+                	{
+                	  if (size_type(this->_M_impl._M_end_of_storage
+                			- this->_M_impl._M_finish) >= __n)
+                	    {
+                	      std::__uninitialized_default_n_a(this->_M_impl._M_finish,
+                					       __n, _M_get_Tp_allocator());
+                	      this->_M_impl._M_finish += __n;
+                	    }
+                	  else
+                	    {
+                	      const size_type __len =
+                		_M_check_len(__n, "vector::_M_default_append");
+                	      const size_type __old_size = this->size();
+                	      pointer __new_start(this->_M_allocate(__len));
+                	      pointer __new_finish(__new_start);
+                	      __try
+                		{
+                		  __new_finish
+                		    = std::__uninitialized_move_if_noexcept_a
+                		    (this->_M_impl._M_start, this->_M_impl._M_finish,
+                		     __new_start, _M_get_Tp_allocator());
+                		  std::__uninitialized_default_n_a(__new_finish, __n,
+                						   _M_get_Tp_allocator());
+                		  __new_finish += __n;
+                		}
+                	      __catch(...)
+                		{
+                		  std::_Destroy(__new_start, __new_finish,
+                				_M_get_Tp_allocator());
+                		  _M_deallocate(__new_start, __len);
+                		  __throw_exception_again;
+                		}
+                	      std::_Destroy(this->_M_impl._M_start, this->_M_impl._M_finish,
+                			    _M_get_Tp_allocator());
+                	      _M_deallocate(this->_M_impl._M_start,
+                			    this->_M_impl._M_end_of_storage
+                			    - this->_M_impl._M_start);
+                	      this->_M_impl._M_start = __new_start;
+                	      this->_M_impl._M_finish = __new_finish;
+                	      this->_M_impl._M_end_of_storage = __new_start + __len;
+                	    }
+                	}
+                    }
+                
+                  template<typename _Tp, typename _Alloc>
+                    bool
+                    vector<_Tp, _Alloc>::
+                    _M_shrink_to_fit()
+                    {
+                      if (capacity() == size())
+                	return false;
+                      return std::__shrink_to_fit_aux<vector>::_S_do_it(*this);
+                    }
+                #endif
+                
+                  template<typename _Tp, typename _Alloc>
+                    template<typename _InputIterator>
+                      void
+                      vector<_Tp, _Alloc>::
+                      _M_range_insert(iterator __pos, _InputIterator __first,
+                		      _InputIterator __last, std::input_iterator_tag)
+                      {
+                	for (; __first != __last; ++__first)
+                	  {
+                	    __pos = insert(__pos, *__first);
+                	    ++__pos;
+                	  }
+                      }
+                
+                  template<typename _Tp, typename _Alloc>
+                    template<typename _ForwardIterator>
+                      void
+                      vector<_Tp, _Alloc>::
+                      _M_range_insert(iterator __position, _ForwardIterator __first,
+                		      _ForwardIterator __last, std::forward_iterator_tag)
+                      {
+                	if (__first != __last)
+                	  {
+                	    const size_type __n = std::distance(__first, __last);
+                	    if (size_type(this->_M_impl._M_end_of_storage
+                			  - this->_M_impl._M_finish) >= __n)
+                	      {
+                		const size_type __elems_after = end() - __position;
+                		pointer __old_finish(this->_M_impl._M_finish);
+                		if (__elems_after > __n)
+                		  {
+                		    std::__uninitialized_move_a(this->_M_impl._M_finish - __n,
+                						this->_M_impl._M_finish,
+                						this->_M_impl._M_finish,
+                						_M_get_Tp_allocator());
+                		    this->_M_impl._M_finish += __n;
+                		    _GLIBCXX_MOVE_BACKWARD3(__position.base(),
+                					    __old_finish - __n, __old_finish);
+                		    std::copy(__first, __last, __position);
+                		  }
+                		else
+                		  {
+                		    _ForwardIterator __mid = __first;
+                		    std::advance(__mid, __elems_after);
+                		    std::__uninitialized_copy_a(__mid, __last,
+                						this->_M_impl._M_finish,
+                						_M_get_Tp_allocator());
+                		    this->_M_impl._M_finish += __n - __elems_after;
+                		    std::__uninitialized_move_a(__position.base(),
+                						__old_finish,
+                						this->_M_impl._M_finish,
+                						_M_get_Tp_allocator());
+                		    this->_M_impl._M_finish += __elems_after;
+                		    std::copy(__first, __mid, __position);
+                		  }
+                	      }
+                	    else
+                	      {
+                		const size_type __len =
+                		  _M_check_len(__n, "vector::_M_range_insert");
+                		pointer __new_start(this->_M_allocate(__len));
+                		pointer __new_finish(__new_start);
+                		__try
+                		  {
+                		    __new_finish
+                		      = std::__uninitialized_move_if_noexcept_a
+                		      (this->_M_impl._M_start, __position.base(),
+                		       __new_start, _M_get_Tp_allocator());
+                		    __new_finish
+                		      = std::__uninitialized_copy_a(__first, __last,
+                						    __new_finish,
+                						    _M_get_Tp_allocator());
+                		    __new_finish
+                		      = std::__uninitialized_move_if_noexcept_a
+                		      (__position.base(), this->_M_impl._M_finish,
+                		       __new_finish, _M_get_Tp_allocator());
+                		  }
+                		__catch(...)
+                		  {
+                		    std::_Destroy(__new_start, __new_finish,
+                				  _M_get_Tp_allocator());
+                		    _M_deallocate(__new_start, __len);
+                		    __throw_exception_again;
+                		  }
+                		std::_Destroy(this->_M_impl._M_start, this->_M_impl._M_finish,
+                			      _M_get_Tp_allocator());
+                		_M_deallocate(this->_M_impl._M_start,
+                			      this->_M_impl._M_end_of_storage
+                			      - this->_M_impl._M_start);
+                		this->_M_impl._M_start = __new_start;
+                		this->_M_impl._M_finish = __new_finish;
+                		this->_M_impl._M_end_of_storage = __new_start + __len;
+                	      }
+                	  }
+                      }
+                
+                
+                  // vector<bool>
+                  template<typename _Alloc>
+                    void
+                    vector<bool, _Alloc>::
+                    _M_reallocate(size_type __n)
+                    {
+                      _Bit_type* __q = this->_M_allocate(__n);
+                      this->_M_impl._M_finish = _M_copy_aligned(begin(), end(),
+                						iterator(__q, 0));
+                      this->_M_deallocate();
+                      this->_M_impl._M_start = iterator(__q, 0);
+                      this->_M_impl._M_end_of_storage = __q + _S_nword(__n);
+                    }
+                
+                  template<typename _Alloc>
+                    void
+      204368 ->     vector<bool, _Alloc>::
+                    _M_fill_insert(iterator __position, size_type __n, bool __x)
+                    {
+                      if (__n == 0)
+                	return;
+                      if (capacity() - size() >= __n)
+                	{
+                	  std::copy_backward(__position, end(),
+                			     this->_M_impl._M_finish + difference_type(__n));
+                	  std::fill(__position, __position + difference_type(__n), __x);
+                	  this->_M_impl._M_finish += difference_type(__n);
+                	}
+                      else
+                	{
+                	  const size_type __len = 
+                	    _M_check_len(__n, "vector<bool>::_M_fill_insert");
+                	  _Bit_type * __q = this->_M_allocate(__len);
+                	  iterator __i = _M_copy_aligned(begin(), __position,
+                					 iterator(__q, 0));
+                	  std::fill(__i, __i + difference_type(__n), __x);
+                	  this->_M_impl._M_finish = std::copy(__position, end(),
+                					      __i + difference_type(__n));
+                	  this->_M_deallocate();
+                	  this->_M_impl._M_end_of_storage = __q + _S_nword(__len);
+                	  this->_M_impl._M_start = iterator(__q, 0);
+                	}
+                    }
+                
+                  template<typename _Alloc>
+                    template<typename _ForwardIterator>
+                      void
+                      vector<bool, _Alloc>::
+                      _M_insert_range(iterator __position, _ForwardIterator __first, 
+                		      _ForwardIterator __last, std::forward_iterator_tag)
+                      {
+                	if (__first != __last)
+                	  {
+                	    size_type __n = std::distance(__first, __last);
+                	    if (capacity() - size() >= __n)
+                	      {
+                		std::copy_backward(__position, end(),
+                				   this->_M_impl._M_finish
+                				   + difference_type(__n));
+                		std::copy(__first, __last, __position);
+                		this->_M_impl._M_finish += difference_type(__n);
+                	      }
+                	    else
+                	      {
+                		const size_type __len =
+                		  _M_check_len(__n, "vector<bool>::_M_insert_range");
+                		_Bit_type * __q = this->_M_allocate(__len);
+                		iterator __i = _M_copy_aligned(begin(), __position,
+                					       iterator(__q, 0));
+                		__i = std::copy(__first, __last, __i);
+                		this->_M_impl._M_finish = std::copy(__position, end(), __i);
+                		this->_M_deallocate();
+                		this->_M_impl._M_end_of_storage = __q + _S_nword(__len);
+                		this->_M_impl._M_start = iterator(__q, 0);
+                	      }
+                	  }
+                      }
+                
+                  template<typename _Alloc>
+                    void
+                    vector<bool, _Alloc>::
+                    _M_insert_aux(iterator __position, bool __x)
+                    {
+                      if (this->_M_impl._M_finish._M_p != this->_M_impl._M_end_of_storage)
+                	{
+                	  std::copy_backward(__position, this->_M_impl._M_finish, 
+                			     this->_M_impl._M_finish + 1);
+                	  *__position = __x;
+                	  ++this->_M_impl._M_finish;
+                	}
+                      else
+                	{
+                	  const size_type __len =
+                	    _M_check_len(size_type(1), "vector<bool>::_M_insert_aux");
+                	  _Bit_type * __q = this->_M_allocate(__len);
+                	  iterator __i = _M_copy_aligned(begin(), __position,
+                					 iterator(__q, 0));
+                	  *__i++ = __x;
+                	  this->_M_impl._M_finish = std::copy(__position, end(), __i);
+                	  this->_M_deallocate();
+                	  this->_M_impl._M_end_of_storage = __q + _S_nword(__len);
+                	  this->_M_impl._M_start = iterator(__q, 0);
+                	}
+                    }
+                
+                #if __cplusplus >= 201103L
+                  template<typename _Alloc>
+                    bool
+                    vector<bool, _Alloc>::
+                    _M_shrink_to_fit()
+                    {
+                      if (capacity() - size() < int(_S_word_bit))
+                	return false;
+                      __try
+                	{
+                	  _M_reallocate(size());
+                	  return true;
+                	}
+                      __catch(...)
+                	{ return false; }
+                    }
+                #endif
+                
+                _GLIBCXX_END_NAMESPACE_CONTAINER
+                } // namespace std
+                
+                #if __cplusplus >= 201103L
+                
+                namespace std _GLIBCXX_VISIBILITY(default)
+                {
+                _GLIBCXX_BEGIN_NAMESPACE_VERSION
+                
+                  template<typename _Alloc>
+                    size_t
+                    hash<_GLIBCXX_STD_C::vector<bool, _Alloc>>::
+                    operator()(const _GLIBCXX_STD_C::vector<bool, _Alloc>& __b) const noexcept
+                    {
+                      size_t __hash = 0;
+                      using _GLIBCXX_STD_C::_S_word_bit;
+                      using _GLIBCXX_STD_C::_Bit_type;
+                
+                      const size_t __words = __b.size() / _S_word_bit;
+                      if (__words)
+                	{
+                	  const size_t __clength = __words * sizeof(_Bit_type);
+                	  __hash = std::_Hash_impl::hash(__b._M_impl._M_start._M_p, __clength);
+                	}
+                
+                      const size_t __extrabits = __b.size() % _S_word_bit;
+                      if (__extrabits)
+                	{
+                	  _Bit_type __hiword = *__b._M_impl._M_finish._M_p;
+                	  __hiword &= ~((~static_cast<_Bit_type>(0)) << __extrabits);
+                
+                	  const size_t __clength
+                	    = (__extrabits + __CHAR_BIT__ - 1) / __CHAR_BIT__;
+                	  if (__words)
+                	    __hash = std::_Hash_impl::hash(&__hiword, __clength, __hash);
+                	  else
+                	    __hash = std::_Hash_impl::hash(&__hiword, __clength);
+                	}
+                
+                      return __hash;
+                    }
+                
+                _GLIBCXX_END_NAMESPACE_VERSION
+                } // namespace std
+                
+                #endif // C++11
+                
+                #endif /* _VECTOR_TCC */
+
+
+Top 10 Lines:
+
+     Line      Count
+
+      318     432608
+      704     204368
+      441      19913
+      160       8840
+
+Execution Summary:
+
+        4   Executable lines in this file
+        4   Lines executed
+   100.00   Percent of the file executed
+
+   665729   Total number of line executions
+166432.25   Average executions per line
+
+
+*** File /home/rzhou/Codes/gSpan/src/seperator.cc:
+                #include "seperator.h"
+                
+                static const uint32_t MAX_LENGTH = 1000;
+                
+                namespace gspan {
+           1 -> 	uint32_t Seperator::seperate(const char* file_path, Input& stream) {
+                		char line[MAX_LENGTH];
+                
+                		FILE *fp = fopen(file_path, "r+");
+                
+                		if (fp == NULL) {
+                			fprintf(stderr, "error occurs when reading file %s\n", file_path);
+                			exit(GSPAN_ERROR);
+                		}
+                		
+                		uint32_t ncount = 0;
+                
+                		while (fgets(line, MAX_LENGTH - 1, fp) != NULL) {
+                			stream.resize(ncount + 1);
+                			char *pch = NULL;
+                			pch = strtok(line, _m_token);
+                			while (pch != NULL) {
+                				stream[ncount].push_back(std::string(pch));
+                				pch = strtok(NULL, _m_token);
+                			}
+                			ncount++;
+                		}	
+                
+                		fclose(fp);
+                
+                		return ncount;
+                	};
+                }//namespace gspan
+                
+
+
+Top 10 Lines:
+
+     Line      Count
+
+        6          1
+
+Execution Summary:
+
+        1   Executable lines in this file
+        1   Lines executed
+   100.00   Percent of the file executed
+
+        1   Total number of line executions
+     1.00   Average executions per line
+
+
+*** File /home/rzhou/Codes/gSpan/src/main.cc:
+                #include "sys/time.h"
+                #include "gspan.h"
+                #include "database.h"
+                #include "gspan_utils.h"
+                
+                //initialize instance
+                using gspan::DataBase;
+                DataBase* DataBase::_m_instance = new DataBase();
+                
+                int main(int argc, char *argv[])
+       ##### -> {
+                	gspan::parameters_t parameters;
+                	
+                	//gspan -file ../data/ -support 0.30
+                	uint32_t nargh = gspan::get_parameters(&parameters, argc, argv);
+                
+                	//[parameters] - [number of default parameters]
+                	if (nargh != gspan::get_narg() - 1) {
+                		exit(GSPAN_ERROR);
+                	}
+                
+                	std::string seperator;
+                	gspan::get_seperator(&parameters, seperator);
+                	gspan::print_parameters(&parameters);
+                
+                	timeval t1, t2;
+                	double elapsed_time = 0.0f;
+                	gettimeofday(&t1, NULL);
+                
+                	gspan::GSpan gspan;
+                	gspan.execute(seperator.c_str(), parameters.file_path, parameters.support);	
+                
+                	gettimeofday(&t2, NULL);
+                	elapsed_time = (t2.tv_sec - t1.tv_sec) * 1000.0; 
+                	elapsed_time += (t2.tv_usec - t1.tv_usec) / 1000.0;
+                	printf("elapsed time %f\n", elapsed_time);
+                	return 0;
+           1 -> }
+
+
+Top 10 Lines:
+
+     Line      Count
+
+       38          1
+
+Execution Summary:
+
+        2   Executable lines in this file
+        2   Lines executed
+   100.00   Percent of the file executed
+
+        1   Total number of line executions
+     0.50   Average executions per line

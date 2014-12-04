@@ -1,11 +1,11 @@
 #ifndef COMMON_H
 #define COMMON_H
+#include <stdint.h>
 #include <string>
 #include <vector>
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
-#include <stdint.h>
 
 typedef std::vector<std::vector<std::string> > Input;
 
