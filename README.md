@@ -25,9 +25,9 @@ example:
 
 1. You should use `&>` or other redirect operation since I have not included log-writer in this version, but I will update it in a month with other features. 
 
-2. Only `src-multithread` directory contains the most efficient codes, other directories are used for testing. I will remove them once I implemented all the expected features.
+2. Only `src-multithread` directory contains the most efficient codes, other directories are used for testing. I will remove them at the time I implement all the expected features.
 
-3. The parameter, called `NUM_THREAD`, is to control the number of threads in the `common.h` file. Currently I adopt a very coarse data seperation method. 
+3. The parameter in the `common.h` file, called `NUM_THREAD`, is to control the number of threads. Currently I adopt a very coarse data seperation method. 
 
 
 **Progress:**
