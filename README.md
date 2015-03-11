@@ -17,6 +17,7 @@ gSpan algorithm in data mining
 example:
 
 	cd ./src-multithread
+	make
 	./gspan -file graph.data -support 0.1 &> log_03112015
 	
 
