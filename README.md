@@ -27,7 +27,7 @@ example:
 
 2. Only `src-multithread` directory contains the most efficient codes, other directories are used for testing. I will remove them at the time I implement all the expected features.
 
-3. The parameter in the `common.h` file, called `NUM_THREAD`, is to control the number of threads. Currently I adopt a very coarse data seperation method. 
+3. The parameter in the `common.h` file, called `THREAD_NUM`, is to control the number of threads. Currently I adopt a very coarse data seperation method. 
 
 
 **Progress:**
