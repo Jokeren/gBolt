@@ -16,7 +16,7 @@ gSpan algorithm in data mining
 
 example:
 
-	cd ./src-multithread
+	cd ./src
 	make
 	./gspan -file graph.data -support 0.1 &> log_03112015
 	
@@ -25,16 +25,13 @@ example:
 
 1. You should use `&>` or other redirect operation since I have not included log-writer in this version, but I will update it in a month with other features. 
 
-2. Only `src-multithread` directory contains the most efficient codes, other directories are used for testing. I will remove them at the time I implement all the expected features.
-
 3. The parameter in the `common.h` file, called `THREAD_NUM`, is to control the number of threads. Currently I adopt a very coarse data seperation method. 
 
 
 **Progress:**
 
-1. MPI
-2. Optimize the sequential version.
-3. Detailed parallelism
+1. Change parameter using patterns
+2. Change log writter
 
 12/4/2014
 
