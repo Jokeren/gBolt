@@ -4,30 +4,39 @@
 namespace gspan {
 	bool GSpan::split(ProjectionMap& projection_map)
 	{
-		size_t map_size = projection_map.size();
+		//the size is not the actual size of the projection_map, but the
+		//projection map which contains itemss greater than support
+		size_t map_size = 0;
 
-		if (map_size < THREAD_NUM) 
+		for (ProjectionMap::reverse_iterator it = projection_map.rbegin(); it != projection_map.rend(); ++it) {
+			if ((it->second).size() < _m_nsupport)
+				continue;
+			++map_size;
+		}
+
+		//can not be divided 
+		if (map_size < THREAD_NUM)
 			return false;
 
 		size_t interval = map_size / THREAD_NUM;
 		size_t tid = 0;
-		size_t idx = 0;
+		size_t idx_output = 0;
 
-		_m_split_idx[tid] = projection_map.rbegin();
-		_m_output[tid] = new Output(idx);
-		++tid;
+		for (ProjectionMap::reverse_iterator it = projection_map.rbegin(); it != projection_map.rend(); ++it) {
+			if ((it->second).size() < _m_nsupport)
+				continue;
 
-		for (ProjectionMap::reverse_iterator it = projection_map.rbegin(); it != projection_map.rend(); ++it, ++idx) {
-			if (idx == interval * tid) {
-				_m_output[tid] = new Output(idx);
+			if (idx_output == interval * tid) {
+				_m_output[tid] = new Output();
 				_m_split_idx[tid] = it;
 				++tid;
 			}
+			++idx_output;
+
 			if (tid == THREAD_NUM)
 				break;
 		}
 		_m_split_idx[tid] = projection_map.rend();
-			
 
 		return true;
 	}	

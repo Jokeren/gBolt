@@ -17,17 +17,18 @@ namespace gspan {
 	}
 
 	void GSpan::enumerate(const Projection& projection, const std::vector<uint32_t>& right_most_path,
-			ProjectionMapBackward& projection_map_backward, ProjectionMapForward& projection_map_forward, uint32_t min_label)
+			ProjectionMapBackward& projection_map_backward, ProjectionMapForward& projection_map_forward, 
+			uint32_t min_label, size_t tid)
 	{
 		for (size_t i = 0; i < projection.size(); ++i) {
 			History *p_history = new History(&(projection[i]), _m_graphs[projection[i].id]);
 			p_history->build();
 
-			get_backward(&(projection[i]), right_most_path, p_history, projection_map_backward);
+			get_backward(&(projection[i]), right_most_path, p_history, projection_map_backward, tid);
 
-			get_first_forward(&(projection[i]), right_most_path, p_history, projection_map_forward, min_label);
+			get_first_forward(&(projection[i]), right_most_path, p_history, projection_map_forward, min_label, tid);
 
-			get_other_forward(&(projection[i]), right_most_path, p_history, projection_map_forward, min_label);
+			get_other_forward(&(projection[i]), right_most_path, p_history, projection_map_forward, min_label, tid);
 
 			delete(p_history);
 		}
@@ -81,7 +82,7 @@ namespace gspan {
 	}
 
 	void GSpan::get_backward(const struct pre_dfs_t *prev_dfs, const std::vector<uint32_t>& right_most_path, const History *p_history,
-			ProjectionMapBackward& projection_map_backward)
+			ProjectionMapBackward& projection_map_backward, size_t tid)
 	{
 		const struct edge_t *last_edge = p_history->get_edge(right_most_path[0]);
 
@@ -104,8 +105,8 @@ namespace gspan {
 						(last_node.edges[j].label > edge->label ||
 						 (last_node.edges[j].label == edge->label &&
 						  last_node.label >= to_node.label))) {
-					uint32_t from_id = _m_dfs_codes[right_most_path[0]].to;
-					uint32_t to_id = _m_dfs_codes[right_most_path[i - 1]].from; 
+					uint32_t from_id = _m_dfs_codes[tid][right_most_path[0]].to;
+					uint32_t to_id = _m_dfs_codes[tid][right_most_path[i - 1]].from; 
 					struct dfs_code_t dfs_code;
 
 					dfs_code.from = from_id;
@@ -125,7 +126,7 @@ namespace gspan {
 	}
 
 	void GSpan::get_first_forward(const struct pre_dfs_t *prev_dfs, const std::vector<uint32_t>& right_most_path, const History *p_history,
-			ProjectionMapForward& projection_map_forward, uint32_t min_label)
+			ProjectionMapForward& projection_map_forward, uint32_t min_label, size_t tid)
 	{
 		const struct edge_t *last_edge = p_history->get_edge(right_most_path[0]);
 
@@ -145,7 +146,7 @@ namespace gspan {
 			if (p_history->has_vertice(edge->to) || to_node.label < min_label)
 				continue;
 
-			uint32_t to_id = _m_dfs_codes[right_most_path[0]].to;
+			uint32_t to_id = _m_dfs_codes[tid][right_most_path[0]].to;
 			struct dfs_code_t dfs_code;
 
 			dfs_code.from = to_id;
@@ -167,7 +168,7 @@ namespace gspan {
 	}
 
 	void GSpan::get_other_forward(const struct pre_dfs_t *prev_dfs, const std::vector<uint32_t>& right_most_path, const History *p_history,
-			ProjectionMapForward& projection_map_forward, uint32_t min_label)
+			ProjectionMapForward& projection_map_forward, uint32_t min_label, size_t tid)
 	{
 		const Graph& graph = _m_graphs[prev_dfs->id];
 
@@ -189,8 +190,8 @@ namespace gspan {
 						(cur_edge->label == cur_node.edges[j].label && 
 						 cur_to.label <= to_node.label)) {
 
-					uint32_t from_id = _m_dfs_codes[right_most_path[i]].from;
-					uint32_t to_id = _m_dfs_codes[right_most_path[0]].to;
+					uint32_t from_id = _m_dfs_codes[tid][right_most_path[i]].from;
+					uint32_t to_id = _m_dfs_codes[tid][right_most_path[0]].to;
 					struct dfs_code_t dfs_code;
 
 					dfs_code.from = from_id;

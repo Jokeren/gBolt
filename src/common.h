@@ -16,4 +16,6 @@ enum GSpanReturnCode {
 	GSPAN_NCOUNT
 };
 
+static const uint32_t THREAD_NUM = 12;
+
 #endif
