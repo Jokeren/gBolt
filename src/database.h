@@ -22,6 +22,10 @@ namespace gspan {
 				return _m_graph;
 			}
 
+			const size_t size() {
+				return _m_graph.size();
+			}
+
 			const char* c_str();
 
 		private:
