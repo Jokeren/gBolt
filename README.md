@@ -18,7 +18,7 @@ example:
 
 	cd ./src
 	make
-	./gspan -file graph.data -support 0.1 &> log_03112015
+	./gspan -file ../data/graph.data -support 0.1 &> log_03112015
 	
 
 **Notice:**
