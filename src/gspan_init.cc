@@ -70,6 +70,7 @@ namespace gspan {
 		uint32_t edge_id = 0;
 		double total_edge = 0.0f;
 		double density = 0.0f;
+		std::vector<std::set<uint32_t> > edge_label_set;
 
 		for (size_t i = 0; i < input.size(); ++i) {
 			if (input[i][0] == "t") {
@@ -85,6 +86,8 @@ namespace gspan {
 					graph.clear();
 					vertice.clear();
 				}
+
+				edge_label_set.resize(edge_label_set.size() + 1);
 
 				char indicator, seperator;
 				uint32_t idx;
@@ -118,6 +121,9 @@ namespace gspan {
 				sscanf(input[i][2].c_str(), "%u", &to);
 				sscanf(input[i][3].c_str(), "%u", &label);
 
+				//add label
+				edge_label_set[graph_idx - 1].insert(label);
+
 				struct edge_t edge;
 				edge.from = from;
 				edge.to = to;
@@ -142,6 +148,28 @@ namespace gspan {
 		
 		printf("average graph size : %f\n", total_edge / database->size());
 		printf("average density: %f\n", density / database->size());
+		for (size_t i = 0; i < graph_idx; ++i) {
+			for (size_t j = i + 1; j < graph_idx; ++j) {
+				printf("unique edge label set of %zu and %zu \n", i, j);
+				printf("%zu : \n", i);
+				for (std::set<uint32_t>::iterator edge_iterator = edge_label_set[i].begin(); 
+						edge_iterator != edge_label_set[i].end(); ++edge_iterator) {
+					if (edge_label_set[j].find(*edge_iterator) == edge_label_set[j].end()) {
+						printf("%zu ", *edge_iterator);
+					}
+				}
+				printf("\n");
+
+				printf("%zu : \n", j);
+				for (std::set<uint32_t>::iterator edge_iterator = edge_label_set[j].begin(); 
+						edge_iterator != edge_label_set[j].end(); ++edge_iterator) {
+					if (edge_label_set[i].find(*edge_iterator) == edge_label_set[i].end()) {
+						printf("%zu ", *edge_iterator);
+					}
+				}
+				printf("\n");
+			}
+		}
 		
 		_m_nsupport = static_cast<uint32_t>(graph_idx * _m_support);
 
