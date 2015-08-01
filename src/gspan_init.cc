@@ -148,26 +148,47 @@ namespace gspan {
 		
 		printf("average graph size : %f\n", total_edge / database->size());
 		printf("average density: %f\n", density / database->size());
+		std::vector<std::vector<size_t> > unique_set_first(graph_idx * (graph_idx + 1) / 2);
+		std::vector<std::vector<size_t> > unique_set_second(graph_idx * (graph_idx + 1) / 2);
+
+		size_t set_idx = 0;
 		for (size_t i = 0; i < graph_idx; ++i) {
-			for (size_t j = i + 1; j < graph_idx; ++j) {
-				printf("unique edge label set of %zu and %zu \n", i, j);
-				printf("%zu : \n", i);
+			for (size_t j = i + 1; j < graph_idx; ++j, ++set_idx) {
 				for (std::set<uint32_t>::iterator edge_iterator = edge_label_set[i].begin(); 
 						edge_iterator != edge_label_set[i].end(); ++edge_iterator) {
 					if (edge_label_set[j].find(*edge_iterator) == edge_label_set[j].end()) {
-						printf("%zu ", *edge_iterator);
+						unique_set_first[set_idx].push_back(*edge_iterator);
 					}
 				}
-				printf("\n");
 
-				printf("%zu : \n", j);
 				for (std::set<uint32_t>::iterator edge_iterator = edge_label_set[j].begin(); 
 						edge_iterator != edge_label_set[j].end(); ++edge_iterator) {
 					if (edge_label_set[i].find(*edge_iterator) == edge_label_set[i].end()) {
-						printf("%zu ", *edge_iterator);
+						unique_set_second[set_idx].push_back(*edge_iterator);
 					}
 				}
-				printf("\n");
+			}
+		}
+
+		set_idx = 0;
+		for (size_t i = 0; i < graph_idx; ++i) {
+			for (size_t j = i + 1; j < graph_idx; ++j, ++set_idx) {
+				printf("unique edge label set of %zu and %zu \n", i, j);
+				if (unique_set_first[set_idx].size() != 0) {
+					for (size_t idx = 0; idx < unique_set_first[set_idx].size(); ++idx) {
+						printf("%zu : \n", i);
+						printf("%zu ", unique_set_first[set_idx][idx]);
+						printf("\n");
+					}
+				}
+
+				if (unique_set_second[set_idx].size() != 0) {
+					for (size_t idx = 0; idx < unique_set_second[set_idx].size(); ++idx) {
+						printf("%zu : \n", j);
+						printf("%zu ", unique_set_second[set_idx][idx]);
+						printf("\n");
+					}
+				}
 			}
 		}
 		
