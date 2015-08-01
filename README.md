@@ -14,12 +14,22 @@ gSpan algorithm in data mining
     ./gspan -file [file_name] -support [support: float] &> log
 
 
-example:
-
-	cd ./src
-	make
-	./gspan -file graph.data -support 0.1 &> log_03112015
+###example:
+Go to you src directory
+```
+cd ./src
+```	
+use make to generate the .exe file	
+```	
+make
+```
+run gaston on your graph.data with the support=0.1 and you will get the result on a file named log_03112015	
+```	
+./gspan -file graph.data -support 0.1 &> log_03112015
+```
 	
+
+
 
 **Notice:**
 
