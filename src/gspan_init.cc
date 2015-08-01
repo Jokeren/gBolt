@@ -77,7 +77,7 @@ namespace gspan {
 				if (i != 0) {
 					total_edge += edge_id;
 					if (vertice.size() != 0) {
-						density += 2.0f * edge_id / (vertice.size() * (vertice.size() - 1));
+						density += (2.0f * edge_id) / (vertice.size() * (vertice.size() - 1));
 					}
 					graph.set_nedges(edge_id);
 					graph.set_vertice(vertice);
@@ -147,7 +147,7 @@ namespace gspan {
 		database->push_graph(graph);	
 		total_edge += edge_id;
 		if (vertice.size() != 0) {
-			density += 2.0f * edge_id / (vertice.size() * (vertice.size() - 1));
+			density += (2.0f * edge_id) / (vertice.size() * (vertice.size() - 1));
 		}
 		
 		printf("average graph size : %f\n", total_edge / database->size());
