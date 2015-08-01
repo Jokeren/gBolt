@@ -145,6 +145,10 @@ namespace gspan {
 		
 		graph.set_vertice(vertice);
 		database->push_graph(graph);	
+		total_edge += edge_id;
+		if (vertice.size() != 0) {
+			density += 2.0f * edge_id / (vertice.size() * (vertice.size() - 1));
+		}
 		
 		printf("average graph size : %f\n", total_edge / database->size());
 		printf("average density: %f\n", density / database->size());
