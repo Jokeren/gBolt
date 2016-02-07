@@ -11,7 +11,7 @@ gSpan algorithm in data mining
 
 **Usage:**
 	
-    ./gspan -file [file_name] -support [support: float] &> log
+    ./gspan -file [file_name] -output [output_file_name] -support [support: float]
 
 ###example:
 Go to you src directory
