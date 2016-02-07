@@ -3,10 +3,11 @@
 #include "common.h"
 
 namespace gspan {
-	const static uint32_t N_ARG = 3;
-	const static char *ARGH[N_ARG] = { "-file", "-support", "-sep"};
+	const static uint32_t N_ARG = 4;
+	const static char *ARGH[N_ARG] = { "-file", "-output", "-support", "-sep"};
 
 	struct parameters_t {
+		char *output_name;
 		char *file_path;
 		int sep_type;
 		double support;

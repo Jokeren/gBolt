@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 	gettimeofday(&t1, NULL);
 
 	gspan::GSpan gspan;
-	gspan.execute(seperator.c_str(), parameters.file_path, parameters.support);	
+	gspan.execute(seperator.c_str(), parameters.file_path, parameters.output_name, parameters.support);	
 
 	gettimeofday(&t2, NULL);
 	elapsed_time = (t2.tv_sec - t1.tv_sec) * 1000.0; 

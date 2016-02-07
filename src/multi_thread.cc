@@ -22,12 +22,13 @@ namespace gspan {
 		size_t tid = 0;
 		size_t idx_output = 0;
 
+		
 		for (ProjectionMap::reverse_iterator it = projection_map.rbegin(); it != projection_map.rend(); ++it) {
 			if ((it->second).size() < _m_nsupport)
 				continue;
 
 			if (idx_output == interval * tid) {
-				_m_output[tid] = new Output();
+				_m_output[tid] = new Output(_m_output_name, tid);
 				_m_split_idx[tid] = it;
 				++tid;
 			}

@@ -5,10 +5,11 @@
 
 namespace gspan {
 
-	void GSpan::execute(const char *seperator_type, const char *file_path, double support) 
+	void GSpan::execute(const char *seperator_type, const char *file_path, const char *output_name, double support) 
 	{
 		_m_seperator = new Seperator(seperator_type);
 		_m_file_path = file_path;
+		_m_output_name = output_name;
 		_m_support = support;
 
 		Input gspan_input;				

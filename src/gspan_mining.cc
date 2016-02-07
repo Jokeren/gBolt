@@ -202,7 +202,7 @@ namespace gspan {
 		if (!flag)
 			return GSPAN_SUCCESS;
 
-		report(nsupport, tid);
+		report(nsupport, tid, projection);
 #ifdef DEBUG
 		printf("subgraph_mining here0\n");
 #endif
@@ -261,6 +261,37 @@ namespace gspan {
 		build_graph(graph, tid);
 
 		std::stringstream ss;
+		for (size_t i = 0; i < graph.size(); ++i) {
+			const struct vertex_t& vertex = graph.get_vertex(i);
+			ss << "v " << vertex.id << " " << vertex.label << "\n";
+		}
+
+		for (size_t i = 0; i < _m_dfs_codes[tid].size(); ++i) {
+			ss << "e " << _m_dfs_codes[tid][i].from << " " << _m_dfs_codes[tid][i].to
+				<<" " <<_m_dfs_codes[tid][i].edge_label << "\n";
+		}
+
+		ss << "\n";
+
+		_m_output[tid]->push_back(ss.str(), nsupport);
+	}
+
+	void GSpan::report(uint32_t nsupport, size_t tid, Projection& projection)
+	{
+		Graph graph;
+		build_graph(graph, tid);
+
+		std::stringstream ss;
+		ss << "parent graphs: " << std::endl;
+		uint32_t prev_id = -1;
+		for (size_t i = 0; i < projection.size(); ++i) {
+			if (projection[i].id != prev_id) {
+				prev_id = projection[i].id;
+				ss << prev_id << " ";
+			}
+		}
+		ss << "\n";
+		
 		for (size_t i = 0; i < graph.size(); ++i) {
 			const struct vertex_t& vertex = graph.get_vertex(i);
 			ss << "v " << vertex.id << " " << vertex.label << "\n";
