@@ -282,7 +282,18 @@ namespace gspan {
 		build_graph(graph, tid);
 
 		std::stringstream ss;
-		ss << "parent graphs: " << std::endl;
+		
+		for (size_t i = 0; i < graph.size(); ++i) {
+			const struct vertex_t& vertex = graph.get_vertex(i);
+			ss << "v " << vertex.id << " " << vertex.label << std::endl;
+		}
+
+		for (size_t i = 0; i < _m_dfs_codes[tid].size(); ++i) {
+			ss << "e " << _m_dfs_codes[tid][i].from << " " << _m_dfs_codes[tid][i].to
+				<<" " <<_m_dfs_codes[tid][i].edge_label << std::endl;
+		}
+
+		ss << "x: " << std::endl;
 		uint32_t prev_id = -1;
 		for (size_t i = 0; i < projection.size(); ++i) {
 			if (projection[i].id != prev_id) {
@@ -290,19 +301,7 @@ namespace gspan {
 				ss << prev_id << " ";
 			}
 		}
-		ss << "\n";
-		
-		for (size_t i = 0; i < graph.size(); ++i) {
-			const struct vertex_t& vertex = graph.get_vertex(i);
-			ss << "v " << vertex.id << " " << vertex.label << "\n";
-		}
-
-		for (size_t i = 0; i < _m_dfs_codes[tid].size(); ++i) {
-			ss << "e " << _m_dfs_codes[tid][i].from << " " << _m_dfs_codes[tid][i].to
-				<<" " <<_m_dfs_codes[tid][i].edge_label << "\n";
-		}
-
-		ss << "\n";
+		ss << std::endl;
 
 		_m_output[tid]->push_back(ss.str(), nsupport);
 	}

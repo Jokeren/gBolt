@@ -70,7 +70,7 @@ namespace gspan {
 		for (size_t i = 0; i < THREAD_NUM; ++i) {
 			ret_code = pthread_join(thread[i], NULL);
 			if (ret_code) {
-				fprintf(stderr, "create thread error! %d\n", ret_code);
+				fprintf(stderr, "destory thread error! %d\n", ret_code);
 				exit(GSPAN_ERROR);
 			}
 		}

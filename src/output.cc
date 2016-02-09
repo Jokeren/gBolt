@@ -11,9 +11,9 @@ namespace gspan {
 	void Output::print()
 	{
 		std::stringstream ss;
-		ss << _m_output_file << _m_tid;
+		ss << _m_output_file;
 
-		FILE* output_file = fopen(ss.str().c_str(), "w");
+		FILE* output_file = fopen(ss.str().c_str(), "a+");
 
 		for (size_t i = 0; i < _m_buffer.size(); ++i) {
 			fprintf(output_file, "t # %zu * %u\n", _m_start_idx + i, _m_support[i]);
