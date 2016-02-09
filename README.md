@@ -11,7 +11,12 @@ gSpan algorithm in data mining
 
 **Usage:**
 	
+	cd src
     ./gspan -file [file_name] -output [output_file_name] -support [support: float]
+
+	or
+
+	./script/Chemical_340.sh
 
 ###example:
 Go to you src directory
