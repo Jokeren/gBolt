@@ -87,6 +87,7 @@ namespace gspan {
 
 	void* GSpan::multi_subgraph_mining(size_t tid)
 	{
+		int32_t prev_id = -1;
 		for (ProjectionMap::reverse_iterator it = _m_split_idx[tid]; it != _m_split_idx[tid + 1]; ++it) {
 			//another parital pruneing, like apriori
 			if ((it->second).size() < _m_nsupport)
@@ -95,7 +96,8 @@ namespace gspan {
 			_m_dfs_codes[tid].push_back((struct dfs_code_t)
 					{0, 1, (it->first).from_label, (it->first).edge_label, (it->first).to_label});
 
-			subgraph_mining(it->second, tid);
+			subgraph_mining(it->second, tid, prev_id);
+			prev_id = -1;
 
 			_m_dfs_codes[tid].pop_back();		
 		}

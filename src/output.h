@@ -18,7 +18,13 @@ namespace gspan {
 				return _m_support.size();
 			}
 
+			void push_back(const std::string& str, uint32_t nsupport, size_t graph_id, int32_t parent_id);
+
+			void push_back(const std::string& str, uint32_t nsupport, int32_t parent_id);
+
 			void push_back(const std::string& str, uint32_t nsupport);
+
+			void push_back(const std::string& str);
 
 			void print();
 
@@ -26,6 +32,8 @@ namespace gspan {
 			size_t _m_tid;
 			FILE* _m_file;
 			std::vector<uint32_t> _m_support;
+			std::vector<int32_t> _m_parent;
+			std::vector<size_t> _m_graph;
 			std::vector<std::string> _m_buffer;
 			size_t _m_start_idx;
 			const char *_m_output_file;

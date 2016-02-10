@@ -30,7 +30,7 @@ namespace gspan {
 
 			GSpanReturnCode project();
 
-			GSpanReturnCode subgraph_mining(Projection& projection, size_t tid);
+			GSpanReturnCode subgraph_mining(Projection& projection, size_t tid, size_t prev_id);
 
 			GSpanReturnCode reconstruct(Input& input);
 
@@ -69,7 +69,7 @@ namespace gspan {
 			//report
 			void report(uint32_t nsupport, size_t tid);	
 
-			void report(uint32_t nsupport, size_t tid, Projection& projection);	
+			void report(uint32_t nsupport, size_t tid, Projection& projection, int32_t prev_id);	
 
 			void report(uint32_t label, uint32_t nsupport, size_t tid);	
 
