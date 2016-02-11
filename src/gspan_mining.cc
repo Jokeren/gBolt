@@ -191,7 +191,7 @@ namespace gspan {
 	}
 
 
-	GSpanReturnCode GSpan::subgraph_mining(Projection& projection, size_t tid)
+	GSpanReturnCode GSpan::subgraph_mining(Projection& projection, size_t tid, size_t prev_id)
 	{
 		uint32_t nsupport = counting_support(projection);
 		if (nsupport < _m_nsupport) 
@@ -202,7 +202,8 @@ namespace gspan {
 		if (!flag)
 			return GSPAN_SUCCESS;
 
-		report(nsupport, tid);
+		report(nsupport, tid, projection, prev_id);
+		prev_id = _m_output[tid]->size() - 1;
 #ifdef DEBUG
 		printf("subgraph_mining here0\n");
 #endif
@@ -231,7 +232,7 @@ namespace gspan {
 				it != projection_map_backward.end(); ++it) {
 			_m_dfs_codes[tid].push_back((struct dfs_code_t)
 					{(it->first).from, (it->first).to, (it->first).from_label, (it->first).edge_label, (it->first).to_label});
-			subgraph_mining(it->second, tid);
+			subgraph_mining(it->second, tid, prev_id);
 			_m_dfs_codes[tid].pop_back();
 		}	
 
@@ -239,7 +240,7 @@ namespace gspan {
 				it != projection_map_forward.rend(); ++it) {
 			_m_dfs_codes[tid].push_back((struct dfs_code_t) 
 					{(it->first).from, (it->first).to, (it->first).from_label, (it->first).edge_label, (it->first).to_label});
-			subgraph_mining(it->second, tid);
+			subgraph_mining(it->second, tid, prev_id);
 			_m_dfs_codes[tid].pop_back();
 		}
 		
@@ -274,5 +275,37 @@ namespace gspan {
 		ss << "\n";
 
 		_m_output[tid]->push_back(ss.str(), nsupport);
+	}
+
+	void GSpan::report(uint32_t nsupport, size_t tid, Projection& projection, int32_t prev_id)
+	{
+		Graph graph;
+		build_graph(graph, tid);
+
+		std::stringstream ss;
+		
+		for (size_t i = 0; i < graph.size(); ++i) {
+			const struct vertex_t& vertex = graph.get_vertex(i);
+			ss << "v " << vertex.id << " " << vertex.label << std::endl;
+		}
+
+		for (size_t i = 0; i < _m_dfs_codes[tid].size(); ++i) {
+			ss << "e " << _m_dfs_codes[tid][i].from << " " << _m_dfs_codes[tid][i].to
+				<<" " <<_m_dfs_codes[tid][i].edge_label << std::endl;
+		}
+
+		ss << "x: ";
+		uint32_t prev = 0;
+		for (size_t i = 0; i < projection.size(); ++i) {
+			if (i == 0 || projection[i].id != prev) {
+				prev = projection[i].id;
+				ss << prev << " ";
+			}
+		}
+		ss << std::endl;
+
+		_m_output[tid]->push_back(ss.str(), nsupport, _m_output[tid]->size(), prev_id);
+
+		ss << std::endl;
 	}
 } // namespace gspan

@@ -5,6 +5,7 @@ namespace gspan {
 	uint32_t get_parameters(struct parameters_t *p_parameters, int argc, char *argv[])
 	{
 		char *file_path = NULL;
+		char *output_name = NULL;
 		int sep_type = 0;
 		double support = 0.0f;
 
@@ -22,14 +23,17 @@ namespace gspan {
 					case 0: file_path = argv[i_argv + 1];
 							n_argh++;
 							break;
-					case 1: support = atof(argv[i_argv + 1]);
+					case 1: output_name = argv[i_argv + 1];
+							n_argh++;
+							break;
+					case 2: support = atof(argv[i_argv + 1]);
 							if(support > 1 || support < 0)
 							{
 								break;
 							}
 							n_argh++;
 							break;
-					case 2: sep_type = atoi(argv[i_argv + 1]);
+					case 3: sep_type = atoi(argv[i_argv + 1]);
 							if (sep_type < 0 || sep_type >= SEP_TYPE_NCOUNT) {
 								usage();
 								exit(-1);
@@ -43,6 +47,7 @@ namespace gspan {
 			}
 		}
 
+		p_parameters->output_name = output_name;
 		p_parameters->file_path = file_path;
 		p_parameters->support = support;
 		p_parameters->sep_type = sep_type;
@@ -62,6 +67,7 @@ namespace gspan {
 
 	void print_parameters(const struct parameters_t *p_parameters)
 	{
+		printf("-output: %s\n", p_parameters->output_name);
 		printf("-file: %s\n", p_parameters->file_path);
 		printf("-support: %f\n", p_parameters->support);
 		printf("-sep: %d\n", p_parameters->sep_type);

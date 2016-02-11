@@ -16,7 +16,7 @@ namespace gspan {
 			GSpan(const char *file_path, uint32_t support) :
 				_m_file_path(file_path), _m_support(support), _m_report_idx(0) {};
 
-			void execute(const char *seperator_type, const char *file_path, double support);
+			void execute(const char *seperator_type, const char *file_path, const char *output_name, double support);
 
 			void* multi_subgraph_mining(size_t tid);
 		private:
@@ -30,7 +30,7 @@ namespace gspan {
 
 			GSpanReturnCode project();
 
-			GSpanReturnCode subgraph_mining(Projection& projection, size_t tid);
+			GSpanReturnCode subgraph_mining(Projection& projection, size_t tid, size_t prev_id);
 
 			GSpanReturnCode reconstruct(Input& input);
 
@@ -69,6 +69,8 @@ namespace gspan {
 			//report
 			void report(uint32_t nsupport, size_t tid);	
 
+			void report(uint32_t nsupport, size_t tid, Projection& projection, int32_t prev_id);	
+
 			void report(uint32_t label, uint32_t nsupport, size_t tid);	
 
 			//multi-thread
@@ -91,6 +93,7 @@ namespace gspan {
 			double _m_support;
 			uint32_t _m_nsupport;
 			const char *_m_file_path;
+			const char *_m_output_name;
 			uint32_t _m_report_idx;
 	};
 
