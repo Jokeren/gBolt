@@ -135,21 +135,21 @@ namespace gspan {
 		// i > 1, because it cannot reach the path itself
 		for (size_t i = right_most_path.size(); i > 1; --i) {
 			for (size_t j = 0; j < projection.size(); ++j) {
-				History *p_history = new History(&(projection[j]), _m_min_graph[tid]);
-				p_history->build();
+				History history(&(projection[j]), _m_min_graph[tid]);
+				history.build();
 
-				const struct edge_t *last_edge = p_history->get_edge(right_most_path[0]);
+				const struct edge_t *last_edge = history.get_edge(right_most_path[0]);
 				const struct vertex_t& last_node = _m_min_graph[tid].get_vertex(last_edge->to);
 
-				const struct edge_t *edge = p_history->get_edge(right_most_path[i - 1]);
+				const struct edge_t *edge = history.get_edge(right_most_path[i - 1]);
 				const struct vertex_t& to_node = _m_min_graph[tid].get_vertex(edge->to);
 				const struct vertex_t& from_node = _m_min_graph[tid].get_vertex(edge->from);
 
 				for (size_t k = 0; k < last_node.edges.size(); ++k) {
-					if (p_history->has_edges(last_node.edges[k].id))
+					if (history.has_edges(last_node.edges[k].id))
 						continue;
 
-					if (!p_history->has_vertice(last_node.edges[k].to))
+					if (!history.has_vertice(last_node.edges[k].to))
 						continue;
 
 					if (last_node.edges[k].to == edge->from && 
@@ -186,10 +186,10 @@ namespace gspan {
 			ProjectionMapForward& projection_map_forward, uint32_t min_label, size_t tid)
 	{
 		for (size_t i = 0; i < projection.size(); ++i) {
-			History *p_history = new History(&(projection[i]), _m_min_graph[tid]);
-			p_history->build();
+			History history(&(projection[i]), _m_min_graph[tid]);
+			history.build();
 
-			const struct edge_t *last_edge = p_history->get_edge(right_most_path[0]);
+			const struct edge_t *last_edge = history.get_edge(right_most_path[0]);
 			const struct vertex_t& last_node = _m_min_graph[tid].get_vertex(last_edge->to);
 
 			for (size_t j = 0; j < (last_node.edges).size(); ++j) {
@@ -202,7 +202,7 @@ namespace gspan {
 
 				//question: can we perform the same partial pruning as other extending methods?
 				//no, we cannot, for this time, the extending id is greater the the last node
-				if (p_history->has_vertice(edge->to) || to_node.label < min_label)
+				if (history.has_vertice(edge->to) || to_node.label < min_label)
 					continue;
 
 				uint32_t to_id = _m_min_dfs_codes[tid][right_most_path[0]].to;
@@ -224,10 +224,10 @@ namespace gspan {
 		if (projection_map_forward.size() == 0) {
 			for (size_t i = 0; i < right_most_path.size(); ++i) {
 				for (size_t j = 0; j < projection.size(); ++j) {
-					History *p_history = new History(&(projection[j]), _m_min_graph[tid]);
-					p_history->build();
+					History history(&(projection[j]), _m_min_graph[tid]);
+					history.build();
 
-					const struct edge_t *cur_edge = p_history->get_edge(right_most_path[i]);
+					const struct edge_t *cur_edge = history.get_edge(right_most_path[i]);
 					const struct vertex_t& cur_node = _m_min_graph[tid].get_vertex(cur_edge->from);
 					const struct vertex_t& cur_to = _m_min_graph[tid].get_vertex(cur_edge->to);
 
@@ -237,7 +237,7 @@ namespace gspan {
 						//another partial pruning, guarantees that extending label is greater 
 						//than the minimum one
 						if (cur_edge->to == to_node.id ||
-								p_history->has_vertice(to_node.id) || 
+								history.has_vertice(to_node.id) || 
 								to_node.label < min_label)
 							continue;
 

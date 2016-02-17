@@ -5,7 +5,7 @@ all : gspan
 CXXFLAGS= -g -O2 -pthread
 
 gspan : $(objects)
-	g++ -o gspan -pthread $(objects) -O2
+	g++ -o gspan -pthread -g $(objects) -O2
 
 main.o : gspan_utils.h gspan.h database.h
 seperator.o : seperator.h common.h
@@ -17,6 +17,7 @@ gspan_count.o : gspan.h history.h
 database.o : database.h 
 history.o : history.h
 multi_thread.o : gspan.h
+multi_thread_average.o : gspan.h
 output.o : output.h
 
 .PHONY : clean all
