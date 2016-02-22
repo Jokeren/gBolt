@@ -85,6 +85,7 @@ namespace gspan {
 			ProjectionMap::reverse_iterator _m_split_idx[THREAD_NUM + 1];
 			std::vector<Graph> _m_graphs;
 			std::map<uint32_t, uint32_t> _m_frequent_labels;
+			std::vector<ProjectionMap::reverse_iterator> _m_split_average[THREAD_NUM + 1];
 			Seperator *_m_seperator;
 			DfsCodes _m_dfs_codes[THREAD_NUM];
 			DfsCodes _m_min_dfs_codes[THREAD_NUM];

@@ -21,16 +21,14 @@ namespace gspan {
 			uint32_t min_label, size_t tid)
 	{
 		for (size_t i = 0; i < projection.size(); ++i) {
-			History *p_history = new History(&(projection[i]), _m_graphs[projection[i].id]);
-			p_history->build();
+			History history(&(projection[i]), _m_graphs[projection[i].id]);
+			history.build();
 
-			get_backward(&(projection[i]), right_most_path, p_history, projection_map_backward, tid);
+			get_backward(&(projection[i]), right_most_path, &history, projection_map_backward, tid);
 
-			get_first_forward(&(projection[i]), right_most_path, p_history, projection_map_forward, min_label, tid);
+			get_first_forward(&(projection[i]), right_most_path, &history, projection_map_forward, min_label, tid);
 
-			get_other_forward(&(projection[i]), right_most_path, p_history, projection_map_forward, min_label, tid);
-
-			delete(p_history);
+			get_other_forward(&(projection[i]), right_most_path, &history, projection_map_forward, min_label, tid);
 		}
 		
 #ifdef DEBUG
