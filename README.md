@@ -18,7 +18,7 @@ or
 
 	./script/Chemical_340.sh
 
-###example:
+**example:**
 Go to you src directory
 ```
 cd ./src
@@ -44,11 +44,11 @@ Future:
 
 3/20/2016
 
-1. Add different metrics
+1. Add various metrics
 2. Memory consumption bug fixed
-3. Write result to disk
+3. Write results to disk while processing
 
 12/4/2014
 
-1. Change parameter using patterns
+1. Change command line arguments
 2. Change log writter
