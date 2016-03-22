@@ -18,7 +18,8 @@ or
 
 	./script/Chemical_340.sh
 
-**example:**
+**Example:**
+
 Go to you src directory
 ```
 cd ./src
