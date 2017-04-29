@@ -3,19 +3,19 @@ DataMining-gSpan
 
 gSpan algorithm in data mining
 
-##Progress
+### Progress
 
 4/30/2017:
 
 1. Start refractoring following issues.
 
-- Use gflags for command line arguments.
-- Use glogs for logs
-- Use cmake for makefiles
-- Modify code styles
-- Modify class constructors
-- Modify multi-thread patterns
-- Modify memory access patterns
+- [ ] Use gflags for command line arguments.
+- [ ] Use glogs for logs
+- [ ] Use cmake for makefiles
+- [ ] Modify code styles
+- [ ] Modify class constructors
+- [ ] Modify multi-thread patterns
+- [ ] Modify memory access patterns
 
 3/20/2016
 
