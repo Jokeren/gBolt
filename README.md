@@ -16,6 +16,9 @@ gSpan algorithm in data mining
 - [ ] Modify class constructors
 - [ ] Modify multi-thread patterns
 - [ ] Modify memory access patterns
+- [ ] Change int types to size_t
+- [ ] Pass by references
+- [ ] Incoporate C++11 hashset and hashmap 
 
 3/20/2016
 
