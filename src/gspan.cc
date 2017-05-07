@@ -6,7 +6,7 @@
 
 DEFINE_string(input_file, "", "Input path of graph data");
 DEFINE_string(output_file, "", "Output gspan mining results");
-DEFINE_double(support, 1.0, "Minimum subgraph frequency: (0.0, 1.0]");
+DEFINE_double(support, 1.0, "Minimum subgraph frequency: (0.0, 1.0)");
 DEFINE_string(separator, " ", "Graph data separator");
 
 // Initialize instance
@@ -18,13 +18,13 @@ int main(int argc, char *argv[]) {
   gflags::SetVersionString(version_string);
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   if (FLAGS_input_file == "") {
-    LOG(FATAL) << "Input file not empty";
+    LOG(FATAL) << "Input file should not be empty";
   }
   if (FLAGS_output_file == "") {
-    LOG(FATAL) << "Output file not empty";
+    LOG(FATAL) << "Output file should not be empty";
   }
   if (FLAGS_support > 1.0 || FLAGS_support <= 0.0) {
-    LOG(FATAL) << "Support must be less than 1.0 and greater than 0.0";
+    LOG(FATAL) << "Support value should be less than 1.0 and greater than 0.0";
   }
   // Read input
   Database::get_instance()->read_input(FLAGS_input_file, FLAGS_separator);
