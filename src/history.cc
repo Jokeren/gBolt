@@ -1,27 +1,24 @@
+#include <history.h>
+#include <graph.h>
 #include <algorithm>
-#include "history.h"
 
 namespace gspan {
-	void History::build()
-	{
-		_m_has_edges.resize(_m_graph.get_nedges() + 1);
-		_m_has_vertice.resize(_m_graph.size() + 1);
 
-		const struct pre_dfs_t *start = _m_start;
+void History::build(const struct prev_dfs_t &start, const Graph &graph) {
+  const struct prev_dfs_t *cur_dfs = &start;
+  has_edges_.resize(graph.get_nedges() + 1);
+  has_vertice_.resize(graph.size() + 1);
+  
+  while (cur_dfs != NULL) {
+    edges_.push_back(cur_dfs->edge);
+    has_edges_[cur_dfs->edge->id] = true;
+    has_vertice_[cur_dfs->edge->from] = true;
+    has_vertice_[cur_dfs->edge->to] = true;
+    cur_dfs = cur_dfs->prev;
+  }
 
-		while (start != NULL) {
-			_m_edges.push_back(start->edge);
+  // Reverse edges list, very important
+  std::reverse(edges_.begin(), edges_.end());
+}
 
-			_m_has_edges[start->edge->id] = true;
-
-			_m_has_vertice[start->edge->from] = true;
-
-			_m_has_vertice[start->edge->to] = true;
-
-			start = start->prev;
-		}
-
-		//important
-		std::reverse(_m_edges.begin(), _m_edges.end());
-	}
-}//namespace gspan
+}  // namespace gspan

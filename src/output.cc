@@ -1,54 +1,42 @@
-#include "output.h"
+#include <output.h>
+#include <fstream>
 
 namespace gspan {
-	void Output::push_back(const std::string& str)
-	{
-		_m_buffer.push_back(str);	
-	}
 
-	void Output::push_back(const std::string& str, uint32_t nsupport)
-	{
-		_m_support.push_back(nsupport);
-
-		_m_buffer.push_back(str);	
-	}
-
-	void Output::push_back(const std::string& str, uint32_t nsupport, int32_t parent_id)
-	{
-		_m_support.push_back(nsupport);
-
-		_m_parent.push_back(parent_id);
-
-		_m_buffer.push_back(str);	
-	}
-
-	void Output::push_back(const std::string& str, uint32_t nsupport, size_t graph_id, int32_t parent_id)
-	{
-		_m_graph.push_back(graph_id);
-
-		_m_support.push_back(nsupport);
-
-		_m_parent.push_back(parent_id);
-
-		_m_buffer.push_back(str);	
-	}
-
-	void Output::print()
-	{
-		std::stringstream ss;
-		ss << _m_output_file;
-
-		FILE* output_file = fopen(ss.str().c_str(), "a+");
-
-		for (size_t i = 0; i < _m_buffer.size(); ++i) {
-			fprintf(output_file, "t # %zu * %u\n", _m_start_idx + _m_graph[i], _m_support[i]);
-			if (_m_parent[i] == -1)
-				fprintf(output_file, "parent : -1\n");
-			else
-				fprintf(output_file, "parent : %d\n", _m_start_idx + _m_parent[i]);
-			fprintf(output_file, "%s", _m_buffer[i].c_str());
-		}
-
-		fclose(output_file);
-	}
+void Output::push_back(const string &str) {
+  buffer_.push_back(str);  
 }
+
+void Output::push_back(const string &str, size_t nsupport) {
+  support_.push_back(nsupport);
+  buffer_.push_back(str);  
+}
+
+void Output::push_back(const string &str, size_t nsupport, int parent_id) {
+  support_.push_back(nsupport);
+  parent_.push_back(parent_id);
+  buffer_.push_back(str);  
+}
+
+void Output::push_back(const string &str, size_t nsupport, size_t graph_id, int parent_id) {
+  graph_id_.push_back(graph_id);
+  support_.push_back(nsupport);
+  parent_.push_back(parent_id);
+  buffer_.push_back(str);  
+}
+
+void Output::save() {
+  std::ofstream out(output_file_.c_str());
+
+  for (size_t i = 0; i < buffer_.size(); ++i) {
+    out << "t # " << graph_id_[i] << " * " << support_[i] << std::endl;
+    if (parent_[i] == -1)
+      out << "parent : -1" << std::endl;
+    else
+      out << "parent : " << parent_[i] << std::endl;
+    out << buffer_[i] << std::endl;
+  }
+  out.close();
+}
+
+}  // namespace gspan

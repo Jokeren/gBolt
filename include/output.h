@@ -17,16 +17,16 @@ class Output {
 
   void push_back(const string &str, size_t nsupport);
 
-  void push_back(const string &str, size_t nsupport, size_t parent_id);
+  void push_back(const string &str, size_t nsupport, int parent_id);
 
-  void push_back(const string &str, size_t nsupport, size_t graph_id, size_t parent_id);
+  void push_back(const string &str, size_t nsupport, size_t graph_id, int parent_id);
 
   void save();
 
  private:
   vector<string> buffer_;
   vector<size_t> support_;
-  vector<size_t> parent_;
+  vector<int> parent_;
   vector<size_t> graph_id_;
   const string &output_file_;
 };

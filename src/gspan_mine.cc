@@ -25,7 +25,7 @@ void GSpan::find_frequent_nodes(const vector<Graph> &graphs) {
   }
 }
 
-void GSpan::report(const Projection &projection, size_t nsupport) {
+void GSpan::report(const Projection &projection, int prev_id, size_t nsupport) {
   std::stringstream ss;
   Graph graph;
   build_graph(graph);
@@ -39,22 +39,27 @@ void GSpan::report(const Projection &projection, size_t nsupport) {
       << " " << dfs_codes_[i].edge_label << std::endl;
   }
   ss << "x: ";
-  size_t prev_id = 0;
+  size_t prev = 0;
   for (size_t i = 0; i < projection.size(); ++i) {
-    if (i == 0 || projection[i].id != prev_id) {
-      prev_id = projection[i].id;
-      ss << prev_id << " ";
+    if (i == 0 || projection[i].id != prev) {
+      prev = projection[i].id;
+      ss << prev << " ";
     }
   }
-  ss << std::endl;
   output_.push_back(ss.str(), nsupport, output_.size(), prev_id);
 }
 
-void GSpan::mine_subgraph(const vector<Graph> &graphs, Projection &projection) {
+void GSpan::save() {
+  output_.save();
+}
+
+void GSpan::mine_subgraph(const vector<Graph> &graphs, int prev_id, Projection &projection) {
   size_t nsupport = count_support(projection);
-  if (nsupport < nsupport_ || !is_min())
+  if (nsupport < nsupport_ || !is_min()) {
     return;
-  report(projection, nsupport);
+  }
+  report(projection, prev_id, nsupport);
+  prev_id = output_.size() - 1;
 
   // Find right most path
   vector<size_t> right_most_path;
@@ -71,17 +76,16 @@ void GSpan::mine_subgraph(const vector<Graph> &graphs, Projection &projection) {
     it != projection_map_backward.end(); ++it) {
     dfs_codes_.push_back(dfs_code_t((it->first).from, (it->first).to,
       (it->first).from_label, (it->first).edge_label, (it->first).to_label));
-    mine_subgraph(graphs, it->second);
+    mine_subgraph(graphs, prev_id, it->second);
     dfs_codes_.pop_back();
   }  
   for (ProjectionMapForward::reverse_iterator it = projection_map_forward.rbegin();
     it != projection_map_forward.rend(); ++it) {
     dfs_codes_.push_back(dfs_code_t((it->first).from, (it->first).to,
       (it->first).from_label, (it->first).edge_label, (it->first).to_label));
-    mine_subgraph(graphs, it->second);
+    mine_subgraph(graphs, prev_id, it->second);
     dfs_codes_.pop_back();
   }
 }
 
-} // namespace gspan
-
+}  // namespace gspan

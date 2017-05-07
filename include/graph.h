@@ -34,7 +34,7 @@ struct dfs_code_t {
     from(from), to(to),
     from_label(from_label), edge_label(edge_label), to_label(to_label) {}
 
-  bool operator != (const struct dfs_code_t& t) const {
+  bool operator != (const struct dfs_code_t &t) const {
     return (from != t.from) || (to != t.to) || 
       (from_label != t.from_label) || (edge_label != t.edge_label) || 
       (to_label != t.to_label);

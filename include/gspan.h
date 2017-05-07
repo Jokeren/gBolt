@@ -12,9 +12,11 @@ class History;
 class GSpan {
  public:
   GSpan(const string &output_file, double support) :
-    output_(output_file), support_(support), report_index_(0) {};
+    output_(output_file), support_(support) {};
 
   void execute();
+
+  void save();
  
  private:
   typedef map<struct dfs_code_t, Projection, struct dfs_code_project_compare_t> ProjectionMap;
@@ -27,7 +29,7 @@ class GSpan {
 
   void find_frequent_nodes(const vector<Graph> &graphs);
 
-  void mine_subgraph(const vector<Graph> &graphs, Projection& projection);
+  void mine_subgraph(const vector<Graph> &graphs, int prev_id, Projection& projection);
 
   // Extend
   void build_right_most_path(const DfsCodes &dfs_codes, vector<size_t> &right_most_path);
@@ -90,7 +92,7 @@ class GSpan {
     ProjectionMapForward &projection_map_forward);
 
   // Report
-  void report(const Projection &projection, size_t nsupport);
+  void report(const Projection &projection, int prev_id, size_t nsupport);
 
  private:
   // Graphs after reconstructing
@@ -103,7 +105,6 @@ class GSpan {
   Output output_;
   double support_;
   size_t nsupport_;
-  size_t report_index_;
 };
 }  // namespace gspan
 

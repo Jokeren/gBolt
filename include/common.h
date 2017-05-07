@@ -7,6 +7,8 @@
 #include <vector>
 #include <glog/logging.h>
 
+#define FILE_MAX_LINE 1024
+
 namespace gspan {
 
 using std::map;

@@ -5,12 +5,13 @@
 namespace gspan {
 
 void GSpan::execute() {
+  Database *database = Database::get_instance();
   vector<Graph> graphs;
   vector<Graph> prune_graphs;
-  Database *database = Database::get_instance();
   // Phase 1: construct an initial graph
   database->construct_graphs(graphs);
   nsupport_ = graphs.size() * support_;
+  // TODO: find frequent edges
   find_frequent_nodes(graphs);
   // Phase 2: prune the initial graph by frequent labels
   database->construct_graphs(frequent_labels_, prune_graphs);
@@ -19,6 +20,7 @@ void GSpan::execute() {
 
 void GSpan::project(const vector<Graph> &graphs) {
   ProjectionMap projection_map;
+
   // Construct the first edge
   for (size_t i = 0; i < graphs.size(); ++i) {
     const Graph &graph = graphs[i];
@@ -41,13 +43,15 @@ void GSpan::project(const vector<Graph> &graphs) {
     }
   }  
   // Mine subgraphs
+  int prev_id = -1;
   for (ProjectionMap::iterator it = projection_map.begin(); it != projection_map.end(); ++it) {
     // Parital pruning, like apriori
     if ((it->second).size() < nsupport_)
       continue;
     dfs_codes_.push_back(dfs_code_t(0, 1,
       (it->first).from_label, (it->first).edge_label, (it->first).to_label));
-    mine_subgraph(graphs, it->second);
+    mine_subgraph(graphs, prev_id, it->second);
+    prev_id = -1;
     dfs_codes_.pop_back();    
   }
 }

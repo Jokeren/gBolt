@@ -6,7 +6,7 @@
 
 DEFINE_string(input_file, "", "Input path of graph data");
 DEFINE_string(output_file, "", "Output gspan mining results");
-DEFINE_double(support, 1.0, "Minimum subgraph frequency");
+DEFINE_double(support, 1.0, "Minimum subgraph frequency: (0.0, 1.0]");
 DEFINE_string(separator, " ", "Graph data separator");
 
 // Initialize instance
@@ -17,6 +17,12 @@ int main(int argc, char *argv[]) {
   std::string version_string = GSPAN_VERSION_MAJOR + "." + GSPAN_VERSION_MINOR;
   gflags::SetVersionString(version_string);
   gflags::ParseCommandLineFlags(&argc, &argv, true);
+  if (FLAGS_input_file == "") {
+    LOG(FATAL) << "Input file not empty";
+  }
+  if (FLAGS_output_file == "") {
+    LOG(FATAL) << "Output file not empty";
+  }
   if (FLAGS_support > 1.0 || FLAGS_support <= 0.0) {
     LOG(FATAL) << "Support must be less than 1.0 and greater than 0.0";
   }
@@ -25,5 +31,6 @@ int main(int argc, char *argv[]) {
   // Construct algorithm
 	gspan::GSpan gspan(FLAGS_output_file, FLAGS_support);
   gspan.execute();
+  gspan.save();
   return 0;
 }

@@ -7,26 +7,28 @@ gSpan algorithm in data mining
 
 4/30/2017:
 
-1. Start refractoring following issues.
+*Start refractoring following issues.*
 
-- [ ] Use gflags for command line arguments.
-- [ ] Use glogs for logs
-- [ ] Use cmake for makefiles
-- [ ] Modify code styles
-- [ ] Modify class constructors
+- [x] Use gflags for command line arguments.
+- [x] Use glogs for logs
+- [x] Use cmake for makefiles
+- [x] Modify code styles
+- [x] Modify class constructors
 - [ ] Modify multi-thread patterns
 - [ ] Modify memory access patterns
-- [ ] Change int types to size_t
-- [ ] Pass by references
+- [x] Change int types to size_t
+- [x] Pass by references
 - [ ] Incoporate C++11 hashset and hashmap 
+- [ ] Incoporate C++11 shared_pointers
+- [ ] Travis CI support
 
 3/20/2016
 
-1. Add various metrics
-2. Memory consumption bug fixed
-3. Write results to disk while processing
+- Add various metrics
+- Memory consumption bug fixed
+- Write results to disk while processing
 
 12/4/2014
 
-1. Change command line arguments
-2. Change log writter
+- Change command line arguments
+- Change log writter
