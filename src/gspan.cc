@@ -1,7 +1,6 @@
 #include <gspan.h>
 #include <database.h>
 #include <common.h>
-#include <config.h>
 #include <gflags/gflags.h>
 
 DEFINE_string(input_file, "", "Input path of graph data");
@@ -27,10 +26,32 @@ int main(int argc, char *argv[]) {
     LOG(FATAL) << "Support value should be less than 1.0 and greater than 0.0";
   }
   // Read input
+  #ifdef GSPAN_PERFORMANCE  
+  struct timeval time_start, time_end;
+  double elapsed = 0.0;
+  CPU_TIMER_START(elapsed, time_start);
+  #endif
   Database::get_instance()->read_input(FLAGS_input_file, FLAGS_separator);
+
   // Construct algorithm
+  #ifdef GSPAN_PERFORMANCE  
+  CPU_TIMER_END(elapsed, time_start, time_end);
+  LOG(INFO) << "GSPAN read input time: " << elapsed; 
+  CPU_TIMER_START(elapsed, time_start);
+  #endif
   gspan::GSpan gspan(FLAGS_output_file, FLAGS_support);
   gspan.execute();
+
+  // Save results
+  #ifdef GSPAN_PERFORMANCE  
+  CPU_TIMER_END(elapsed, time_start, time_end);
+  LOG(INFO) << "GSPAN execute time: " << elapsed;
+  CPU_TIMER_START(elapsed, time_start);
+  #endif
   gspan.save();
+  #ifdef GSPAN_PERFORMANCE  
+  CPU_TIMER_END(elapsed, time_start, time_end);
+  LOG(INFO) << "GSPAN save output time: " << elapsed;
+  #endif
   return 0;
 }

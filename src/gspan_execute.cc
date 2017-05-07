@@ -9,13 +9,30 @@ void GSpan::execute() {
   vector<Graph> graphs;
   vector<Graph> prune_graphs;
   // Phase 1: construct an initial graph
+  #ifdef GSPAN_PERFORMANCE  
+  struct timeval time_start, time_end;
+  double elapsed = 0.0;
+  CPU_TIMER_START(elapsed, time_start);
+  #endif
   database->construct_graphs(graphs);
   nsupport_ = graphs.size() * support_;
   // TODO: find frequent edges
   find_frequent_nodes(graphs);
+
   // Phase 2: prune the initial graph by frequent labels
   database->construct_graphs(frequent_labels_, prune_graphs);
+  #ifdef GSPAN_PERFORMANCE  
+  CPU_TIMER_END(elapsed, time_start, time_end);
+  LOG(INFO) << "GSPAN construct graph time: " << elapsed; 
+  CPU_TIMER_START(elapsed, time_start);
+  #endif
+
+  // Phase 3: graph mining
   project(prune_graphs);
+  #ifdef GSPAN_PERFORMANCE  
+  CPU_TIMER_END(elapsed, time_start, time_end);
+  LOG(INFO) << "GSPAN mine graph time: " << elapsed;
+  #endif
 }
 
 void GSpan::project(const vector<Graph> &graphs) {

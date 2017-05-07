@@ -3,6 +3,7 @@ project (gspan)
 # The version number.
 set(GSPAN_VERSION_MAJOR 0)
 set(GSPAN_VERSION_MINOR 1)
+set(GSPAN_PERFORMANCE 1)
 
 # Mode
 SET(CMAKE_BUILD_TYPE Release)
