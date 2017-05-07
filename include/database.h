@@ -13,12 +13,13 @@ class Database {
     return instance_;
   }
 
+  // Return graph count
   void read_input(const string &input_file, const string &separator);
 
-  // construct graph
+  // Construct graph
   void construct_graphs(vector<Graph> &graphs);
 
-  // construct graph by frequent labels
+  // Construct graph by frequent labels
   void construct_graphs(const unordered_map<size_t, size_t> &frequent_labels, vector<Graph> &graphs);
 
   ~Database() {
@@ -31,6 +32,7 @@ class Database {
  private:
   static Database *instance_;
   vector<vector<string> > input_;
+  size_t num_graph_;
 };
 
 }  // namespace gspan

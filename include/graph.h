@@ -128,6 +128,14 @@ class Graph {
     vertice_ = vertice;
   }
 
+  Vertice *get_p_vertice() {
+    return &vertice_;
+  }
+
+  const Vertice *get_p_vertice() const {
+    return &vertice_;
+  }
+
   struct vertex_t get_vertex(size_t index) {
     return vertice_[index];
   }

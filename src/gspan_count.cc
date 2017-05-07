@@ -31,26 +31,25 @@ size_t GSpan::count_support(const Projection &projection) {
 
 void GSpan::build_graph(Graph &graph) {
   size_t edge_id = 0;
-  Vertice vertice;
+  Vertice *vertice = graph.get_p_vertice();
 
   for (size_t i = 0; i < dfs_codes_.size(); ++i) {
     // Push vertice
-    vertice.resize(std::max(dfs_codes_[i].from + 1, vertice.size()));
-    vertice.resize(std::max(dfs_codes_[i].to + 1, vertice.size()));
-    vertice[dfs_codes_[i].from].label = dfs_codes_[i].from_label;
-    vertice[dfs_codes_[i].from].id = dfs_codes_[i].from;
-    vertice[dfs_codes_[i].to].label = dfs_codes_[i].to_label;
-    vertice[dfs_codes_[i].to].id = dfs_codes_[i].to;
+    vertice->resize(std::max(dfs_codes_[i].from + 1, vertice->size()));
+    vertice->resize(std::max(dfs_codes_[i].to + 1, vertice->size()));
+    (*vertice)[dfs_codes_[i].from].label = dfs_codes_[i].from_label;
+    (*vertice)[dfs_codes_[i].from].id = dfs_codes_[i].from;
+    (*vertice)[dfs_codes_[i].to].label = dfs_codes_[i].to_label;
+    (*vertice)[dfs_codes_[i].to].id = dfs_codes_[i].to;
     // Push an edge
     struct edge_t edge(dfs_codes_[i].from, dfs_codes_[i].edge_label, dfs_codes_[i].to, edge_id);
-    vertice[edge.from].edges.push_back(edge);
+    (*vertice)[edge.from].edges.push_back(edge);
     edge.from = dfs_codes_[i].to;
     edge.to = dfs_codes_[i].from;
-    vertice[edge.from].edges.push_back(edge);
+    (*vertice)[edge.from].edges.push_back(edge);
     ++edge_id;
   }
   graph.set_nedges(edge_id);
-  graph.set_vertice(vertice);
 }
 
 bool GSpan::is_min() {
