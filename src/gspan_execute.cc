@@ -26,7 +26,7 @@ void GSpan::project(const vector<Graph> &graphs) {
     const Graph &graph = graphs[i];
 
     for (size_t j = 0; j < graph.size(); ++j) {
-      const struct vertex_t *vertex = graph.get_p_vertex(j);  
+      const struct vertex_t *vertex = graph.get_p_vertex(j);
       Edges edges;
 
       if (get_forward_init(*vertex, graph, edges)) {
@@ -41,7 +41,7 @@ void GSpan::project(const vector<Graph> &graphs) {
         }
       }
     }
-  }  
+  }
   // Mine subgraphs
   int prev_id = -1;
   for (ProjectionMap::iterator it = projection_map.begin(); it != projection_map.end(); ++it) {
@@ -52,7 +52,7 @@ void GSpan::project(const vector<Graph> &graphs) {
       (it->first).from_label, (it->first).edge_label, (it->first).to_label));
     mine_subgraph(graphs, prev_id, it->second);
     prev_id = -1;
-    dfs_codes_.pop_back();    
+    dfs_codes_.pop_back();
   }
 }
 

@@ -36,7 +36,7 @@ bool GSpan::get_forward_init(const struct vertex_t &vertex, const Graph &graph, 
 }
 
 void GSpan::get_backward(
-  const struct prev_dfs_t &prev_dfs, 
+  const struct prev_dfs_t &prev_dfs,
   const Graph &graph,
   const vector<size_t> &right_most_path,
   const History &history,
@@ -49,7 +49,7 @@ void GSpan::get_backward(
     for (size_t j = 0; j < (last_node->edges).size(); ++j) {
       if (history.has_edges((last_node->edges[j]).id))
         continue;
-      if (!history.has_vertice((last_node->edges[j]).to)) 
+      if (!history.has_vertice((last_node->edges[j]).to))
         continue;
       const struct vertex_t *from_node = graph.get_p_vertex(edge->from);
       const struct vertex_t *to_node = graph.get_p_vertex(edge->to);
@@ -58,10 +58,10 @@ void GSpan::get_backward(
            (last_node->edges[j].label == edge->label &&
             last_node->label >= to_node->label))) {
         size_t from_id = dfs_codes_[right_most_path[0]].to;
-        size_t to_id = dfs_codes_[right_most_path[i - 1]].from; 
+        size_t to_id = dfs_codes_[right_most_path[i - 1]].from;
         struct dfs_code_t dfs_code(from_id, to_id, last_node->label, (last_node->edges[j]).label, from_node->label);
         struct prev_dfs_t prev_prev_dfs(graph.get_id(), &(last_node->edges[j]), &(prev_dfs));
-        projection_map_backward[dfs_code].push_back(prev_prev_dfs);    
+        projection_map_backward[dfs_code].push_back(prev_prev_dfs);
       }
     }
   }
@@ -90,7 +90,7 @@ void GSpan::get_first_forward(
     size_t to_id = dfs_codes_[right_most_path[0]].to;
     struct dfs_code_t dfs_code(to_id, to_id + 1, last_node->label, edge->label, to_node->label);
     struct prev_dfs_t prev_prev_dfs(graph.get_id(), edge, &(prev_dfs));
-    projection_map_forward[dfs_code].push_back(prev_prev_dfs);    
+    projection_map_forward[dfs_code].push_back(prev_prev_dfs);
   }
 }
 
@@ -99,7 +99,7 @@ void GSpan::get_other_forward(
   const Graph &graph,
   const vector<size_t> &right_most_path,
   const History &history,
-  size_t min_label, 
+  size_t min_label,
   ProjectionMapForward &projection_map_forward) {
   for (size_t i = 0; i < right_most_path.size(); ++i) {
     const struct edge_t *cur_edge = history.get_p_edge(right_most_path[i]);
@@ -108,12 +108,12 @@ void GSpan::get_other_forward(
 
     for (size_t j = 0; j < cur_node->edges.size(); ++j) {
       const struct vertex_t *to_node = graph.get_p_vertex(cur_node->edges[j].to);
-      // Partial pruning: guarantees that extending label is greater 
+      // Partial pruning: guarantees that extending label is greater
       // than the minimum one
       if (to_node->id == cur_to->id || history.has_vertice(to_node->id) || to_node->label < min_label)
         continue;
-      if (cur_edge->label < cur_node->edges[j].label || 
-          (cur_edge->label == cur_node->edges[j].label && 
+      if (cur_edge->label < cur_node->edges[j].label ||
+          (cur_edge->label == cur_node->edges[j].label &&
            cur_to->label <= to_node->label)) {
         size_t from_id = dfs_codes_[right_most_path[i]].from;
         size_t to_id = dfs_codes_[right_most_path[0]].to;

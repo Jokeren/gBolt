@@ -40,7 +40,7 @@ void Database::construct_graphs(vector<Graph> &graphs) {
         graph.set_nedges(edge_id);
         graph.set_vertice(vertice);
         edge_id = 0;
-        graphs.push_back(graph);  
+        graphs.push_back(graph);
         graph.clear();
         vertice.clear();
       }
@@ -69,7 +69,7 @@ void Database::construct_graphs(vector<Graph> &graphs) {
   }
   graph.set_nedges(edge_id);
   graph.set_vertice(vertice);
-  graphs.push_back(graph);  
+  graphs.push_back(graph);
 }
 
 // Construct graph by labels
@@ -88,7 +88,7 @@ void Database::construct_graphs(const map<size_t, size_t> &frequent_labels, vect
         graph.set_vertice(vertice);
         edge_id = 0;
         vertex_id = 0;
-        graphs.push_back(graph); 
+        graphs.push_back(graph);
         graph.clear();
         vertice.clear();
         labels.clear();
@@ -130,7 +130,7 @@ void Database::construct_graphs(const map<size_t, size_t> &frequent_labels, vect
   }
   graph.set_nedges(edge_id);
   graph.set_vertice(vertice);
-  graphs.push_back(graph); 
+  graphs.push_back(graph);
 }
 
 }  // namespace gspan

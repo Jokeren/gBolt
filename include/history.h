@@ -15,7 +15,7 @@ class History {
   bool has_edges(size_t index) const {
     return has_edges_[index];
   }
- 
+
   bool has_vertice(size_t index) const {
     return has_vertice_[index];
   }
@@ -26,8 +26,8 @@ class History {
 
  private:
   Edges edges_;
-  vector<bool> has_edges_;  
-  vector<bool> has_vertice_;  
+  vector<bool> has_edges_;
+  vector<bool> has_vertice_;
 };
 
 }  // namespace gspan

@@ -11,7 +11,7 @@ void GSpan::find_frequent_nodes(const vector<Graph> &graphs) {
   for (size_t i = 0; i < graphs.size(); ++i) {
     set<size_t> s;
     for (size_t j = 0; j < graphs[i].size(); ++j) {
-      const struct vertex_t *vertex = graphs[i].get_p_vertex(j);  
+      const struct vertex_t *vertex = graphs[i].get_p_vertex(j);
       s.insert(vertex->label);
     }
     for (set<size_t>::iterator it = s.begin(); it != s.end(); ++it) {
@@ -78,7 +78,7 @@ void GSpan::mine_subgraph(const vector<Graph> &graphs, int prev_id, Projection &
       (it->first).from_label, (it->first).edge_label, (it->first).to_label));
     mine_subgraph(graphs, prev_id, it->second);
     dfs_codes_.pop_back();
-  }  
+  }
   for (ProjectionMapForward::reverse_iterator it = projection_map_forward.rbegin();
     it != projection_map_forward.rend(); ++it) {
     dfs_codes_.push_back(dfs_code_t((it->first).from, (it->first).to,

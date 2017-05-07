@@ -17,12 +17,12 @@ class GSpan {
   void execute();
 
   void save();
- 
+
  private:
   typedef map<struct dfs_code_t, Projection, struct dfs_code_project_compare_t> ProjectionMap;
   typedef map<struct dfs_code_t, Projection, struct dfs_code_backward_compare_t> ProjectionMapBackward;
   typedef map<struct dfs_code_t, Projection, struct dfs_code_forward_compare_t> ProjectionMapForward;
-  
+
  private:
   // Mine
   void project(const vector<Graph> &graphs);
@@ -64,7 +64,7 @@ class GSpan {
     ProjectionMapForward& projection_map_forward);
 
   void get_backward(
-    const struct prev_dfs_t &prev_dfs, 
+    const struct prev_dfs_t &prev_dfs,
     const Graph &graph,
     const vector<size_t> &right_most_path,
     const History &history,
@@ -81,13 +81,13 @@ class GSpan {
 
   bool judge_backward(
     const vector<size_t> &right_most_path,
-    const Projection &projection, 
+    const Projection &projection,
     size_t min_label,
     ProjectionMapBackward &projection_map_backward);
 
   bool judge_forward(
     const vector<size_t> &right_most_path,
-    const Projection &projection, 
+    const Projection &projection,
     size_t min_label,
     ProjectionMapForward &projection_map_forward);
 

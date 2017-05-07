@@ -22,7 +22,7 @@ struct prev_dfs_t {
   prev_dfs_t(size_t id, const struct edge_t *edge, const struct prev_dfs_t *prev) :
     id(id), edge(edge), prev(prev) {}
 
-  size_t id;  
+  size_t id;
   const struct edge_t *edge;
   const struct prev_dfs_t *prev;
 };
@@ -35,8 +35,8 @@ struct dfs_code_t {
     from_label(from_label), edge_label(edge_label), to_label(to_label) {}
 
   bool operator != (const struct dfs_code_t &t) const {
-    return (from != t.from) || (to != t.to) || 
-      (from_label != t.from_label) || (edge_label != t.edge_label) || 
+    return (from != t.from) || (to != t.to) ||
+      (from_label != t.from_label) || (edge_label != t.edge_label) ||
       (to_label != t.to_label);
   }
 

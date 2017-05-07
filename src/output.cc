@@ -4,25 +4,25 @@
 namespace gspan {
 
 void Output::push_back(const string &str) {
-  buffer_.push_back(str);  
+  buffer_.push_back(str);
 }
 
 void Output::push_back(const string &str, size_t nsupport) {
   support_.push_back(nsupport);
-  buffer_.push_back(str);  
+  buffer_.push_back(str);
 }
 
 void Output::push_back(const string &str, size_t nsupport, int parent_id) {
   support_.push_back(nsupport);
   parent_.push_back(parent_id);
-  buffer_.push_back(str);  
+  buffer_.push_back(str);
 }
 
 void Output::push_back(const string &str, size_t nsupport, size_t graph_id, int parent_id) {
   graph_id_.push_back(graph_id);
   support_.push_back(nsupport);
   parent_.push_back(parent_id);
-  buffer_.push_back(str);  
+  buffer_.push_back(str);
 }
 
 void Output::save() {

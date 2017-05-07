@@ -1,7 +1,7 @@
+#include <gspan.h>
+#include <database.h>
 #include <common.h>
 #include <config.h>
-#include <database.h>
-#include <gspan.h>
 #include <gflags/gflags.h>
 
 DEFINE_string(input_file, "", "Input path of graph data");
@@ -29,7 +29,7 @@ int main(int argc, char *argv[]) {
   // Read input
   Database::get_instance()->read_input(FLAGS_input_file, FLAGS_separator);
   // Construct algorithm
-	gspan::GSpan gspan(FLAGS_output_file, FLAGS_support);
+  gspan::GSpan gspan(FLAGS_output_file, FLAGS_support);
   gspan.execute();
   gspan.save();
   return 0;
