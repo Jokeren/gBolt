@@ -19,7 +19,7 @@ class Database {
   void construct_graphs(vector<Graph> &graphs);
 
   // construct graph by frequent labels
-  void construct_graphs(const map<size_t, size_t> &frequent_labels, vector<Graph> &graphs);
+  void construct_graphs(const unordered_map<size_t, size_t> &frequent_labels, vector<Graph> &graphs);
 
   ~Database() {
     delete instance_;

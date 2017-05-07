@@ -73,11 +73,11 @@ void Database::construct_graphs(vector<Graph> &graphs) {
 }
 
 // Construct graph by labels
-void Database::construct_graphs(const map<size_t, size_t> &frequent_labels, vector<Graph> &graphs) {
+void Database::construct_graphs(const unordered_map<size_t, size_t> &frequent_labels, vector<Graph> &graphs) {
   Graph graph;
   Vertice vertice;
-  std::vector<size_t> labels;
-  std::map<size_t, size_t> id_map;
+  vector<size_t> labels;
+  unordered_map<size_t, size_t> id_map;
 
   size_t edge_id = 0;
   size_t vertex_id = 0;

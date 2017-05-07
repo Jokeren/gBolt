@@ -99,7 +99,7 @@ class GSpan {
   vector<Graph> graphs_;
   // Single instance of minigraph
   Graph min_graph_;
-  map<size_t, size_t> frequent_labels_;
+  unordered_map<size_t, size_t> frequent_labels_;
   DfsCodes dfs_codes_;
   DfsCodes min_dfs_codes_;
   Output output_;

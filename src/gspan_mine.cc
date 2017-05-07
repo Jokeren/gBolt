@@ -6,19 +6,19 @@
 namespace gspan {
 
 void GSpan::find_frequent_nodes(const vector<Graph> &graphs) {
-  map<size_t, size_t> labels;
+  unordered_map<size_t, size_t> labels;
 
   for (size_t i = 0; i < graphs.size(); ++i) {
-    set<size_t> s;
+    unordered_set<size_t> s;
     for (size_t j = 0; j < graphs[i].size(); ++j) {
       const struct vertex_t *vertex = graphs[i].get_p_vertex(j);
       s.insert(vertex->label);
     }
-    for (set<size_t>::iterator it = s.begin(); it != s.end(); ++it) {
+    for (unordered_set<size_t>::iterator it = s.begin(); it != s.end(); ++it) {
       ++labels[*it];
     }
   }
-  for (map<size_t, size_t>::iterator it = labels.begin(); it != labels.end(); ++it) {
+  for (unordered_map<size_t, size_t>::iterator it = labels.begin(); it != labels.end(); ++it) {
     if (it->second >= nsupport_) {
       frequent_labels_.insert(std::make_pair(it->first, it->second));
     }

@@ -2,6 +2,8 @@
 #define COMMON_H_
 
 #include <map>
+#include <unordered_map>
+#include <unordered_set>
 #include <string>
 #include <set>
 #include <vector>
@@ -28,8 +30,10 @@
 namespace gspan {
 
 using std::map;
+using std::unordered_map;
 using std::string;
 using std::set;
+using std::unordered_set;
 using std::vector;
 
 }  // namespace gspan
