@@ -7,7 +7,7 @@ gSpan algorithm in data mining
 
 5/9/2017:
 
-- Frequent Edge Speedup: 5%
+- History Memory Optimize: 100%
 - Refractor Speedup: 20%
 
 4/30/2017:

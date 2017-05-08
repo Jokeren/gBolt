@@ -24,10 +24,15 @@ class History {
     return edges_[index];
   }
 
+  ~History() {
+    delete has_edges_;
+    delete has_vertice_;
+  }
+
  private:
   Edges edges_;
-  vector<bool> has_edges_;
-  vector<bool> has_vertice_;
+  bool *has_edges_;
+  bool *has_vertice_;
 };
 
 }  // namespace gspan
