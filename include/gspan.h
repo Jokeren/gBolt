@@ -3,11 +3,10 @@
 
 #include <common.h>
 #include <graph.h>
+#include <history.h>
 #include <output.h>
 
 namespace gspan {
-
-class History;
 
 class GSpan {
  public:
@@ -18,6 +17,10 @@ class GSpan {
 
   void save();
 
+  ~GSpan() {
+    delete history_;
+  }
+
  private:
   typedef map<struct dfs_code_t, Projection, struct dfs_code_project_compare_t> ProjectionMap;
   typedef map<struct dfs_code_t, Projection, struct dfs_code_backward_compare_t> ProjectionMapBackward;
@@ -25,6 +28,8 @@ class GSpan {
 
  private:
   // Mine
+  void init_history(const vector<Graph> &graphs);
+
   void project(const vector<Graph> &graphs);
 
   void find_frequent_nodes(const vector<Graph> &graphs);
@@ -51,7 +56,6 @@ class GSpan {
     const struct prev_dfs_t &prev_dfs,
     const Graph &graph,
     const vector<size_t> &right_most_path,
-    const History &history,
     size_t min_label,
     ProjectionMapForward& projection_map_forward);
 
@@ -59,7 +63,6 @@ class GSpan {
     const struct prev_dfs_t &prev_dfs,
     const Graph &graph,
     const vector<size_t> &right_most_path,
-    const History &history,
     size_t min_label,
     ProjectionMapForward& projection_map_forward);
 
@@ -67,7 +70,6 @@ class GSpan {
     const struct prev_dfs_t &prev_dfs,
     const Graph &graph,
     const vector<size_t> &right_most_path,
-    const History &history,
     ProjectionMapBackward& projection_map_backward);
 
   // Count
@@ -103,6 +105,7 @@ class GSpan {
   unordered_map<size_t, size_t> frequent_edge_labels_;
   DfsCodes dfs_codes_;
   DfsCodes min_dfs_codes_;
+  History *history_;
   Output output_;
   double support_;
   size_t nsupport_;

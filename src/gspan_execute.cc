@@ -1,6 +1,7 @@
 #include <gspan.h>
 #include <database.h>
 #include <common.h>
+#include <algorithm>
 
 namespace gspan {
 
@@ -28,11 +29,22 @@ void GSpan::execute() {
   #endif
 
   // Phase 3: graph mining
+  init_history(prune_graphs);
   project(prune_graphs);
   #ifdef GSPAN_PERFORMANCE  
   CPU_TIMER_END(elapsed, time_start, time_end);
   LOG(INFO) << "GSPAN mine graph time: " << elapsed;
   #endif
+}
+
+void GSpan::init_history(const vector<Graph> &graphs) {
+  size_t max_edges = 0;
+  size_t max_vertice = 0;
+  for (size_t i = 0; i < graphs.size(); ++i) {
+    max_edges = std::max(graphs[i].get_nedges(), max_edges);
+    max_vertice = std::max(graphs[i].get_p_vertice()->size(), max_vertice);
+  }
+  history_ = new History(max_edges, max_vertice);
 }
 
 void GSpan::project(const vector<Graph> &graphs) {

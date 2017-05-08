@@ -8,7 +8,10 @@ namespace gspan{
 
 class History {
  public:
-  History() {}
+  History(size_t max_edges, size_t max_vertice) {
+    has_edges_ = new bool[max_edges + 1]();
+    has_vertice_ = new bool[max_vertice + 1]();
+  }
 
   void build(const struct prev_dfs_t &start, const Graph &graph);
 
@@ -25,8 +28,8 @@ class History {
   }
 
   ~History() {
-    delete has_edges_;
-    delete has_vertice_;
+    delete[] has_edges_;
+    delete[] has_vertice_;
   }
 
  private:

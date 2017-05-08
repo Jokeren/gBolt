@@ -96,19 +96,18 @@ bool GSpan::judge_backward(
   // i > 1, because it cannot reach the path itself
   for (size_t i = right_most_path.size(); i > 1; --i) {
     for (size_t j = 0; j < projection.size(); ++j) {
-      History history;
-      history.build(projection[j], min_graph_);
+      history_->build(projection[j], min_graph_);
 
-      const struct edge_t *edge = history.get_p_edge(right_most_path[i - 1]);
-      const struct edge_t *last_edge = history.get_p_edge(right_most_path[0]);
+      const struct edge_t *edge = history_->get_p_edge(right_most_path[i - 1]);
+      const struct edge_t *last_edge = history_->get_p_edge(right_most_path[0]);
       const struct vertex_t *from_node = min_graph_.get_p_vertex(edge->from);
       const struct vertex_t *last_node = min_graph_.get_p_vertex(last_edge->to);
       const struct vertex_t *to_node = min_graph_.get_p_vertex(edge->to);
 
       for (size_t k = 0; k < last_node->edges.size(); ++k) {
-        if (history.has_edges(last_node->edges[k].id))
+        if (history_->has_edges(last_node->edges[k].id))
           continue;
-        if (!history.has_vertice(last_node->edges[k].to))
+        if (!history_->has_vertice(last_node->edges[k].to))
           continue;
         if (last_node->edges[k].to == edge->from &&
             (last_node->edges[k].label > edge->label ||
@@ -136,16 +135,15 @@ bool GSpan::judge_forward(
   size_t min_label,
   ProjectionMapForward &projection_map_forward) {
   for (size_t i = 0; i < projection.size(); ++i) {
-    History history;
-    history.build(projection[i], min_graph_);
+    history_->build(projection[i], min_graph_);
 
-    const struct edge_t *last_edge = history.get_p_edge(right_most_path[0]);
+    const struct edge_t *last_edge = history_->get_p_edge(right_most_path[0]);
     const struct vertex_t *last_node = min_graph_.get_p_vertex(last_edge->to);
 
     for (size_t j = 0; j < (last_node->edges).size(); ++j) {
       const struct edge_t *edge = &(last_node->edges[j]);
       const struct vertex_t *to_node = min_graph_.get_p_vertex(edge->to);
-      if (history.has_vertice(edge->to) || to_node->label < min_label)
+      if (history_->has_vertice(edge->to) || to_node->label < min_label)
         continue;
       size_t to_id = min_dfs_codes_[right_most_path[0]].to;
       struct dfs_code_t dfs_code(to_id, to_id + 1, last_node->label, edge->label, to_node->label);
@@ -157,18 +155,15 @@ bool GSpan::judge_forward(
   if (projection_map_forward.size() == 0) {
     for (size_t i = 0; i < right_most_path.size(); ++i) {
       for (size_t j = 0; j < projection.size(); ++j) {
-        History history;
-        history.build(projection[j], min_graph_);
+        history_->build(projection[j], min_graph_);
 
-        const struct edge_t *cur_edge = history.get_p_edge(right_most_path[i]);
+        const struct edge_t *cur_edge = history_->get_p_edge(right_most_path[i]);
         const struct vertex_t *cur_node = min_graph_.get_p_vertex(cur_edge->from);
         const struct vertex_t *cur_to = min_graph_.get_p_vertex(cur_edge->to);
 
         for (size_t k = 0; k < cur_node->edges.size(); ++k) {
           const struct vertex_t *to_node = min_graph_.get_p_vertex(cur_node->edges[k].to);
-          if (cur_edge->to == to_node->id ||
-              history.has_vertice(to_node->id) ||
-              to_node->label < min_label)
+          if (history_->has_vertice(to_node->id) || cur_edge->to == to_node->id || to_node->label < min_label)
             continue;
           if (cur_edge->label < cur_node->edges[k].label ||
               (cur_edge->label == cur_node->edges[k].label &&
