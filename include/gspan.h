@@ -8,17 +8,31 @@
 
 namespace gspan {
 
+struct gspan_instance_t {
+  Graph *min_graph;
+  DfsCodes *min_dfs_codes;
+  History *history;
+  Output *output;
+
+  ~gspan_instance_t() {
+    delete this->min_graph;
+    delete this->min_dfs_codes;
+    delete this->history;
+    delete this->output;
+  }
+};
+
 class GSpan {
  public:
   GSpan(const string &output_file, double support) :
-    output_(output_file), support_(support) {};
+    output_file_(output_file), support_(support) {};
 
   void execute();
 
   void save();
 
   ~GSpan() {
-    delete history_;
+    delete[] gspan_instances_;
   }
 
  private:
@@ -28,19 +42,20 @@ class GSpan {
 
  private:
   // Mine
-  void init_history(const vector<Graph> &graphs);
+  void init_instances(const vector<Graph> &graphs);
 
   void project(const vector<Graph> &graphs);
 
   void find_frequent_nodes(const vector<Graph> &graphs);
 
-  void mine_subgraph(const vector<Graph> &graphs, int prev_id, Projection& projection);
+  void mine_subgraph(const vector<Graph> &graphs, int prev_id, DfsCodes &dfs_codes, Projection& projection);
 
   // Extend
   void build_right_most_path(const DfsCodes &dfs_codes, vector<size_t> &right_most_path);
 
   void enumerate(
     const vector<Graph> &graphs,
+    const DfsCodes &dfs_codes,
     const Projection &projection,
     const vector<size_t> &right_most_path,
     size_t min_label,
@@ -55,6 +70,7 @@ class GSpan {
   void get_first_forward(
     const struct prev_dfs_t &prev_dfs,
     const Graph &graph,
+    const DfsCodes &dfs_codes,
     const vector<size_t> &right_most_path,
     size_t min_label,
     ProjectionMapForward& projection_map_forward);
@@ -62,6 +78,7 @@ class GSpan {
   void get_other_forward(
     const struct prev_dfs_t &prev_dfs,
     const Graph &graph,
+    const DfsCodes &dfs_codes,
     const vector<size_t> &right_most_path,
     size_t min_label,
     ProjectionMapForward& projection_map_forward);
@@ -69,17 +86,18 @@ class GSpan {
   void get_backward(
     const struct prev_dfs_t &prev_dfs,
     const Graph &graph,
+    const DfsCodes &dfs_codes,
     const vector<size_t> &right_most_path,
     ProjectionMapBackward& projection_map_backward);
 
   // Count
   size_t count_support(const Projection &projection);
 
-  void build_graph(Graph &graph);
+  void build_graph(const DfsCodes &dfs_codes, Graph &graph);
 
-  bool is_min();
+  bool is_min(const DfsCodes &dfs_codes);
 
-  bool is_projection_min(const Projection &projection);
+  bool is_projection_min(const DfsCodes &dfs_codes, const Projection &projection);
 
   bool judge_backward(
     const vector<size_t> &right_most_path,
@@ -94,21 +112,18 @@ class GSpan {
     ProjectionMapForward &projection_map_forward);
 
   // Report
-  void report(const Projection &projection, int prev_id, size_t nsupport);
+  void report(const DfsCodes &dfs_codes, const Projection &projection, int prev_id, size_t nsupport);
 
  private:
   // Graphs after reconstructing
   vector<Graph> graphs_;
   // Single instance of minigraph
-  Graph min_graph_;
   unordered_map<size_t, size_t> frequent_vertex_labels_;
   unordered_map<size_t, size_t> frequent_edge_labels_;
-  DfsCodes dfs_codes_;
-  DfsCodes min_dfs_codes_;
-  History *history_;
-  Output output_;
+  string output_file_;
   double support_;
   size_t nsupport_;
+  gspan_instance_t *gspan_instances_;
 };
 }  // namespace gspan
 

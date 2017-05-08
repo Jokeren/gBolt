@@ -29,7 +29,7 @@ void GSpan::execute() {
   #endif
 
   // Phase 3: graph mining
-  init_history(prune_graphs);
+  init_instances(prune_graphs);
   project(prune_graphs);
   #ifdef GSPAN_PERFORMANCE  
   CPU_TIMER_END(elapsed, time_start, time_end);
@@ -37,14 +37,25 @@ void GSpan::execute() {
   #endif
 }
 
-void GSpan::init_history(const vector<Graph> &graphs) {
+void GSpan::init_instances(const vector<Graph> &graphs) {
+  size_t num_threads = omp_get_max_threads();
+  gspan_instances_ = new gspan_instance_t[num_threads];
+
+  // Prepare history instance
   size_t max_edges = 0;
   size_t max_vertice = 0;
   for (size_t i = 0; i < graphs.size(); ++i) {
     max_edges = std::max(graphs[i].get_nedges(), max_edges);
     max_vertice = std::max(graphs[i].get_p_vertice()->size(), max_vertice);
   }
-  history_ = new History(max_edges, max_vertice);
+
+  // Init instance for each thread
+  for (size_t i = 0; i < num_threads; ++i) {
+    gspan_instances_[i].history = new History(max_edges, max_vertice);
+    gspan_instances_[i].output = new Output(output_file_);
+    gspan_instances_[i].min_graph = new Graph();
+    gspan_instances_[i].min_dfs_codes = new DfsCodes();
+  }
 }
 
 void GSpan::project(const vector<Graph> &graphs) {
@@ -73,15 +84,16 @@ void GSpan::project(const vector<Graph> &graphs) {
   }
   // Mine subgraphs
   int prev_id = -1;
+  DfsCodes dfs_codes;
   for (ProjectionMap::iterator it = projection_map.begin(); it != projection_map.end(); ++it) {
     // Parital pruning, like apriori
     if ((it->second).size() < nsupport_)
       continue;
-    dfs_codes_.push_back(dfs_code_t(0, 1,
+    dfs_codes.push_back(dfs_code_t(0, 1,
       (it->first).from_label, (it->first).edge_label, (it->first).to_label));
-    mine_subgraph(graphs, prev_id, it->second);
+    mine_subgraph(graphs, prev_id, dfs_codes, it->second);
     prev_id = -1;
-    dfs_codes_.pop_back();
+    dfs_codes.pop_back();
   }
 }
 

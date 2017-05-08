@@ -40,18 +40,18 @@ void GSpan::find_frequent_nodes(const vector<Graph> &graphs) {
   }
 }
 
-void GSpan::report(const Projection &projection, int prev_id, size_t nsupport) {
+void GSpan::report(const DfsCodes &dfs_codes, const Projection &projection, int prev_id, size_t nsupport) {
   std::stringstream ss;
   Graph graph;
-  build_graph(graph);
+  build_graph(dfs_codes, graph);
 
   for (size_t i = 0; i < graph.size(); ++i) {
     const struct vertex_t *vertex = graph.get_p_vertex(i);
     ss << "v " << vertex->id << " " << vertex->label << std::endl;
   }
-  for (size_t i = 0; i < dfs_codes_.size(); ++i) {
-    ss << "e " << dfs_codes_[i].from << " " << dfs_codes_[i].to
-      << " " << dfs_codes_[i].edge_label << std::endl;
+  for (size_t i = 0; i < dfs_codes.size(); ++i) {
+    ss << "e " << dfs_codes[i].from << " " << dfs_codes[i].to
+      << " " << dfs_codes[i].edge_label << std::endl;
   }
   ss << "x: ";
   size_t prev = 0;
@@ -61,45 +61,51 @@ void GSpan::report(const Projection &projection, int prev_id, size_t nsupport) {
       ss << prev << " ";
     }
   }
-  output_.push_back(ss.str(), nsupport, output_.size(), prev_id);
+  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+  Output *output = instance->output;
+  output->push_back(ss.str(), nsupport, output->size(), prev_id);
 }
 
 void GSpan::save() {
-  output_.save();
+  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+  Output *output = instance->output;
+  output->save();
 }
 
-void GSpan::mine_subgraph(const vector<Graph> &graphs, int prev_id, Projection &projection) {
+void GSpan::mine_subgraph(const vector<Graph> &graphs, int prev_id, DfsCodes &dfs_codes, Projection &projection) {
   size_t nsupport = count_support(projection);
-  if (nsupport < nsupport_ || !is_min()) {
+  if (nsupport < nsupport_ || !is_min(dfs_codes)) {
     return;
   }
-  report(projection, prev_id, nsupport);
-  prev_id = output_.size() - 1;
+  report(dfs_codes, projection, prev_id, nsupport);
+  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+  Output *output = instance->output;
+  prev_id = output->size() - 1;
 
   // Find right most path
   vector<size_t> right_most_path;
-  build_right_most_path(dfs_codes_, right_most_path);
-  size_t min_label = dfs_codes_[0].from_label;
+  build_right_most_path(dfs_codes, right_most_path);
+  size_t min_label = dfs_codes[0].from_label;
 
   // Enumerate backward paths and forward paths by different rules
   ProjectionMapBackward projection_map_backward;
   ProjectionMapForward projection_map_forward;
-  enumerate(graphs, projection, right_most_path, min_label,
+  enumerate(graphs, dfs_codes, projection, right_most_path, min_label,
     projection_map_backward, projection_map_forward);
   // Recursive mining: first backward, last backward, and then last forward to the first forward
   for (ProjectionMapBackward::iterator it = projection_map_backward.begin();
     it != projection_map_backward.end(); ++it) {
-    dfs_codes_.push_back(dfs_code_t((it->first).from, (it->first).to,
+    dfs_codes.push_back(dfs_code_t((it->first).from, (it->first).to,
       (it->first).from_label, (it->first).edge_label, (it->first).to_label));
-    mine_subgraph(graphs, prev_id, it->second);
-    dfs_codes_.pop_back();
+    mine_subgraph(graphs, prev_id, dfs_codes, it->second);
+    dfs_codes.pop_back();
   }
   for (ProjectionMapForward::reverse_iterator it = projection_map_forward.rbegin();
     it != projection_map_forward.rend(); ++it) {
-    dfs_codes_.push_back(dfs_code_t((it->first).from, (it->first).to,
+    dfs_codes.push_back(dfs_code_t((it->first).from, (it->first).to,
       (it->first).from_label, (it->first).edge_label, (it->first).to_label));
-    mine_subgraph(graphs, prev_id, it->second);
-    dfs_codes_.pop_back();
+    mine_subgraph(graphs, prev_id, dfs_codes, it->second);
+    dfs_codes.pop_back();
   }
 }
 

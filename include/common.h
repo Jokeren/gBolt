@@ -9,6 +9,7 @@
 #include <vector>
 #include <config.h>
 #include <sys/time.h>
+#include <omp.h>
 #include <glog/logging.h>
 
 #define FILE_MAX_LINE 1024
