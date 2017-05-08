@@ -7,6 +7,7 @@ gSpan algorithm in data mining
 
 5/9/2017:
 
+- Frequent Edge Speedup: 5%
 - Refractor Speedup: 20%
 
 4/30/2017:
@@ -22,7 +23,7 @@ gSpan algorithm in data mining
 - [x] Modify memory access patterns (change *clear()*, *resize()*)
 - [x] Change int types to size_t
 - [x] Pass by references
-- [ ] Find frequent edge labels
+- [x] Find frequent edge labels
 - [ ] Incoporate C++11 hashset and hashmap 
 - [ ] Travis CI support
 

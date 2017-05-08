@@ -20,7 +20,7 @@ void GSpan::execute() {
   find_frequent_nodes(graphs);
 
   // Phase 2: prune the initial graph by frequent labels
-  database->construct_graphs(frequent_labels_, prune_graphs);
+  database->construct_graphs(frequent_vertex_labels_, frequent_edge_labels_, prune_graphs);
   #ifdef GSPAN_PERFORMANCE  
   CPU_TIMER_END(elapsed, time_start, time_end);
   LOG(INFO) << "GSPAN construct graph time: " << elapsed; 

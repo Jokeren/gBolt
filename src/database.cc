@@ -72,7 +72,10 @@ void Database::construct_graphs(vector<Graph> &graphs) {
 }
 
 // Construct graph by labels
-void Database::construct_graphs(const unordered_map<size_t, size_t> &frequent_labels, vector<Graph> &graphs) {
+void Database::construct_graphs(
+  const unordered_map<size_t, size_t> &frequent_vertex_labels, 
+  const unordered_map<size_t, size_t> &frequent_edge_labels,
+  vector<Graph> &graphs) {
   vector<size_t> labels;
   unordered_map<size_t, size_t> id_map;
   size_t graph_index = 0;
@@ -97,7 +100,7 @@ void Database::construct_graphs(const unordered_map<size_t, size_t> &frequent_la
       size_t label = atoi(input_[i][2].c_str());
       labels.push_back(label);
       // Find a node with frequent label
-      if (frequent_labels.find(label) != frequent_labels.end()) {
+      if (frequent_vertex_labels.find(label) != frequent_vertex_labels.end()) {
         struct vertex_t vertex(vertex_id, label);
         vertice->push_back(vertex);
         id_map[id] = vertex_id;
@@ -110,8 +113,9 @@ void Database::construct_graphs(const unordered_map<size_t, size_t> &frequent_la
       size_t label_from = labels[from];
       size_t label_to = labels[to];
       // Find an edge with frequent label
-      if (frequent_labels.find(label_from) != frequent_labels.end() &&
-        frequent_labels.find(label_to) != frequent_labels.end()) {
+      if (frequent_vertex_labels.find(label_from) != frequent_vertex_labels.end() &&
+        frequent_vertex_labels.find(label_to) != frequent_vertex_labels.end() &&
+        frequent_edge_labels.find(label) != frequent_edge_labels.end()) {
         struct edge_t edge(id_map[from], label, id_map[to], edge_id);
         // First edge
         (*vertice)[id_map[from]].edges.push_back(edge);

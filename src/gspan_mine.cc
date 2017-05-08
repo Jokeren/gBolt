@@ -6,21 +6,36 @@
 namespace gspan {
 
 void GSpan::find_frequent_nodes(const vector<Graph> &graphs) {
-  unordered_map<size_t, size_t> labels;
+  unordered_map<size_t, size_t> vertex_labels;
+  unordered_map<size_t, size_t> edge_labels;
 
   for (size_t i = 0; i < graphs.size(); ++i) {
-    unordered_set<size_t> s;
+    unordered_set<size_t> vertex_set;
+    unordered_set<size_t> edge_set;
     for (size_t j = 0; j < graphs[i].size(); ++j) {
       const struct vertex_t *vertex = graphs[i].get_p_vertex(j);
-      s.insert(vertex->label);
+      vertex_set.insert(vertex->label);
+      for (size_t k = 0; k < (vertex->edges).size(); ++k) {
+        edge_set.insert(vertex->edges[k].label);
+      }
     }
-    for (unordered_set<size_t>::iterator it = s.begin(); it != s.end(); ++it) {
-      ++labels[*it];
+    for (unordered_set<size_t>::iterator it = vertex_set.begin(); it != vertex_set.end(); ++it) {
+      ++vertex_labels[*it];
+    }
+    for (unordered_set<size_t>::iterator it = edge_set.begin(); it != edge_set.end(); ++it) {
+      ++edge_labels[*it];
     }
   }
-  for (unordered_map<size_t, size_t>::iterator it = labels.begin(); it != labels.end(); ++it) {
+  for (unordered_map<size_t, size_t>::iterator it = vertex_labels.begin();
+    it != vertex_labels.end(); ++it) {
     if (it->second >= nsupport_) {
-      frequent_labels_.insert(std::make_pair(it->first, it->second));
+      frequent_vertex_labels_.insert(std::make_pair(it->first, it->second));
+    }
+  }
+  for (unordered_map<size_t, size_t>::iterator it = edge_labels.begin();
+    it != edge_labels.end(); ++it) {
+    if (it->second >= 2 * nsupport_) {  // undirected edges
+      frequent_edge_labels_.insert(std::make_pair(it->first, it->second));
     }
   }
 }
