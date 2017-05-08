@@ -5,6 +5,10 @@ gSpan algorithm in data mining
 
 ### Progress
 
+5/9/2017:
+
+- Refractor Speedup: 20%
+
 4/30/2017:
 
 *Start refractoring following issues.*
@@ -18,8 +22,8 @@ gSpan algorithm in data mining
 - [x] Modify memory access patterns (change *clear()*, *resize()*)
 - [x] Change int types to size_t
 - [x] Pass by references
+- [ ] Find frequent edge labels
 - [ ] Incoporate C++11 hashset and hashmap 
-- [ ] Incoporate C++11 shared_pointers
 - [ ] Travis CI support
 
 3/20/2016
