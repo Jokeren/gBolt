@@ -2,10 +2,10 @@ objects=main.o seperator.o gspan_utils.o gspan_init.o gspan_mining.o database.o 
 		gspan_count.o history.o multi_thread.o output.o\
 
 all : gspan
-CXXFLAGS= -g -O2 -pthread
+CXXFLAGS= -g -O3 -pthread -std=c++11
 
 gspan : $(objects)
-	g++ -o gspan -pthread -g $(objects) -O2
+	g++ -o gspan -pthread -g $(objects) -O3 -std=c++11
 
 main.o : gspan_utils.h gspan.h database.h
 seperator.o : seperator.h common.h

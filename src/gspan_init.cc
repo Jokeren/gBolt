@@ -16,6 +16,10 @@ namespace gspan {
 
 		_m_seperator->seperate(_m_file_path, gspan_input);
 
+		timeval t1, t2;
+		double elapsed_time = 0.0f;
+		gettimeofday(&t1, NULL);
+
 #ifdef DEBUG
 		printf("seperate\n");
 #endif
@@ -40,10 +44,6 @@ namespace gspan {
 
 		DataBase *database = DataBase::get_instance();
 		_m_graphs = database->get_graph();
-
-		timeval t1, t2;
-		double elapsed_time = 0.0f;
-		gettimeofday(&t1, NULL);
 
 #ifdef DEBUG
 		printf("project\n");
