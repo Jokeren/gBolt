@@ -40,7 +40,7 @@ void GSpan::find_frequent_nodes(const vector<Graph> &graphs) {
   }
 }
 
-void GSpan::report(const DfsCodes &dfs_codes, const Projection &projection, int prev_id, size_t nsupport) {
+void GSpan::report(const DfsCodes &dfs_codes, const Projection &projection, size_t nsupport, int prev_id) {
   std::stringstream ss;
   Graph graph;
   build_graph(dfs_codes, graph);
@@ -67,17 +67,24 @@ void GSpan::report(const DfsCodes &dfs_codes, const Projection &projection, int 
 }
 
 void GSpan::save() {
-  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
-  Output *output = instance->output;
-  output->save();
+  #pragma omp parallel
+  {
+    gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+    Output *output = instance->output;
+    output->save();
+  }
 }
 
-void GSpan::mine_subgraph(const vector<Graph> &graphs, int prev_id, DfsCodes &dfs_codes, Projection &projection) {
-  size_t nsupport = count_support(projection);
-  if (nsupport < nsupport_ || !is_min(dfs_codes)) {
+void GSpan::mine_subgraph(
+  const vector<Graph> &graphs,
+  const DfsCodes &dfs_codes,
+  const Projection &projection,
+  size_t prev_nsupport,
+  int prev_id) {
+  if (!is_min(dfs_codes)) {
     return;
   }
-  report(dfs_codes, projection, prev_id, nsupport);
+  report(dfs_codes, projection, prev_id, prev_nsupport);
   gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
   Output *output = instance->output;
   prev_id = output->size() - 1;
@@ -95,18 +102,43 @@ void GSpan::mine_subgraph(const vector<Graph> &graphs, int prev_id, DfsCodes &df
   // Recursive mining: first backward, last backward, and then last forward to the first forward
   for (ProjectionMapBackward::iterator it = projection_map_backward.begin();
     it != projection_map_backward.end(); ++it) {
-    dfs_codes.push_back(dfs_code_t((it->first).from, (it->first).to,
-      (it->first).from_label, (it->first).edge_label, (it->first).to_label));
-    mine_subgraph(graphs, prev_id, dfs_codes, it->second);
-    dfs_codes.pop_back();
+    Projection &projection = it->second;
+    size_t nsupport = count_support(projection);
+    if (nsupport < nsupport_) {
+      continue;
+    }
+    size_t from = (it->first).from;
+    size_t to = (it->first).to;
+    size_t from_label = (it->first).from_label;
+    size_t edge_label = (it->first).edge_label;
+    size_t to_label = (it->first).to_label;
+    #pragma omp task shared(graphs, dfs_codes, projection, prev_id) firstprivate(nsupport)
+    {
+      DfsCodes dfs_codes_copy(dfs_codes);
+      dfs_codes_copy.push_back(dfs_code_t(from, to, from_label, edge_label, to_label));
+      mine_subgraph(graphs, dfs_codes_copy, projection, nsupport, prev_id);
+    }
   }
-  for (ProjectionMapForward::reverse_iterator it = projection_map_forward.rbegin();
-    it != projection_map_forward.rend(); ++it) {
-    dfs_codes.push_back(dfs_code_t((it->first).from, (it->first).to,
-      (it->first).from_label, (it->first).edge_label, (it->first).to_label));
-    mine_subgraph(graphs, prev_id, dfs_codes, it->second);
-    dfs_codes.pop_back();
+  for (ProjectionMapForward::iterator it = projection_map_forward.begin();
+    it != projection_map_forward.end(); ++it) {
+    Projection &projection = it->second;
+    size_t nsupport = count_support(projection);
+    if (nsupport < nsupport_) {
+      continue;
+    }
+    size_t from = (it->first).from;
+    size_t to = (it->first).to;
+    size_t from_label = (it->first).from_label;
+    size_t edge_label = (it->first).edge_label;
+    size_t to_label = (it->first).to_label;
+    #pragma omp task shared(graphs, dfs_codes, projection, prev_id) firstprivate(nsupport)
+    {
+      DfsCodes dfs_codes_copy(dfs_codes);
+      dfs_codes_copy.push_back(dfs_code_t(from, to, from_label, edge_label, to_label));
+      mine_subgraph(graphs, dfs_codes_copy, projection, nsupport, prev_id);
+    }
   }
+  #pragma omp taskwait
 }
 
 }  // namespace gspan

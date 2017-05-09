@@ -51,8 +51,10 @@ void GSpan::init_instances(const vector<Graph> &graphs) {
 
   // Init instance for each thread
   for (size_t i = 0; i < num_threads; ++i) {
+    LOG(INFO) << "GSPAN thread " << i << " create";
+    string output_file_thread = output_file_ + ".t" + std::to_string(i);
     gspan_instances_[i].history = new History(max_edges, max_vertice);
-    gspan_instances_[i].output = new Output(output_file_);
+    gspan_instances_[i].output = new Output(output_file_thread);
     gspan_instances_[i].min_graph = new Graph();
     gspan_instances_[i].min_dfs_codes = new DfsCodes();
   }
@@ -85,16 +87,27 @@ void GSpan::project(const vector<Graph> &graphs) {
   // Mine subgraphs
   int prev_id = -1;
   DfsCodes dfs_codes;
-  for (ProjectionMap::iterator it = projection_map.begin(); it != projection_map.end(); ++it) {
-    // Parital pruning, like apriori
-    if ((it->second).size() < nsupport_)
-      continue;
-    dfs_codes.push_back(dfs_code_t(0, 1,
-      (it->first).from_label, (it->first).edge_label, (it->first).to_label));
-    mine_subgraph(graphs, prev_id, dfs_codes, it->second);
-    prev_id = -1;
-    dfs_codes.pop_back();
+  #pragma omp parallel
+  #pragma omp single nowait
+  {
+    for (ProjectionMap::iterator it = projection_map.begin(); it != projection_map.end(); ++it) {
+      // Parital pruning, like apriori
+      Projection &projection = it->second;
+      size_t nsupport = count_support(projection);
+      if (nsupport < nsupport_) {
+        continue;
+      }
+      size_t from_label = (it->first).from_label;
+      size_t edge_label = (it->first).edge_label;
+      size_t to_label = (it->first).to_label;
+      #pragma omp task shared(graphs, projection, prev_id) firstprivate(dfs_codes, nsupport)
+      {
+        dfs_codes.push_back(dfs_code_t(0, 1, from_label, edge_label, to_label));
+        mine_subgraph(graphs, dfs_codes, projection, nsupport, prev_id);
+      }
+    }
   }
+  #pragma omp taskwait
 }
 
 }  // namespace gspan

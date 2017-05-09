@@ -28,7 +28,7 @@ class Output {
   vector<size_t> support_;
   vector<int> parent_;
   vector<size_t> graph_id_;
-  const string &output_file_;
+  const string output_file_;
 };
 
 }  // namespace gspan

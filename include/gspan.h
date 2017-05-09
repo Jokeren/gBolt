@@ -48,7 +48,12 @@ class GSpan {
 
   void find_frequent_nodes(const vector<Graph> &graphs);
 
-  void mine_subgraph(const vector<Graph> &graphs, int prev_id, DfsCodes &dfs_codes, Projection& projection);
+  void mine_subgraph(
+    const vector<Graph> &graphs,
+    const DfsCodes &dfs_codes,
+    const Projection &projection,
+    size_t prev_nsupport,
+    int prev_id);
 
   // Extend
   void build_right_most_path(const DfsCodes &dfs_codes, vector<size_t> &right_most_path);
@@ -112,7 +117,7 @@ class GSpan {
     ProjectionMapForward &projection_map_forward);
 
   // Report
-  void report(const DfsCodes &dfs_codes, const Projection &projection, int prev_id, size_t nsupport);
+  void report(const DfsCodes &dfs_codes, const Projection &projection, size_t nsupport, int prev_id);
 
  private:
   // Graphs after reconstructing
