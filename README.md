@@ -7,8 +7,9 @@ gSpan algorithm in data mining
 
 5/9/2017:
 
-- History Memory Optimize Speedup: 200%
-- Refractor Speedup: 20%
+- Task Parallel Speedup: 8x
+- History Memory Optimize Speedup: 2x
+- Refractor Speedup: 0.2x
 
 4/30/2017:
 
@@ -25,6 +26,7 @@ gSpan algorithm in data mining
 - [x] Pass by references
 - [x] Find frequent edge labels
 - [ ] Incoporate C++11 hashset and hashmap 
+- [ ] Refine algorithm
 - [ ] Travis CI support
 
 3/20/2016

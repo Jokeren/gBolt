@@ -13,15 +13,9 @@ class Output {
     return support_.size();
   }
 
-  void push_back(const string &str);
-
-  void push_back(const string &str, size_t nsupport);
-
-  void push_back(const string &str, size_t nsupport, int parent_id);
-
   void push_back(const string &str, size_t nsupport, size_t graph_id, int parent_id);
 
-  void save();
+  void save(bool output_parent = false);
 
  private:
   vector<string> buffer_;

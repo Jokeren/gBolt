@@ -7,6 +7,7 @@ DEFINE_string(input_file, "", "Input path of graph data");
 DEFINE_string(output_file, "", "Output gspan mining results");
 DEFINE_double(support, 1.0, "Minimum subgraph frequency: (0.0, 1.0)");
 DEFINE_string(separator, " ", "Graph data separator");
+DEFINE_bool(parent, false, "Subgraph parent id");
 
 // Initialize instance
 using gspan::Database;
@@ -18,9 +19,6 @@ int main(int argc, char *argv[]) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   if (FLAGS_input_file == "") {
     LOG(FATAL) << "Input file should not be empty";
-  }
-  if (FLAGS_output_file == "") {
-    LOG(FATAL) << "Output file should not be empty";
   }
   if (FLAGS_support > 1.0 || FLAGS_support <= 0.0) {
     LOG(FATAL) << "Support value should be less than 1.0 and greater than 0.0";
@@ -43,15 +41,17 @@ int main(int argc, char *argv[]) {
   gspan.execute();
 
   // Save results
-  #ifdef GSPAN_PERFORMANCE  
-  CPU_TIMER_END(elapsed, time_start, time_end);
-  LOG(INFO) << "GSPAN execute time: " << elapsed;
-  CPU_TIMER_START(elapsed, time_start);
-  #endif
-  gspan.save();
-  #ifdef GSPAN_PERFORMANCE  
-  CPU_TIMER_END(elapsed, time_start, time_end);
-  LOG(INFO) << "GSPAN save output time: " << elapsed;
-  #endif
+  if (FLAGS_output_file.size() != 0) {
+    #ifdef GSPAN_PERFORMANCE  
+    CPU_TIMER_END(elapsed, time_start, time_end);
+    LOG(INFO) << "GSPAN execute time: " << elapsed;
+    CPU_TIMER_START(elapsed, time_start);
+    #endif
+    gspan.save(FLAGS_parent);
+    #ifdef GSPAN_PERFORMANCE  
+    CPU_TIMER_END(elapsed, time_start, time_end);
+    LOG(INFO) << "GSPAN save output time: " << elapsed;
+    #endif
+  }
   return 0;
 }

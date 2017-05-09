@@ -120,7 +120,7 @@ bool GSpan::judge_backward(
         if (last_node->edges[k].to == edge->from &&
             (last_node->edges[k].label > edge->label ||
              (last_node->edges[k].label == edge->label &&
-              last_node->label > to_node->label))) {
+              last_node->label >= to_node->label))) {
           size_t from_id = (*min_dfs_codes)[right_most_path[0]].to;
           size_t to_id = (*min_dfs_codes)[right_most_path[i - 1]].from;
           struct dfs_code_t dfs_code(from_id, to_id,

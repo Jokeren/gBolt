@@ -29,7 +29,7 @@ class GSpan {
 
   void execute();
 
-  void save();
+  void save(bool output_parent = false);
 
   ~GSpan() {
     delete[] gspan_instances_;
