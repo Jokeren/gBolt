@@ -84,7 +84,7 @@ void GSpan::mine_subgraph(
   if (!is_min(dfs_codes)) {
     return;
   }
-  report(dfs_codes, projection, prev_id, prev_nsupport);
+  report(dfs_codes, projection, prev_nsupport, prev_id);
   gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
   Output *output = instance->output;
   prev_id = output->size() - 1;
@@ -112,7 +112,7 @@ void GSpan::mine_subgraph(
     size_t from_label = (it->first).from_label;
     size_t edge_label = (it->first).edge_label;
     size_t to_label = (it->first).to_label;
-    #pragma omp task shared(graphs, dfs_codes, projection, prev_id) firstprivate(nsupport)
+    #pragma omp task shared(graphs, dfs_codes, projection, prev_id) firstprivate(nsupport) if (nsupport > 1.2 * nsupport_)
     {
       DfsCodes dfs_codes_copy(dfs_codes);
       dfs_codes_copy.push_back(dfs_code_t(from, to, from_label, edge_label, to_label));
@@ -131,7 +131,7 @@ void GSpan::mine_subgraph(
     size_t from_label = (it->first).from_label;
     size_t edge_label = (it->first).edge_label;
     size_t to_label = (it->first).to_label;
-    #pragma omp task shared(graphs, dfs_codes, projection, prev_id) firstprivate(nsupport)
+    #pragma omp task shared(graphs, dfs_codes, projection, prev_id) firstprivate(nsupport) if (nsupport > 1.2 * nsupport_)
     {
       DfsCodes dfs_codes_copy(dfs_codes);
       dfs_codes_copy.push_back(dfs_code_t(from, to, from_label, edge_label, to_label));
