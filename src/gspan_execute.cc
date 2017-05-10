@@ -100,7 +100,7 @@ void GSpan::project(const vector<Graph> &graphs) {
       size_t from_label = (it->first).from_label;
       size_t edge_label = (it->first).edge_label;
       size_t to_label = (it->first).to_label;
-      #pragma omp task shared(graphs, projection, prev_id) firstprivate(dfs_codes, nsupport) if (nsupport > 1.5 * nsupport_)
+      #pragma omp task shared(graphs, projection, prev_id) firstprivate(dfs_codes, nsupport)
       {
         dfs_codes.push_back(dfs_code_t(0, 1, from_label, edge_label, to_label));
         mine_subgraph(graphs, dfs_codes, projection, nsupport, prev_id);
