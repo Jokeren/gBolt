@@ -24,7 +24,7 @@ class History {
   }
 
   const struct edge_t *get_p_edge(size_t index) const{
-    return edges_[edges_.size() - index - 1];
+    return edges_[index];
   }
 
   ~History() {
@@ -41,4 +41,3 @@ class History {
 }  // namespace gspan
 
 #endif  // HISTORY_H_
-

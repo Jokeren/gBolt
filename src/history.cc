@@ -6,8 +6,8 @@ namespace gspan {
 
 void History::build(const struct prev_dfs_t &start, const Graph &graph) {
   const struct prev_dfs_t *cur_dfs = &start;
-  memset(has_edges_, 0, sizeof(bool) * graph.get_nedges() + 1);
-  memset(has_vertice_, 0, sizeof(bool) * graph.size() + 1);
+  memset(has_edges_, false, sizeof(bool) * graph.get_nedges() + 1);
+  memset(has_vertice_, false, sizeof(bool) * graph.size() + 1);
   // Reserve memory
   edges_.clear();
 
@@ -19,9 +19,9 @@ void History::build(const struct prev_dfs_t &start, const Graph &graph) {
     has_vertice_[cur_dfs->edge->to] = true;
     cur_dfs = cur_dfs->prev;
   }
-//
-//  // Reverse edges list, very important
-//  std::reverse(edges_.begin(), edges_.end());
+
+  // Reverse edges list, very important
+  std::reverse(edges_.begin(), edges_.end());
 }
 
 }  // namespace gspan
