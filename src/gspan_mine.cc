@@ -34,7 +34,7 @@ void GSpan::find_frequent_nodes(const vector<Graph> &graphs) {
   }
   for (unordered_map<size_t, size_t>::iterator it = edge_labels.begin();
     it != edge_labels.end(); ++it) {
-    if (it->second >= 2 * nsupport_) {  // undirected edges
+    if (it->second >= nsupport_) {
       frequent_edge_labels_.insert(std::make_pair(it->first, it->second));
     }
   }
