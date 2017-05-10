@@ -104,7 +104,7 @@ bool GSpan::judge_backward(
   // i > 1, because it cannot reach the path itself
   for (size_t i = right_most_path.size(); i > 1; --i) {
     for (size_t j = 0; j < projection.size(); ++j) {
-      history->build(projection[j], *min_graph);
+      history->build_edges(projection[j], *min_graph);
 
       const struct edge_t *edge = history->get_p_edge(right_most_path[i - 1]);
       const struct edge_t *last_edge = history->get_p_edge(right_most_path[0]);
@@ -146,7 +146,7 @@ bool GSpan::judge_forward(
   DfsCodes *min_dfs_codes = instance->min_dfs_codes;
 
   for (size_t i = 0; i < projection.size(); ++i) {
-    history->build(projection[i], *min_graph);
+    history->build_vertice(projection[i], *min_graph);
 
     const struct edge_t *last_edge = history->get_p_edge(right_most_path[0]);
     const struct vertex_t *last_node = min_graph->get_p_vertex(last_edge->to);
@@ -166,7 +166,7 @@ bool GSpan::judge_forward(
   if (projection_map_forward.size() == 0) {
     for (size_t i = 0; i < right_most_path.size(); ++i) {
       for (size_t j = 0; j < projection.size(); ++j) {
-        history->build(projection[j], *min_graph);
+        history->build_vertice(projection[j], *min_graph);
 
         const struct edge_t *cur_edge = history->get_p_edge(right_most_path[i]);
         const struct vertex_t *cur_node = min_graph->get_p_vertex(cur_edge->from);
