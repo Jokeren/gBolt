@@ -120,8 +120,8 @@ void GSpan::mine_subgraph(
       mine_subgraph(graphs, dfs_codes_copy, projection, nsupport, prev_id);
     }
   }
-  for (ProjectionMapForward::iterator it = projection_map_forward.begin();
-    it != projection_map_forward.end(); ++it) {
+  for (ProjectionMapForward::reverse_iterator it = projection_map_forward.rbegin();
+    it != projection_map_forward.rend(); ++it) {
     Projection &projection = it->second;
     size_t nsupport = count_support(projection);
     if (nsupport < nsupport_) {
