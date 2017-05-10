@@ -10,7 +10,7 @@ void Output::push_back(const string &str, size_t nsupport, size_t graph_id, int 
   buffer_.push_back(str);
 }
 
-void Output::save(bool output_parent) {
+void Output::save(bool output_parent, bool output_pattern) {
   std::ofstream out(output_file_.c_str());
 
   for (size_t i = 0; i < buffer_.size(); ++i) {
@@ -21,7 +21,9 @@ void Output::save(bool output_parent) {
       else
         out << "parent : " << parent_[i] << std::endl;
     }
-    out << buffer_[i] << std::endl;
+    if (output_pattern == true) {
+      out << buffer_[i] << std::endl;
+    }
   }
   out.close();
 }

@@ -7,7 +7,8 @@ DEFINE_string(input_file, "", "Input path of graph data");
 DEFINE_string(output_file, "", "Output gspan mining results");
 DEFINE_double(support, 1.0, "Minimum subgraph frequency: (0.0, 1.0)");
 DEFINE_string(separator, " ", "Graph data separator");
-DEFINE_bool(parent, false, "Subgraph parent id");
+DEFINE_bool(parent, false, "Output subgraph parent ids");
+DEFINE_bool(pattern, false, "Output subgraph patterns");
 
 // Initialize instance
 using gspan::Database;
@@ -47,7 +48,7 @@ int main(int argc, char *argv[]) {
     LOG(INFO) << "GSPAN execute time: " << elapsed;
     CPU_TIMER_START(elapsed, time_start);
     #endif
-    gspan.save(FLAGS_parent);
+    gspan.save(FLAGS_parent, FLAGS_pattern);
     #ifdef GSPAN_PERFORMANCE  
     CPU_TIMER_END(elapsed, time_start, time_end);
     LOG(INFO) << "GSPAN save output time: " << elapsed;

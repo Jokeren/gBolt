@@ -67,12 +67,12 @@ void GSpan::report(const DfsCodes &dfs_codes, const Projection &projection, size
   output->push_back(ss.str(), nsupport, output->size(), prev_id);
 }
 
-void GSpan::save(bool output_parent) {
+void GSpan::save(bool output_parent, bool output_pattern) {
   #pragma omp parallel
   {
     gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
     Output *output = instance->output;
-    output->save(output_parent);
+    output->save(output_parent, output_pattern);
   }
 }
 
