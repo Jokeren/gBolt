@@ -24,7 +24,7 @@ class History {
   }
 
   const struct edge_t *get_p_edge(size_t index) const{
-    return edges_[index];
+    return edges_[edges_.size() - index - 1];
   }
 
   ~History() {

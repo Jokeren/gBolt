@@ -19,9 +19,9 @@ void History::build(const struct prev_dfs_t &start, const Graph &graph) {
     has_vertice_[cur_dfs->edge->to] = true;
     cur_dfs = cur_dfs->prev;
   }
-
-  // Reverse edges list, very important
-  std::reverse(edges_.begin(), edges_.end());
+//
+//  // Reverse edges list, very important
+//  std::reverse(edges_.begin(), edges_.end());
 }
 
 }  // namespace gspan
