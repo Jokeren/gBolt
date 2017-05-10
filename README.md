@@ -20,13 +20,14 @@ gSpan algorithm in data mining
 - [x] Use cmake for makefiles
 - [x] Modify code styles
 - [x] Modify class constructors
-- [ ] Modify multi-thread patterns
+- [x] Modify multi-thread patterns
 - [x] Modify memory access patterns (change *clear()*, *resize()*)
 - [x] Change int types to size_t
 - [x] Pass by references
 - [x] Find frequent edge labels
 - [ ] Incoporate C++11 hashset and hashmap 
-- [ ] Refine algorithm
+- [ ] Refine algorithm (adjust projectionmap structures)
+- [ ] Heuristic multi-thread bound
 - [ ] Travis CI support
 
 3/20/2016
