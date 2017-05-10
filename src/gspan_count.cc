@@ -115,8 +115,6 @@ bool GSpan::judge_backward(
       for (size_t k = 0; k < last_node->edges.size(); ++k) {
         if (history->has_edges(last_node->edges[k].id))
           continue;
-        if (!history->has_vertice(last_node->edges[k].to))
-          continue;
         if (last_node->edges[k].to == edge->from &&
             (last_node->edges[k].label > edge->label ||
              (last_node->edges[k].label == edge->label &&

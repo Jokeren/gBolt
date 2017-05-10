@@ -53,8 +53,6 @@ void GSpan::get_backward(
     for (size_t j = 0; j < (last_node->edges).size(); ++j) {
       if (history->has_edges((last_node->edges[j]).id))
         continue;
-      if (!history->has_vertice((last_node->edges[j]).to))
-        continue;
       const struct vertex_t *from_node = graph.get_p_vertex(edge->from);
       const struct vertex_t *to_node = graph.get_p_vertex(edge->to);
       if (last_node->edges[j].to == edge->from &&
