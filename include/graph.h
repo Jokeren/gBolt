@@ -152,24 +152,35 @@ class Graph {
     return vertice_[index];
   }
 
-  struct vertex_t *get_p_vertex(size_t index) {
+  struct vertex_t *get_candidate_vertex(size_t index) {
     return &vertice_[index];
+  }
+
+  struct vertex_t *get_p_vertex(size_t index) {
+    return p_vertice_[index];
   }
 
   const struct vertex_t *get_p_vertex(size_t index) const {
-    return &vertice_[index];
+    return p_vertice_[index];
   }
 
-  void clear() {
-    id_ = 0;
-    nedges_ = 0;
-    vertice_.clear();
+  void initialize_p_vertice() {
+    p_vertice_ = new ConstVertexPointer[vertice_.size()];
+    for (size_t i = 0; i < vertice_.size(); ++i) {
+      p_vertice_[i] = &vertice_[i];
+    }
+  }
+
+  ~Graph() {
+    delete[] p_vertice_;
   }
 
  private:
   size_t id_;
   size_t nedges_;
   Vertice vertice_;
+  typedef const struct vertex_t * ConstVertexPointer;
+  ConstVertexPointer *p_vertice_;
 };
 }  // namespace gspan
 
