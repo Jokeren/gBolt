@@ -22,7 +22,7 @@
 
 ***gBolt*** is ***correct***:
 
-1. We ran experiment for `data/Compound_422` and `data/Chemical_340` with minimal support from 0.1 to 0.9, and the results are exactly the same as Yan's gSpan-64. 
+1. We ran experiment for `extern/data/Compound_422` and `extern/data/Chemical_340` with minimal support from 0.1 to 0.9, and the results are exactly the same as Yan's gSpan-64. 
 
 ## Experiments
 
@@ -60,7 +60,7 @@ Threads  | gSpan Time/s | gBolt Time/s | Speedup | gSpan Scale | gBolt Scale
 16       | 14.1         | 0.46         | 29.6x   |   0.97   |   1.8 | 
 32       | 15.0         | 0.40         | 36.5x   |   0.94   |   1.2 |
 
-**Table 2** shows the results of mining `data/Compound_422` with `support = 0.07`.
+**Table 2** shows the results of mining `extern/data/Compound_422` with `support = 0.07`.
 
 ## Install
 
@@ -82,7 +82,7 @@ Threads  | gSpan Time/s | gBolt Time/s | Speedup | gSpan Scale | gBolt Scale
 
 Run an example:
 
-    ./build/gbolt -input_file data/Chemical_340 -support 0.2 
+    ./build/gbolt -input_file extern/data/Chemical_340 -support 0.2 
     
 Arguments help:
 
