@@ -4,7 +4,7 @@
 #include <common.h>
 #include <graph.h>
 
-namespace gspan {
+namespace gbolt {
 
 class History {
  public:
@@ -46,6 +46,6 @@ class History {
   size_t edge_size_;
 };
 
-}  // namespace gspan
+}  // namespace gbolt
 
 #endif  // INCLUDE_HISTORY_H_

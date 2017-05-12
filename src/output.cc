@@ -1,7 +1,7 @@
 #include <output.h>
 #include <fstream>
 
-namespace gspan {
+namespace gbolt {
 
 void Output::push_back(const string &str, size_t nsupport, size_t graph_id, int parent_id) {
   graph_id_.push_back(graph_id);
@@ -28,4 +28,4 @@ void Output::save(bool output_parent, bool output_pattern) {
   out.close();
 }
 
-}  // namespace gspan
+}  // namespace gbolt

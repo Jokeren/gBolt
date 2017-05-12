@@ -28,7 +28,7 @@
     elapsed_time /= 1000.0; \
   } while (0)
 
-namespace gspan {
+namespace gbolt {
 
 using std::map;
 using std::unordered_map;
@@ -37,6 +37,6 @@ using std::set;
 using std::unordered_set;
 using std::vector;
 
-}  // namespace gspan
+}  // namespace gbolt
 
 #endif  // INCLUDE_COMMON_H_

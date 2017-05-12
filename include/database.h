@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-namespace gspan {
+namespace gbolt {
 
 class Graph;
 
@@ -40,6 +40,6 @@ class Database {
   size_t num_graph_;
 };
 
-}  // namespace gspan
+}  // namespace gbolt
 
 #endif  // INCLUDE_DATABASE_H_

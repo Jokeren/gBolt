@@ -2,7 +2,7 @@
 #include <graph.h>
 #include <algorithm>
 
-namespace gspan {
+namespace gbolt {
 
 // Reduce push back memory costs
 // while (cur_dfs != NULL) {
@@ -55,4 +55,4 @@ void History::build_vertice(const struct prev_dfs_t &start, const Graph &graph) 
   }
 }
 
-}  // namespace gspan
+}  // namespace gbolt

@@ -4,7 +4,7 @@
 #include <common.h>
 #include <vector>
 
-namespace gspan {
+namespace gbolt {
 
 // Direct edge structure
 struct edge_t {
@@ -172,6 +172,6 @@ class Graph {
   size_t nedges_;
   Vertice vertice_;
 };
-}  // namespace gspan
+}  // namespace gbolt
 
 #endif  // INCLUDE_GRAPH_H_

@@ -4,7 +4,7 @@
 #include <fstream>
 #include <cstdlib>
 
-namespace gspan {
+namespace gbolt {
 
 void Database::read_input(const string &input_file, const string &separator) {
   std::ifstream fin(input_file.c_str());
@@ -126,4 +126,4 @@ void Database::construct_graphs(
   graphs[graph_index].set_nedges(edge_id);
 }
 
-}  // namespace gspan
+}  // namespace gbolt

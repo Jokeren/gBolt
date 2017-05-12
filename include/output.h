@@ -5,7 +5,7 @@
 #include <vector>
 #include <string>
 
-namespace gspan {
+namespace gbolt {
 
 class Output {
  public:
@@ -27,6 +27,6 @@ class Output {
   const string output_file_;
 };
 
-}  // namespace gspan
+}  // namespace gbolt
 
 #endif  // INCLUDE_OUTPUT_H_

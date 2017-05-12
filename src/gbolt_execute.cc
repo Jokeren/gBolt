@@ -1,16 +1,16 @@
-#include <gspan.h>
+#include <gbolt.h>
 #include <database.h>
 #include <common.h>
 #include <algorithm>
 
-namespace gspan {
+namespace gbolt {
 
-void GSpan::execute() {
+void GBolt::execute() {
   Database *database = Database::get_instance();
   vector<Graph> graphs;
   vector<Graph> prune_graphs;
   // Phase 1: construct an initial graph
-  #ifdef GSPAN_PERFORMANCE
+  #ifdef GBOLT_PERFORMANCE
   struct timeval time_start, time_end;
   double elapsed = 0.0;
   CPU_TIMER_START(elapsed, time_start);
@@ -22,24 +22,24 @@ void GSpan::execute() {
 
   // Phase 2: prune the initial graph by frequent labels
   database->construct_graphs(frequent_vertex_labels_, frequent_edge_labels_, prune_graphs);
-  #ifdef GSPAN_PERFORMANCE
+  #ifdef GBOLT_PERFORMANCE
   CPU_TIMER_END(elapsed, time_start, time_end);
-  LOG(INFO) << "GSPAN construct graph time: " << elapsed;
+  LOG(INFO) << "gbolt construct graph time: " << elapsed;
   CPU_TIMER_START(elapsed, time_start);
   #endif
 
   // Phase 3: graph mining
   init_instances(prune_graphs);
   project(prune_graphs);
-  #ifdef GSPAN_PERFORMANCE
+  #ifdef GBOLT_PERFORMANCE
   CPU_TIMER_END(elapsed, time_start, time_end);
-  LOG(INFO) << "GSPAN mine graph time: " << elapsed;
+  LOG(INFO) << "gbolt mine graph time: " << elapsed;
   #endif
 }
 
-void GSpan::init_instances(const vector<Graph> &graphs) {
+void GBolt::init_instances(const vector<Graph> &graphs) {
   size_t num_threads = omp_get_max_threads();
-  gspan_instances_ = new gspan_instance_t[num_threads];
+  gbolt_instances_ = new gbolt_instance_t[num_threads];
 
   // Prepare history instance
   size_t max_edges = 0;
@@ -51,16 +51,16 @@ void GSpan::init_instances(const vector<Graph> &graphs) {
 
   // Init an instance for each thread
   for (size_t i = 0; i < num_threads; ++i) {
-    LOG(INFO) << "GSPAN thread " << i << " create";
+    LOG(INFO) << "gbolt thread " << i << " create";
     string output_file_thread = output_file_ + ".t" + std::to_string(i);
-    gspan_instances_[i].history = new History(max_edges, max_vertice);
-    gspan_instances_[i].output = new Output(output_file_thread);
-    gspan_instances_[i].min_graph = new Graph();
-    gspan_instances_[i].min_dfs_codes = new DfsCodes();
+    gbolt_instances_[i].history = new History(max_edges, max_vertice);
+    gbolt_instances_[i].output = new Output(output_file_thread);
+    gbolt_instances_[i].min_graph = new Graph();
+    gbolt_instances_[i].min_dfs_codes = new DfsCodes();
   }
 }
 
-void GSpan::project(const vector<Graph> &graphs) {
+void GBolt::project(const vector<Graph> &graphs) {
   ProjectionMap projection_map;
 
   // Construct the first edge
@@ -109,4 +109,4 @@ void GSpan::project(const vector<Graph> &graphs) {
   #pragma omp taskwait
 }
 
-}  // namespace gspan
+}  // namespace gbolt

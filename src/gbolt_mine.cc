@@ -1,11 +1,11 @@
-#include <gspan.h>
+#include <gbolt.h>
 #include <graph.h>
 #include <common.h>
 #include <sstream>
 
-namespace gspan {
+namespace gbolt {
 
-void GSpan::find_frequent_nodes_and_edges(const vector<Graph> &graphs) {
+void GBolt::find_frequent_nodes_and_edges(const vector<Graph> &graphs) {
   unordered_map<size_t, size_t> vertex_labels;
   unordered_map<size_t, size_t> edge_labels;
 
@@ -40,7 +40,7 @@ void GSpan::find_frequent_nodes_and_edges(const vector<Graph> &graphs) {
   }
 }
 
-void GSpan::report(const DfsCodes &dfs_codes, const Projection &projection, size_t nsupport, int prev_id) {
+void GBolt::report(const DfsCodes &dfs_codes, const Projection &projection, size_t nsupport, int prev_id) {
   std::stringstream ss;
   Graph graph;
   build_graph(dfs_codes, graph);
@@ -62,21 +62,21 @@ void GSpan::report(const DfsCodes &dfs_codes, const Projection &projection, size
     }
   }
   ss << std::endl;
-  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+  gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   Output *output = instance->output;
   output->push_back(ss.str(), nsupport, output->size(), prev_id);
 }
 
-void GSpan::save(bool output_parent, bool output_pattern) {
+void GBolt::save(bool output_parent, bool output_pattern) {
   #pragma omp parallel
   {
-    gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+    gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
     Output *output = instance->output;
     output->save(output_parent, output_pattern);
   }
 }
 
-void GSpan::mine_subgraph(
+void GBolt::mine_subgraph(
   const vector<Graph> &graphs,
   const DfsCodes &dfs_codes,
   const Projection &projection,
@@ -86,7 +86,7 @@ void GSpan::mine_subgraph(
     return;
   }
   report(dfs_codes, projection, prev_nsupport, prev_id);
-  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+  gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   Output *output = instance->output;
   prev_id = output->size() - 1;
 
@@ -142,4 +142,4 @@ void GSpan::mine_subgraph(
   #pragma omp taskwait
 }
 
-}  // namespace gspan
+}  // namespace gbolt

@@ -1,10 +1,10 @@
-#include <gspan.h>
+#include <gbolt.h>
 #include <history.h>
 #include <common.h>
 
-namespace gspan {
+namespace gbolt {
 
-void GSpan::enumerate(
+void GBolt::enumerate(
   const vector<Graph> &graphs,
   const DfsCodes &dfs_codes,
   const Projection &projection,
@@ -12,7 +12,7 @@ void GSpan::enumerate(
   size_t min_label,
   ProjectionMapBackward &projection_map_backward,
   ProjectionMapForward &projection_map_forward) {
-  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+  gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   History *history = instance->history;
   for (size_t i = 0; i < projection.size(); ++i) {
     const Graph &graph = graphs[projection[i].id];
@@ -24,7 +24,7 @@ void GSpan::enumerate(
   }
 }
 
-bool GSpan::get_forward_init(const struct vertex_t &vertex, const Graph &graph, Edges &edges) {
+bool GBolt::get_forward_init(const struct vertex_t &vertex, const Graph &graph, Edges &edges) {
   for (size_t i = 0; i < vertex.edges.size(); ++i) {
     size_t to = vertex.edges[i].to;
     const struct vertex_t *next_vertex = graph.get_p_vertex(to);
@@ -37,13 +37,13 @@ bool GSpan::get_forward_init(const struct vertex_t &vertex, const Graph &graph, 
   return !edges.empty();
 }
 
-void GSpan::get_backward(
+void GBolt::get_backward(
   const struct prev_dfs_t &prev_dfs,
   const Graph &graph,
   const DfsCodes &dfs_codes,
   const vector<size_t> &right_most_path,
   ProjectionMapBackward &projection_map_backward) {
-  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+  gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   History *history = instance->history;
   const struct edge_t *last_edge = history->get_p_edge(right_most_path[0]);
   const struct vertex_t *last_node = graph.get_p_vertex(last_edge->to);
@@ -70,14 +70,14 @@ void GSpan::get_backward(
   }
 }
 
-void GSpan::get_first_forward(
+void GBolt::get_first_forward(
   const struct prev_dfs_t &prev_dfs,
   const Graph &graph,
   const DfsCodes &dfs_codes,
   const vector<size_t> &right_most_path,
   size_t min_label,
   ProjectionMapForward &projection_map_forward) {
-  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+  gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   History *history = instance->history;
   const struct edge_t *last_edge = history->get_p_edge(right_most_path[0]);
   const struct vertex_t *last_node = graph.get_p_vertex(last_edge->to);
@@ -100,14 +100,14 @@ void GSpan::get_first_forward(
   }
 }
 
-void GSpan::get_other_forward(
+void GBolt::get_other_forward(
   const struct prev_dfs_t &prev_dfs,
   const Graph &graph,
   const DfsCodes &dfs_codes,
   const vector<size_t> &right_most_path,
   size_t min_label,
   ProjectionMapForward &projection_map_forward) {
-  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+  gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   History *history = instance->history;
   for (size_t i = 0; i < right_most_path.size(); ++i) {
     const struct edge_t *cur_edge = history->get_p_edge(right_most_path[i]);
@@ -134,5 +134,5 @@ void GSpan::get_other_forward(
     }
   }
 }
-}//namespace gspan
+}//namespace gbolt
 

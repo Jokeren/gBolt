@@ -1,10 +1,10 @@
-#include <gspan.h>
+#include <gbolt.h>
 #include <history.h>
 #include <algorithm>
 
-namespace gspan {
+namespace gbolt {
 
-void GSpan::build_right_most_path(const DfsCodes &dfs_codes, vector<size_t> &right_most_path) {
+void GBolt::build_right_most_path(const DfsCodes &dfs_codes, vector<size_t> &right_most_path) {
   int prev_id = -1;
 
   for (size_t i = dfs_codes.size(); i > 0; --i) {
@@ -16,7 +16,7 @@ void GSpan::build_right_most_path(const DfsCodes &dfs_codes, vector<size_t> &rig
   }
 }
 
-size_t GSpan::count_support(const Projection &projection) {
+size_t GBolt::count_support(const Projection &projection) {
   int prev_id = -1;
   size_t size = 0;
 
@@ -29,7 +29,7 @@ size_t GSpan::count_support(const Projection &projection) {
   return size;
 }
 
-void GSpan::build_graph(const DfsCodes &dfs_codes, Graph &graph) {
+void GBolt::build_graph(const DfsCodes &dfs_codes, Graph &graph) {
   size_t edge_id = 0;
   Vertice *vertice = graph.get_p_vertice();
 
@@ -52,13 +52,13 @@ void GSpan::build_graph(const DfsCodes &dfs_codes, Graph &graph) {
   graph.set_nedges(edge_id);
 }
 
-bool GSpan::is_min(const DfsCodes &dfs_codes) {
+bool GBolt::is_min(const DfsCodes &dfs_codes) {
   if (dfs_codes.size() == 1)
     return true;
 
   ProjectionMap projection_map;
   // Reuse memory, TODO: necessary or not? just set an index?
-  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+  gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   Graph *min_graph = instance->min_graph;
   DfsCodes *min_dfs_codes = instance->min_dfs_codes;
   min_graph->clear();
@@ -90,12 +90,12 @@ bool GSpan::is_min(const DfsCodes &dfs_codes) {
   return is_projection_min(dfs_codes, it->second);
 }
 
-bool GSpan::judge_backward(
+bool GBolt::judge_backward(
   const vector<size_t> &right_most_path,
   const Projection &projection,
   size_t min_label,
   ProjectionMapBackward &projection_map_backward) {
-  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+  gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   Graph *min_graph = instance->min_graph;
   DfsCodes *min_dfs_codes = instance->min_dfs_codes;
   History *history = instance->history;
@@ -133,12 +133,12 @@ bool GSpan::judge_backward(
 }
 
 
-bool GSpan::judge_forward(
+bool GBolt::judge_forward(
   const vector<size_t> &right_most_path,
   const Projection &projection,
   size_t min_label,
   ProjectionMapForward &projection_map_forward) {
-  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+  gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   Graph *min_graph = instance->min_graph;
   History *history = instance->history;
   DfsCodes *min_dfs_codes = instance->min_dfs_codes;
@@ -195,8 +195,8 @@ bool GSpan::judge_forward(
     return false;
 }
 
-bool GSpan::is_projection_min(const DfsCodes &dfs_codes, const Projection &projection) {
-  gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
+bool GBolt::is_projection_min(const DfsCodes &dfs_codes, const Projection &projection) {
+  gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   DfsCodes *min_dfs_codes = instance->min_dfs_codes;
   vector<size_t> right_most_path;
   ProjectionMapBackward projection_map_backward;
@@ -230,5 +230,5 @@ bool GSpan::is_projection_min(const DfsCodes &dfs_codes, const Projection &proje
   return true;
 }
 
-}  // namespace gspan
+}  // namespace gbolt
 

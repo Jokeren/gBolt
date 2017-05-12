@@ -1,5 +1,5 @@
-#ifndef INCLUDE_GSPAN_H_
-#define INCLUDE_GSPAN_H_
+#ifndef INCLUDE_GBOLT_H_
+#define INCLUDE_GBOLT_H_
 
 #include <common.h>
 #include <graph.h>
@@ -9,15 +9,15 @@
 #include <vector>
 #include <string>
 
-namespace gspan {
+namespace gbolt {
 
-struct gspan_instance_t {
+struct gbolt_instance_t {
   Graph *min_graph = 0;
   DfsCodes *min_dfs_codes = 0;
   History *history = 0;
   Output *output = 0;
 
-  ~gspan_instance_t() {
+  ~gbolt_instance_t() {
     delete this->min_graph;
     delete this->min_dfs_codes;
     delete this->history;
@@ -25,18 +25,18 @@ struct gspan_instance_t {
   }
 };
 
-class GSpan {
+class GBolt {
  public:
-  GSpan(const string &output_file, double support) :
-    output_file_(output_file), support_(support), gspan_instances_(0) {}
+  GBolt(const string &output_file, double support) :
+    output_file_(output_file), support_(support), gbolt_instances_(0) {}
 
   void execute();
 
   void save(bool output_parent = false, bool output_pattern = false);
 
-  ~GSpan() {
-    if (gspan_instances_ != 0) {
-      delete[] gspan_instances_;
+  ~GBolt() {
+    if (gbolt_instances_ != 0) {
+      delete[] gbolt_instances_;
     }
   }
 
@@ -133,8 +133,8 @@ class GSpan {
   string output_file_;
   double support_;
   size_t nsupport_;
-  gspan_instance_t *gspan_instances_;
+  gbolt_instance_t *gbolt_instances_;
 };
-}  // namespace gspan
+}  // namespace gbolt
 
-#endif  // INCLUDE_GSPAN_H_
+#endif  // INCLUDE_GBOLT_H_
