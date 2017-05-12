@@ -15,12 +15,12 @@ GBolt--very fast implementation for gSpan algorithm in data mining
 
 #### Steps
 
-Build gbolt:
-
     mkdir build && cd build
     cmake ..
     make
     
+## Usage
+
 Run an example:
 
     ./build/gbolt -input_file data/Chemical_340 -support 0.2 
