@@ -27,7 +27,7 @@ void GSpan::enumerate(
 bool GSpan::get_forward_init(const struct vertex_t &vertex, const Graph &graph, Edges &edges) {
   for (size_t i = 0; i < vertex.edges.size(); ++i) {
     size_t to = vertex.edges[i].to;
-    const struct vertex_t *next_vertex = graph.get_p_vertex(to);
+    const struct vertex_t *next_vertex = graph.get_immutable_vertex(to);
     // Partial pruning: if the first label is greater than the second label, then there must be
     // another graph whose second label is greater than the first label.
     if (vertex.label <= next_vertex->label) {
@@ -46,15 +46,15 @@ void GSpan::get_backward(
   gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
   History *history = instance->history;
   const struct edge_t *last_edge = history->get_p_edge(right_most_path[0]);
-  const struct vertex_t *last_node = graph.get_p_vertex(last_edge->to);
+  const struct vertex_t *last_node = graph.get_immutable_vertex(last_edge->to);
 
   for (size_t i = right_most_path.size(); i > 1; --i) {
     const struct edge_t *edge = history->get_p_edge(right_most_path[i - 1]);
     for (size_t j = 0; j < (last_node->edges).size(); ++j) {
       if (history->has_edges((last_node->edges[j]).id))
         continue;
-      const struct vertex_t *from_node = graph.get_p_vertex(edge->from);
-      const struct vertex_t *to_node = graph.get_p_vertex(edge->to);
+      const struct vertex_t *from_node = graph.get_immutable_vertex(edge->from);
+      const struct vertex_t *to_node = graph.get_immutable_vertex(edge->to);
       if (last_node->edges[j].to == edge->from &&
           (last_node->edges[j].label > edge->label ||
            (last_node->edges[j].label == edge->label &&
@@ -79,11 +79,11 @@ void GSpan::get_first_forward(
   gspan_instance_t *instance = gspan_instances_ + omp_get_thread_num();
   History *history = instance->history;
   const struct edge_t *last_edge = history->get_p_edge(right_most_path[0]);
-  const struct vertex_t *last_node = graph.get_p_vertex(last_edge->to);
+  const struct vertex_t *last_node = graph.get_immutable_vertex(last_edge->to);
 
   for (size_t i = 0; i < (last_node->edges).size(); ++i) {
     const struct edge_t *edge = &(last_node->edges[i]);
-    const struct vertex_t *to_node = graph.get_p_vertex(edge->to);
+    const struct vertex_t *to_node = graph.get_immutable_vertex(edge->to);
     // Partial pruning: if this label is less than the minimum label, then there
     // should exist another lexicographical order which renders the same letters, but
     // in the asecending order.
@@ -109,11 +109,11 @@ void GSpan::get_other_forward(
   History *history = instance->history;
   for (size_t i = 0; i < right_most_path.size(); ++i) {
     const struct edge_t *cur_edge = history->get_p_edge(right_most_path[i]);
-    const struct vertex_t *cur_node = graph.get_p_vertex(cur_edge->from);
-    const struct vertex_t *cur_to = graph.get_p_vertex(cur_edge->to);
+    const struct vertex_t *cur_node = graph.get_immutable_vertex(cur_edge->from);
+    const struct vertex_t *cur_to = graph.get_immutable_vertex(cur_edge->to);
 
     for (size_t j = 0; j < cur_node->edges.size(); ++j) {
-      const struct vertex_t *to_node = graph.get_p_vertex(cur_node->edges[j].to);
+      const struct vertex_t *to_node = graph.get_immutable_vertex(cur_node->edges[j].to);
       // Partial pruning: guarantees that extending label is greater
       // than the minimum one
       if (history->has_vertice(to_node->id) || to_node->id == cur_to->id || to_node->label < min_label)

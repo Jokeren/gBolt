@@ -9,10 +9,10 @@
 namespace gspan {
 
 struct gspan_instance_t {
-  Graph *min_graph;
-  DfsCodes *min_dfs_codes;
-  History *history;
-  Output *output;
+  Graph *min_graph = 0;
+  DfsCodes *min_dfs_codes = 0;
+  History *history = 0;
+  Output *output = 0;
 
   ~gspan_instance_t() {
     delete this->min_graph;
@@ -25,14 +25,16 @@ struct gspan_instance_t {
 class GSpan {
  public:
   GSpan(const string &output_file, double support) :
-    output_file_(output_file), support_(support) {};
+    output_file_(output_file), support_(support), gspan_instances_(0) {};
 
   void execute();
 
   void save(bool output_parent = false, bool output_pattern = false);
 
   ~GSpan() {
-    delete[] gspan_instances_;
+    if (gspan_instances_ != 0) {
+      delete[] gspan_instances_;
+    }
   }
 
  private:
@@ -42,7 +44,7 @@ class GSpan {
 
  private:
   // Mine
-  void init_instances(const vector<Graph> &graphs);
+  void init_instances(vector<Graph> &graphs);
 
   void project(const vector<Graph> &graphs);
 

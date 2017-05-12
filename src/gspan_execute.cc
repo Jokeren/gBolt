@@ -37,7 +37,7 @@ void GSpan::execute() {
   #endif
 }
 
-void GSpan::init_instances(const vector<Graph> &graphs) {
+void GSpan::init_instances(vector<Graph> &graphs) {
   size_t num_threads = omp_get_max_threads();
   gspan_instances_ = new gspan_instance_t[num_threads];
 
@@ -47,9 +47,11 @@ void GSpan::init_instances(const vector<Graph> &graphs) {
   for (size_t i = 0; i < graphs.size(); ++i) {
     max_edges = std::max(graphs[i].get_nedges(), max_edges);
     max_vertice = std::max(graphs[i].get_p_vertice()->size(), max_vertice);
+    // Init an immutable vertex array for each graph
+    graphs[i].init_immutable_vertice();
   }
 
-  // Init instance for each thread
+  // Init an instance for each thread
   for (size_t i = 0; i < num_threads; ++i) {
     LOG(INFO) << "GSPAN thread " << i << " create";
     string output_file_thread = output_file_ + ".t" + std::to_string(i);
@@ -68,13 +70,13 @@ void GSpan::project(const vector<Graph> &graphs) {
     const Graph &graph = graphs[i];
 
     for (size_t j = 0; j < graph.size(); ++j) {
-      const struct vertex_t *vertex = graph.get_p_vertex(j);
+      const struct vertex_t *vertex = graph.get_immutable_vertex(j);
       Edges edges;
 
       if (get_forward_init(*vertex, graph, edges)) {
         for (size_t k = 0; k < edges.size(); ++k) {
-          const struct vertex_t *vertex_from = graph.get_p_vertex(edges[k]->from);
-          const struct vertex_t *vertex_to = graph.get_p_vertex(edges[k]->to);
+          const struct vertex_t *vertex_from = graph.get_immutable_vertex(edges[k]->from);
+          const struct vertex_t *vertex_to = graph.get_immutable_vertex(edges[k]->to);
           // Push dfs code according to the same edge label
           struct dfs_code_t dfs_code(0, 1, vertex_from->label, edges[k]->label, vertex_to->label);
           // Push all the graphs

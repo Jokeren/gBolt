@@ -46,7 +46,7 @@ void GSpan::report(const DfsCodes &dfs_codes, const Projection &projection, size
   build_graph(dfs_codes, graph);
 
   for (size_t i = 0; i < graph.size(); ++i) {
-    const struct vertex_t *vertex = graph.get_p_vertex(i);
+    const struct vertex_t *vertex = graph.get_immutable_vertex(i);
     ss << "v " << vertex->id << " " << vertex->label << std::endl;
   }
   for (size_t i = 0; i < dfs_codes.size(); ++i) {

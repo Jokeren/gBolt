@@ -106,7 +106,7 @@ typedef vector<struct vertex_t> Vertice;
 
 class Graph {
  public:
-  Graph() : id_(0), nedges_(0) {};
+  Graph() : id_(0), nedges_(0), immutable_vertice_(0) {};
 
   size_t size() const {
     return vertice_.size();
@@ -152,27 +152,38 @@ class Graph {
     return vertice_[index];
   }
 
-  struct vertex_t *get_candidate_vertex(size_t index) {
+  struct vertex_t *get_p_vertex(size_t index) {
     return &vertice_[index];
   }
 
-  struct vertex_t *get_p_vertex(size_t index) {
-    return p_vertice_[index];
-  }
-
   const struct vertex_t *get_p_vertex(size_t index) const {
-    return p_vertice_[index];
+    return &vertice_[index];
   }
 
-  void initialize_p_vertice() {
-    p_vertice_ = new ConstVertexPointer[vertice_.size()];
+  const struct vertex_t *get_immutable_vertex(size_t index) const {
+    return immutable_vertice_[index];
+  }
+
+  void init_immutable_vertice() {
+    immutable_vertice_ = new ConstVertexPointer[vertice_.size()];
     for (size_t i = 0; i < vertice_.size(); ++i) {
-      p_vertice_[i] = &vertice_[i];
+      immutable_vertice_[i] = &vertice_[i];
+    }
+  }
+
+  void clear() {
+    id_ = 0;
+    nedges_ = 0;
+    vertice_.clear();
+    if (immutable_vertice_ != 0) {
+      delete[] immutable_vertice_;
     }
   }
 
   ~Graph() {
-    delete[] p_vertice_;
+    if (immutable_vertice_ != 0) {
+      delete[] immutable_vertice_;
+    }
   }
 
  private:
@@ -180,7 +191,7 @@ class Graph {
   size_t nedges_;
   Vertice vertice_;
   typedef const struct vertex_t * ConstVertexPointer;
-  ConstVertexPointer *p_vertice_;
+  ConstVertexPointer *immutable_vertice_;
 };
 }  // namespace gspan
 
