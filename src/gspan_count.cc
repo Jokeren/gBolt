@@ -50,7 +50,6 @@ void GSpan::build_graph(const DfsCodes &dfs_codes, Graph &graph) {
     ++edge_id;
   }
   graph.set_nedges(edge_id);
-  graph.init_immutable_vertice();
 }
 
 bool GSpan::is_min(const DfsCodes &dfs_codes) {
@@ -68,14 +67,14 @@ bool GSpan::is_min(const DfsCodes &dfs_codes) {
   build_graph(dfs_codes, *min_graph);
 
   for (size_t i = 0; i < min_graph->size(); ++i) {
-    const struct vertex_t *vertex = min_graph->get_immutable_vertex(i);
+    const struct vertex_t *vertex = min_graph->get_p_vertex(i);
     Edges edges;
 
     if (get_forward_init(*vertex, *min_graph, edges)) {
       for (size_t j = 0; j < edges.size(); ++j) {
         // Push dfs code according to the same edge label
-        const struct vertex_t *vertex_from = min_graph->get_immutable_vertex(edges[j]->from);
-        const struct vertex_t *vertex_to = min_graph->get_immutable_vertex(edges[j]->to);
+        const struct vertex_t *vertex_from = min_graph->get_p_vertex(edges[j]->from);
+        const struct vertex_t *vertex_to = min_graph->get_p_vertex(edges[j]->to);
         struct dfs_code_t dfs_code(0, 1, vertex_from->label, edges[j]->label, vertex_to->label);
         // Push back all the graphs
         projection_map[dfs_code].emplace_back(0, edges[j], (const prev_dfs_t *)NULL);
@@ -108,9 +107,9 @@ bool GSpan::judge_backward(
 
       const struct edge_t *edge = history->get_p_edge(right_most_path[i - 1]);
       const struct edge_t *last_edge = history->get_p_edge(right_most_path[0]);
-      const struct vertex_t *from_node = min_graph->get_immutable_vertex(edge->from);
-      const struct vertex_t *last_node = min_graph->get_immutable_vertex(last_edge->to);
-      const struct vertex_t *to_node = min_graph->get_immutable_vertex(edge->to);
+      const struct vertex_t *from_node = min_graph->get_p_vertex(edge->from);
+      const struct vertex_t *last_node = min_graph->get_p_vertex(last_edge->to);
+      const struct vertex_t *to_node = min_graph->get_p_vertex(edge->to);
 
       for (size_t k = 0; k < last_node->edges.size(); ++k) {
         if (history->has_edges(last_node->edges[k].id))
@@ -148,11 +147,11 @@ bool GSpan::judge_forward(
     history->build_vertice(projection[i], *min_graph);
 
     const struct edge_t *last_edge = history->get_p_edge(right_most_path[0]);
-    const struct vertex_t *last_node = min_graph->get_immutable_vertex(last_edge->to);
+    const struct vertex_t *last_node = min_graph->get_p_vertex(last_edge->to);
 
     for (size_t j = 0; j < (last_node->edges).size(); ++j) {
       const struct edge_t *edge = &(last_node->edges[j]);
-      const struct vertex_t *to_node = min_graph->get_immutable_vertex(edge->to);
+      const struct vertex_t *to_node = min_graph->get_p_vertex(edge->to);
       if (history->has_vertice(edge->to) || to_node->label < min_label)
         continue;
       size_t to_id = (*min_dfs_codes)[right_most_path[0]].to;
@@ -167,11 +166,11 @@ bool GSpan::judge_forward(
         history->build_vertice(projection[j], *min_graph);
 
         const struct edge_t *cur_edge = history->get_p_edge(right_most_path[i]);
-        const struct vertex_t *cur_node = min_graph->get_immutable_vertex(cur_edge->from);
-        const struct vertex_t *cur_to = min_graph->get_immutable_vertex(cur_edge->to);
+        const struct vertex_t *cur_node = min_graph->get_p_vertex(cur_edge->from);
+        const struct vertex_t *cur_to = min_graph->get_p_vertex(cur_edge->to);
 
         for (size_t k = 0; k < cur_node->edges.size(); ++k) {
-          const struct vertex_t *to_node = min_graph->get_immutable_vertex(cur_node->edges[k].to);
+          const struct vertex_t *to_node = min_graph->get_p_vertex(cur_node->edges[k].to);
           if (history->has_vertice(to_node->id) || cur_edge->to == to_node->id || to_node->label < min_label)
             continue;
           if (cur_edge->label < cur_node->edges[k].label ||

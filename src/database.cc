@@ -42,7 +42,6 @@ void Database::construct_graphs(vector<Graph> &graphs) {
     if (input_[i][0] == "t") {
       if (i != 0) {
         graphs[graph_index].set_nedges(edge_id);
-        graphs[graph_index].init_immutable_vertice();
         vertice = graphs[++graph_index].get_p_vertice();
         edge_id = 0;
       }
@@ -66,7 +65,6 @@ void Database::construct_graphs(vector<Graph> &graphs) {
     }
   }
   graphs[graph_index].set_nedges(edge_id);
-  graphs[graph_index].init_immutable_vertice();
 }
 
 // Construct graph by labels
@@ -86,7 +84,6 @@ void Database::construct_graphs(
     if (input_[i][0] == "t") {
       if (i != 0) {
         graphs[graph_index].set_nedges(edge_id);
-        graphs[graph_index].init_immutable_vertice();
         vertice = graphs[++graph_index].get_p_vertice();
         edge_id = 0;
         vertex_id = 0;
@@ -127,7 +124,6 @@ void Database::construct_graphs(
     }
   }
   graphs[graph_index].set_nedges(edge_id);
-  graphs[graph_index].init_immutable_vertice();
 }
 
 }  // namespace gspan

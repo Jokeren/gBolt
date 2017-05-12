@@ -13,7 +13,7 @@ void GSpan::find_frequent_nodes_and_edges(const vector<Graph> &graphs) {
     unordered_set<size_t> vertex_set;
     unordered_set<size_t> edge_set;
     for (size_t j = 0; j < graphs[i].size(); ++j) {
-      const struct vertex_t *vertex = graphs[i].get_immutable_vertex(j);
+      const struct vertex_t *vertex = graphs[i].get_p_vertex(j);
       vertex_set.insert(vertex->label);
       for (size_t k = 0; k < (vertex->edges).size(); ++k) {
         edge_set.insert(vertex->edges[k].label);
@@ -46,7 +46,7 @@ void GSpan::report(const DfsCodes &dfs_codes, const Projection &projection, size
   build_graph(dfs_codes, graph);
 
   for (size_t i = 0; i < graph.size(); ++i) {
-    const struct vertex_t *vertex = graph.get_immutable_vertex(i);
+    const struct vertex_t *vertex = graph.get_p_vertex(i);
     ss << "v " << vertex->id << " " << vertex->label << std::endl;
   }
   for (size_t i = 0; i < dfs_codes.size(); ++i) {

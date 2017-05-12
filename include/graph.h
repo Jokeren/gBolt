@@ -107,7 +107,7 @@ typedef vector<struct vertex_t> Vertice;
 
 class Graph {
  public:
-  Graph() : id_(0), nedges_(0), immutable_vertice_(0) {}
+  Graph() : id_(0), nedges_(0) {}
 
   size_t size() const {
     return vertice_.size();
@@ -161,38 +161,16 @@ class Graph {
     return &vertice_[index];
   }
 
-  const struct vertex_t *get_immutable_vertex(size_t index) const {
-    return immutable_vertice_[index];
-  }
-
-  void init_immutable_vertice() {
-    immutable_vertice_ = new ConstVertexPointer[vertice_.size()];
-    for (size_t i = 0; i < vertice_.size(); ++i) {
-      immutable_vertice_[i] = &vertice_[i];
-    }
-  }
-
   void clear() {
     id_ = 0;
     nedges_ = 0;
     vertice_.clear();
-    if (immutable_vertice_ != 0) {
-      delete[] immutable_vertice_;
-    }
-  }
-
-  ~Graph() {
-    if (immutable_vertice_ != 0) {
-      delete[] immutable_vertice_;
-    }
   }
 
  private:
   size_t id_;
   size_t nedges_;
   Vertice vertice_;
-  typedef const struct vertex_t * ConstVertexPointer;
-  ConstVertexPointer *immutable_vertice_;
 };
 }  // namespace gspan
 
