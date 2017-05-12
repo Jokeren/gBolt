@@ -1,7 +1,9 @@
-#ifndef DATABASE_H_
-#define DATABASE_H_
+#ifndef INCLUDE_DATABASE_H_
+#define INCLUDE_DATABASE_H_
 
 #include <common.h>
+#include <vector>
+#include <string>
 
 namespace gspan {
 
@@ -30,7 +32,7 @@ class Database {
   }
 
  private:
-  Database() {};
+  Database() {}
 
  private:
   static Database *instance_;
@@ -40,4 +42,4 @@ class Database {
 
 }  // namespace gspan
 
-#endif  // DATABASE_H_
+#endif  // INCLUDE_DATABASE_H_

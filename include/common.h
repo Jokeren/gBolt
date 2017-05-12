@@ -1,16 +1,16 @@
-#ifndef COMMON_H_
-#define COMMON_H_
+#ifndef INCLUDE_COMMON_H_
+#define INCLUDE_COMMON_H_
 
+#include <sys/time.h>
+#include <omp.h>
+#include <glog/logging.h>
+#include <config.h>
 #include <map>
 #include <unordered_map>
 #include <unordered_set>
 #include <string>
 #include <set>
 #include <vector>
-#include <config.h>
-#include <sys/time.h>
-#include <omp.h>
-#include <glog/logging.h>
 
 #define FILE_MAX_LINE 1024
 
@@ -18,7 +18,7 @@
   do { \
     elapsed_time = 0.0; \
     gettimeofday(&t1, NULL); \
-  } while (0) 
+  } while (0)
 
 #define CPU_TIMER_END(elapsed_time, t1, t2) \
   do { \
@@ -39,4 +39,4 @@ using std::vector;
 
 }  // namespace gspan
 
-#endif  // COMMON_H_
+#endif  // INCLUDE_COMMON_H_

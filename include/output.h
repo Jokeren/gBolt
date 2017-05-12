@@ -1,13 +1,15 @@
-#ifndef OUTPUT_H_
-#define OUTPUT_H_
+#ifndef INCLUDE_OUTPUT_H_
+#define INCLUDE_OUTPUT_H_
 
 #include <common.h>
+#include <vector>
+#include <string>
 
 namespace gspan {
 
 class Output {
  public:
-  Output(const string &output_file): output_file_(output_file) {}
+  explicit Output(const string &output_file): output_file_(output_file) {}
 
   size_t size() const {
     return support_.size();
@@ -27,4 +29,4 @@ class Output {
 
 }  // namespace gspan
 
-#endif  // OUTPUT_H_
+#endif  // INCLUDE_OUTPUT_H_

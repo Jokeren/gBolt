@@ -100,7 +100,7 @@ bool GSpan::judge_backward(
   Graph *min_graph = instance->min_graph;
   DfsCodes *min_dfs_codes = instance->min_dfs_codes;
   History *history = instance->history;
-  
+
   // i > 1, because it cannot reach the path itself
   for (size_t i = right_most_path.size(); i > 1; --i) {
     for (size_t j = 0; j < projection.size(); ++j) {
@@ -192,9 +192,8 @@ bool GSpan::judge_forward(
   }
   if (projection_map_forward.size() != 0)
     return true;
-  else {
+  else 
     return false;
-  }
 }
 
 bool GSpan::is_projection_min(const DfsCodes &dfs_codes, const Projection &projection) {

@@ -42,6 +42,7 @@ void Database::construct_graphs(vector<Graph> &graphs) {
     if (input_[i][0] == "t") {
       if (i != 0) {
         graphs[graph_index].set_nedges(edge_id);
+        graphs[graph_index].init_immutable_vertice();
         vertice = graphs[++graph_index].get_p_vertice();
         edge_id = 0;
       }
@@ -65,11 +66,12 @@ void Database::construct_graphs(vector<Graph> &graphs) {
     }
   }
   graphs[graph_index].set_nedges(edge_id);
+  graphs[graph_index].init_immutable_vertice();
 }
 
 // Construct graph by labels
 void Database::construct_graphs(
-  const unordered_map<size_t, size_t> &frequent_vertex_labels, 
+  const unordered_map<size_t, size_t> &frequent_vertex_labels,
   const unordered_map<size_t, size_t> &frequent_edge_labels,
   vector<Graph> &graphs) {
   vector<size_t> labels;
@@ -84,6 +86,7 @@ void Database::construct_graphs(
     if (input_[i][0] == "t") {
       if (i != 0) {
         graphs[graph_index].set_nedges(edge_id);
+        graphs[graph_index].init_immutable_vertice();
         vertice = graphs[++graph_index].get_p_vertice();
         edge_id = 0;
         vertex_id = 0;
@@ -112,9 +115,11 @@ void Database::construct_graphs(
         frequent_vertex_labels.find(label_to) != frequent_vertex_labels.end() &&
         frequent_edge_labels.find(label) != frequent_edge_labels.end()) {
         // First edge
-        (*vertice)[id_map[from]].edges.emplace_back(id_map[from], label, id_map[to], edge_id);
+        (*vertice)[id_map[from]].edges.
+          emplace_back(id_map[from], label, id_map[to], edge_id);
         // Second edge
-        (*vertice)[id_map[to]].edges.emplace_back(id_map[to], label, id_map[from], edge_id);
+        (*vertice)[id_map[to]].edges.
+          emplace_back(id_map[to], label, id_map[from], edge_id);
         ++edge_id;
       }
     } else {
@@ -122,6 +127,7 @@ void Database::construct_graphs(
     }
   }
   graphs[graph_index].set_nedges(edge_id);
+  graphs[graph_index].init_immutable_vertice();
 }
 
 }  // namespace gspan

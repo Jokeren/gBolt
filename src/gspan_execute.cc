@@ -10,7 +10,7 @@ void GSpan::execute() {
   vector<Graph> graphs;
   vector<Graph> prune_graphs;
   // Phase 1: construct an initial graph
-  #ifdef GSPAN_PERFORMANCE  
+  #ifdef GSPAN_PERFORMANCE
   struct timeval time_start, time_end;
   double elapsed = 0.0;
   CPU_TIMER_START(elapsed, time_start);
@@ -18,26 +18,26 @@ void GSpan::execute() {
   database->construct_graphs(graphs);
   nsupport_ = graphs.size() * support_;
   // TODO: find frequent edges
-  find_frequent_nodes(graphs);
+  find_frequent_nodes_and_edges(graphs);
 
   // Phase 2: prune the initial graph by frequent labels
   database->construct_graphs(frequent_vertex_labels_, frequent_edge_labels_, prune_graphs);
-  #ifdef GSPAN_PERFORMANCE  
+  #ifdef GSPAN_PERFORMANCE
   CPU_TIMER_END(elapsed, time_start, time_end);
-  LOG(INFO) << "GSPAN construct graph time: " << elapsed; 
+  LOG(INFO) << "GSPAN construct graph time: " << elapsed;
   CPU_TIMER_START(elapsed, time_start);
   #endif
 
   // Phase 3: graph mining
   init_instances(prune_graphs);
   project(prune_graphs);
-  #ifdef GSPAN_PERFORMANCE  
+  #ifdef GSPAN_PERFORMANCE
   CPU_TIMER_END(elapsed, time_start, time_end);
   LOG(INFO) << "GSPAN mine graph time: " << elapsed;
   #endif
 }
 
-void GSpan::init_instances(vector<Graph> &graphs) {
+void GSpan::init_instances(const vector<Graph> &graphs) {
   size_t num_threads = omp_get_max_threads();
   gspan_instances_ = new gspan_instance_t[num_threads];
 
@@ -47,8 +47,6 @@ void GSpan::init_instances(vector<Graph> &graphs) {
   for (size_t i = 0; i < graphs.size(); ++i) {
     max_edges = std::max(graphs[i].get_nedges(), max_edges);
     max_vertice = std::max(graphs[i].get_p_vertice()->size(), max_vertice);
-    // Init an immutable vertex array for each graph
-    graphs[i].init_immutable_vertice();
   }
 
   // Init an instance for each thread

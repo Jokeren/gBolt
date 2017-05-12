@@ -1,7 +1,8 @@
-#ifndef GRAPH_H_
-#define GRAPH_H_
+#ifndef INCLUDE_GRAPH_H_
+#define INCLUDE_GRAPH_H_
 
 #include <common.h>
+#include <vector>
 
 namespace gspan {
 
@@ -95,7 +96,7 @@ struct dfs_code_forward_compare_t {
 };
 
 struct vertex_t {
-  vertex_t() {};
+  vertex_t() {}
   vertex_t(size_t id, size_t label) : id(id), label(label) {}
 
   size_t id;
@@ -106,7 +107,7 @@ typedef vector<struct vertex_t> Vertice;
 
 class Graph {
  public:
-  Graph() : id_(0), nedges_(0), immutable_vertice_(0) {};
+  Graph() : id_(0), nedges_(0), immutable_vertice_(0) {}
 
   size_t size() const {
     return vertice_.size();
@@ -195,4 +196,4 @@ class Graph {
 };
 }  // namespace gspan
 
-#endif  // GRAPH_H_
+#endif  // INCLUDE_GRAPH_H_

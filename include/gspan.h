@@ -1,10 +1,13 @@
-#ifndef GSPAN_H_
-#define GSPAN_H_
+#ifndef INCLUDE_GSPAN_H_
+#define INCLUDE_GSPAN_H_
 
 #include <common.h>
 #include <graph.h>
 #include <history.h>
 #include <output.h>
+#include <map>
+#include <vector>
+#include <string>
 
 namespace gspan {
 
@@ -25,7 +28,7 @@ struct gspan_instance_t {
 class GSpan {
  public:
   GSpan(const string &output_file, double support) :
-    output_file_(output_file), support_(support), gspan_instances_(0) {};
+    output_file_(output_file), support_(support), gspan_instances_(0) {}
 
   void execute();
 
@@ -44,11 +47,11 @@ class GSpan {
 
  private:
   // Mine
-  void init_instances(vector<Graph> &graphs);
+  void init_instances(const vector<Graph> &graphs);
 
   void project(const vector<Graph> &graphs);
 
-  void find_frequent_nodes(const vector<Graph> &graphs);
+  void find_frequent_nodes_and_edges(const vector<Graph> &graphs);
 
   void mine_subgraph(
     const vector<Graph> &graphs,
@@ -134,4 +137,4 @@ class GSpan {
 };
 }  // namespace gspan
 
-#endif  // GSPAN_H_
+#endif  // INCLUDE_GSPAN_H_

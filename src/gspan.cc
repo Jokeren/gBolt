@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     LOG(FATAL) << "Support value should be less than 1.0 and greater than 0.0";
   }
   // Read input
-  #ifdef GSPAN_PERFORMANCE  
+  #ifdef GSPAN_PERFORMANCE
   struct timeval time_start, time_end;
   double elapsed = 0.0;
   CPU_TIMER_START(elapsed, time_start);
@@ -33,9 +33,9 @@ int main(int argc, char *argv[]) {
   Database::get_instance()->read_input(FLAGS_input_file, FLAGS_separator);
 
   // Construct algorithm
-  #ifdef GSPAN_PERFORMANCE  
+  #ifdef GSPAN_PERFORMANCE
   CPU_TIMER_END(elapsed, time_start, time_end);
-  LOG(INFO) << "GSPAN read input time: " << elapsed; 
+  LOG(INFO) << "GSPAN read input time: " << elapsed;
   CPU_TIMER_START(elapsed, time_start);
   #endif
   gspan::GSpan gspan(FLAGS_output_file, FLAGS_support);
@@ -43,13 +43,13 @@ int main(int argc, char *argv[]) {
 
   // Save results
   if (FLAGS_output_file.size() != 0) {
-    #ifdef GSPAN_PERFORMANCE  
+    #ifdef GSPAN_PERFORMANCE
     CPU_TIMER_END(elapsed, time_start, time_end);
     LOG(INFO) << "GSPAN execute time: " << elapsed;
     CPU_TIMER_START(elapsed, time_start);
     #endif
     gspan.save(FLAGS_parent, FLAGS_pattern);
-    #ifdef GSPAN_PERFORMANCE  
+    #ifdef GSPAN_PERFORMANCE
     CPU_TIMER_END(elapsed, time_start, time_end);
     LOG(INFO) << "GSPAN save output time: " << elapsed;
     #endif

@@ -5,7 +5,7 @@
 
 namespace gspan {
 
-void GSpan::find_frequent_nodes(const vector<Graph> &graphs) {
+void GSpan::find_frequent_nodes_and_edges(const vector<Graph> &graphs) {
   unordered_map<size_t, size_t> vertex_labels;
   unordered_map<size_t, size_t> edge_labels;
 
@@ -13,7 +13,7 @@ void GSpan::find_frequent_nodes(const vector<Graph> &graphs) {
     unordered_set<size_t> vertex_set;
     unordered_set<size_t> edge_set;
     for (size_t j = 0; j < graphs[i].size(); ++j) {
-      const struct vertex_t *vertex = graphs[i].get_p_vertex(j);
+      const struct vertex_t *vertex = graphs[i].get_immutable_vertex(j);
       vertex_set.insert(vertex->label);
       for (size_t k = 0; k < (vertex->edges).size(); ++k) {
         edge_set.insert(vertex->edges[k].label);

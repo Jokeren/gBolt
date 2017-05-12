@@ -1,10 +1,10 @@
-#ifndef HISTORY_H_
-#define HISTORY_H_
+#ifndef INCLUDE_HISTORY_H_
+#define INCLUDE_HISTORY_H_
 
 #include <common.h>
 #include <graph.h>
 
-namespace gspan{
+namespace gspan {
 
 class History {
  public:
@@ -28,7 +28,7 @@ class History {
     return has_vertice_[index];
   }
 
-  const struct edge_t *get_p_edge(size_t index) const{
+  const struct edge_t *get_p_edge(size_t index) const {
     return edges_[edge_size_ - index - 1];
   }
 
@@ -48,4 +48,4 @@ class History {
 
 }  // namespace gspan
 
-#endif  // HISTORY_H_
+#endif  // INCLUDE_HISTORY_H_
