@@ -1,21 +1,28 @@
-cGBolt
+ GBolt
 ==============
 
 GBolt--very fast implementation for gSpan algorithm in data mining
 
 ## Features
 
-GBolt is both memory and speed efficient, and it has gained 25x speedup in comparison to Yan's original implementation with multi-threading, even 3-7 times faster with a single thread. We list its relative performance by following two pictures:
+GBolt has gained 25x speedup in comparison to Yan's original implementation with multi-threading, even 3-7 times faster with a single thread. We list its relative performance by following two pictures:
 
-GBolt is fast and efficient with the following improvments:
+GBolt is ***fast*** as:
 
 1. Adopt task parallel programming.
 2. Incorporate **C++11** hastable and hashset.
-3. Incorporate **C++11** emplace_back method.
-4. Use contiguous memory storage.
-5. Use partial pruning.
-6. Reconstruct a graph with frequent edges and nodes before mining.
-7. Reuse memory to store temporal data.
+3. Use contiguous memory storage.
+4. Use partial pruning.
+
+GBolt is ***memory efficient*** as:
+
+1. Incorporate **C++11** emplace_back method.
+2. Reconstruct a graph with frequent edges and nodes before mining.
+3. Reuse memory to store temporal data.
+
+GBolt is ***correct*** as:
+
+1. We ran experiment for `data/Compound_422` and `data/Chemical_340` with minimal support from 0.1 to 0.9, and the results are exactly the same as Yan's gSpan-64. 
 
 ## Install
 
