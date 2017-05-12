@@ -92,10 +92,10 @@ Arguments help:
 
 Multi-thread support:
 
-    export OMP_NUM_THREADS=<hardware threads num for recommendation>
+    export OMP_NUM_THREADS=<hardware core num for recommendation>
     
 ## Reference
     
 ## Extension
 
-***gBolt** is designed for efficiency, so we have not developed utilities for it. If you want `Python`, `C`, or Graphical interfaces, please contact us. We will be glad if you could contribute ideas and codes for ***gBolt***.
+***gBolt*** is designed for efficiency, so we have not developed utilities for it. If you want `Python`, `C`, or Graphical interfaces, please contact us. We will be glad if you could contribute ideas and codes for ***gBolt***.
