@@ -80,8 +80,7 @@ void GSpan::project(const vector<Graph> &graphs) {
           // Push dfs code according to the same edge label
           struct dfs_code_t dfs_code(0, 1, vertex_from->label, edges[k]->label, vertex_to->label);
           // Push all the graphs
-          struct prev_dfs_t prev_dfs(graphs[i].get_id(), edges[k], NULL);
-          projection_map[dfs_code].push_back(prev_dfs);
+          projection_map[dfs_code].emplace_back(graphs[i].get_id(), edges[k], (const struct prev_dfs_t *)NULL);
         }
       }
     }
@@ -104,7 +103,7 @@ void GSpan::project(const vector<Graph> &graphs) {
       size_t to_label = (it->first).to_label;
       #pragma omp task shared(graphs, projection, prev_id) firstprivate(dfs_codes, nsupport)
       {
-        dfs_codes.push_back(dfs_code_t(0, 1, from_label, edge_label, to_label));
+        dfs_codes.emplace_back(0, 1, from_label, edge_label, to_label);
         mine_subgraph(graphs, dfs_codes, projection, nsupport, prev_id);
       }
     }

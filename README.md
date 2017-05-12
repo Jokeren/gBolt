@@ -7,6 +7,7 @@ gSpan algorithm in data mining
 
 5/9/2017:
 
+- Emplace_back Speedup: 0.02x
 - Task Parallel Speedup: 8x
 - History Memory Optimize Speedup: 2x
 - Refractor Speedup: 0.2x
@@ -21,11 +22,11 @@ gSpan algorithm in data mining
 - [x] Modify code styles
 - [x] Modify class constructors
 - [x] Modify multi-thread patterns
-- [x] Modify memory access patterns (change *clear()*, *resize()*)
+- [x] Modify memory access patterns (change *clear()*, *resize()*, *emplace_back()*)
 - [x] Change int types to size_t
 - [x] Pass by references
 - [x] Find frequent edge labels
-- [ ] Incoporate C++11 hashset and hashmap 
+- [x] Incoporate C++11 hashset and hashmap 
 - [ ] Refine algorithm (adjust projectionmap structures)
 - [ ] Heuristic multi-thread bound
 - [ ] Travis CI support

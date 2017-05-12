@@ -31,7 +31,7 @@ bool GSpan::get_forward_init(const struct vertex_t &vertex, const Graph &graph, 
     // Partial pruning: if the first label is greater than the second label, then there must be
     // another graph whose second label is greater than the first label.
     if (vertex.label <= next_vertex->label) {
-      edges.push_back(&(vertex.edges[i]));
+      edges.emplace_back(&(vertex.edges[i]));
     }
   }
   return !edges.empty();
@@ -62,8 +62,7 @@ void GSpan::get_backward(
         size_t from_id = dfs_codes[right_most_path[0]].to;
         size_t to_id = dfs_codes[right_most_path[i - 1]].from;
         struct dfs_code_t dfs_code(from_id, to_id, last_node->label, (last_node->edges[j]).label, from_node->label);
-        struct prev_dfs_t prev_prev_dfs(graph.get_id(), &(last_node->edges[j]), &(prev_dfs));
-        projection_map_backward[dfs_code].push_back(prev_prev_dfs);
+        projection_map_backward[dfs_code].emplace_back(graph.get_id(), &(last_node->edges[j]), &(prev_dfs));
       }
     }
   }
@@ -93,8 +92,7 @@ void GSpan::get_first_forward(
       continue;
     size_t to_id = dfs_codes[right_most_path[0]].to;
     struct dfs_code_t dfs_code(to_id, to_id + 1, last_node->label, edge->label, to_node->label);
-    struct prev_dfs_t prev_prev_dfs(graph.get_id(), edge, &(prev_dfs));
-    projection_map_forward[dfs_code].push_back(prev_prev_dfs);
+    projection_map_forward[dfs_code].emplace_back(graph.get_id(), edge, &(prev_dfs));
   }
 }
 
@@ -125,8 +123,7 @@ void GSpan::get_other_forward(
         size_t to_id = dfs_codes[right_most_path[0]].to;
         struct dfs_code_t dfs_code(from_id, to_id + 1, cur_node->label,
           cur_node->edges[j].label, to_node->label);
-        struct prev_dfs_t prev_prev_dfs(graph.get_id(), &(cur_node->edges[j]), &(prev_dfs));
-        projection_map_forward[dfs_code].push_back(prev_prev_dfs);
+        projection_map_forward[dfs_code].emplace_back(graph.get_id(), &(cur_node->edges[j]), &(prev_dfs));
       }
     }
   }

@@ -23,7 +23,7 @@ void Database::read_input(const string &input_file, const string &separator) {
       ++num_graph_;
     }
     while (pch != NULL) {
-      input_[num_line].push_back(string(pch));
+      input_[num_line].emplace_back(pch);
       pch = strtok(NULL, separator.c_str());
     }
     ++num_line;
@@ -49,20 +49,16 @@ void Database::construct_graphs(vector<Graph> &graphs) {
     } else if (input_[i][0] == "v") {
       size_t id = atoi(input_[i][1].c_str());
       size_t label = atoi(input_[i][2].c_str());
-      struct vertex_t vertex(id, label);
-      vertice->push_back(vertex);
+      vertice->emplace_back(id, label);
     } else if (input_[i][0] == "e") {
       size_t from = atoi(input_[i][1].c_str());
       size_t to = atoi(input_[i][2].c_str());
       size_t label = atoi(input_[i][3].c_str());
       // Add an edge
-      struct edge_t edge(from, label, to, edge_id);
       // Forward direction edge
-      (*vertice)[from].edges.push_back(edge);
+      (*vertice)[from].edges.emplace_back(from, label, to, edge_id);
       // Backward direction edge
-      edge.from = to;
-      edge.to = from;
-      (*vertice)[to].edges.push_back(edge);
+      (*vertice)[to].edges.emplace_back(to, label, from, edge_id);
       ++edge_id;
     } else {
       LOG(ERROR) << "Reading input error!";
@@ -101,8 +97,7 @@ void Database::construct_graphs(
       labels.push_back(label);
       // Find a node with frequent label
       if (frequent_vertex_labels.find(label) != frequent_vertex_labels.end()) {
-        struct vertex_t vertex(vertex_id, label);
-        vertice->push_back(vertex);
+        vertice->emplace_back(vertex_id, label);
         id_map[id] = vertex_id;
         ++vertex_id;
       }
@@ -116,13 +111,10 @@ void Database::construct_graphs(
       if (frequent_vertex_labels.find(label_from) != frequent_vertex_labels.end() &&
         frequent_vertex_labels.find(label_to) != frequent_vertex_labels.end() &&
         frequent_edge_labels.find(label) != frequent_edge_labels.end()) {
-        struct edge_t edge(id_map[from], label, id_map[to], edge_id);
         // First edge
-        (*vertice)[id_map[from]].edges.push_back(edge);
+        (*vertice)[id_map[from]].edges.emplace_back(id_map[from], label, id_map[to], edge_id);
         // Second edge
-        edge.from = id_map[to];
-        edge.to = id_map[from];
-        (*vertice)[id_map[to]].edges.push_back(edge);
+        (*vertice)[id_map[to]].edges.emplace_back(id_map[to], label, id_map[from], edge_id);
         ++edge_id;
       }
     } else {

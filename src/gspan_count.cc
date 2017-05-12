@@ -43,10 +43,10 @@ void GSpan::build_graph(const DfsCodes &dfs_codes, Graph &graph) {
     (*vertice)[dfs_codes[i].to].id = dfs_codes[i].to;
     // Push an edge
     struct edge_t edge(dfs_codes[i].from, dfs_codes[i].edge_label, dfs_codes[i].to, edge_id);
-    (*vertice)[edge.from].edges.push_back(edge);
-    edge.from = dfs_codes[i].to;
-    edge.to = dfs_codes[i].from;
-    (*vertice)[edge.from].edges.push_back(edge);
+    (*vertice)[edge.from].edges.emplace_back(
+      dfs_codes[i].from, dfs_codes[i].edge_label, dfs_codes[i].to, edge_id);
+    (*vertice)[edge.to].edges.emplace_back(
+      dfs_codes[i].to, dfs_codes[i].edge_label, dfs_codes[i].from, edge_id);
     ++edge_id;
   }
   graph.set_nedges(edge_id);
@@ -78,14 +78,13 @@ bool GSpan::is_min(const DfsCodes &dfs_codes) {
         const struct vertex_t *vertex_to = min_graph->get_immutable_vertex(edges[j]->to);
         struct dfs_code_t dfs_code(0, 1, vertex_from->label, edges[j]->label, vertex_to->label);
         // Push back all the graphs
-        struct prev_dfs_t prev_dfs(0, edges[j], NULL);
-        projection_map[dfs_code].push_back(prev_dfs);
+        projection_map[dfs_code].emplace_back(0, edges[j], (const prev_dfs_t *)NULL);
       }
     }
   }
   ProjectionMap::iterator it = projection_map.begin();
-  min_dfs_codes->push_back(dfs_code_t(0, 1,
-    (it->first).from_label, (it->first).edge_label, (it->first).to_label));
+  min_dfs_codes->emplace_back(0, 1,
+    (it->first).from_label, (it->first).edge_label, (it->first).to_label);
   if (dfs_codes[min_dfs_codes->size() - 1] != (*min_dfs_codes)[min_dfs_codes->size() - 1]) {
     return false;
   }
@@ -124,8 +123,7 @@ bool GSpan::judge_backward(
           size_t to_id = (*min_dfs_codes)[right_most_path[i - 1]].from;
           struct dfs_code_t dfs_code(from_id, to_id,
             last_node->label, (last_node->edges[k]).label, from_node->label);
-          struct prev_dfs_t prev_dfs(0, &(last_node->edges[k]), &(projection[j]));
-          projection_map_backward[dfs_code].push_back(prev_dfs);
+          projection_map_backward[dfs_code].emplace_back(0, &(last_node->edges[k]), &(projection[j]));
         }
       }
     }
@@ -159,8 +157,7 @@ bool GSpan::judge_forward(
         continue;
       size_t to_id = (*min_dfs_codes)[right_most_path[0]].to;
       struct dfs_code_t dfs_code(to_id, to_id + 1, last_node->label, edge->label, to_node->label);
-      struct prev_dfs_t prev_dfs(0, edge, &(projection[i]));
-      projection_map_forward[dfs_code].push_back(prev_dfs);
+      projection_map_forward[dfs_code].emplace_back(0, edge, &(projection[i]));
     }
   }
 
@@ -184,8 +181,7 @@ bool GSpan::judge_forward(
             size_t to_id = (*min_dfs_codes)[right_most_path[0]].to;
             struct dfs_code_t dfs_code(from_id, to_id + 1,
               cur_node->label, cur_node->edges[k].label, to_node->label);
-            struct prev_dfs_t prev_dfs(0, &(cur_node->edges[k]), &(projection[j]));
-            projection_map_forward[dfs_code].push_back(prev_dfs);
+            projection_map_forward[dfs_code].emplace_back(0, &(cur_node->edges[k]), &(projection[j]));
           }
         }
       }
@@ -212,8 +208,8 @@ bool GSpan::is_projection_min(const DfsCodes &dfs_codes, const Projection &proje
 
   if (judge_backward(right_most_path, projection, min_label, projection_map_backward)) {
     ProjectionMapBackward::iterator it = projection_map_backward.begin();
-    min_dfs_codes->push_back(dfs_code_t((it->first).from, (it->first).to,
-      (it->first).from_label, (it->first).edge_label, (it->first).to_label));
+    min_dfs_codes->emplace_back((it->first).from, (it->first).to,
+      (it->first).from_label, (it->first).edge_label, (it->first).to_label);
     // Dfs code not equals to min dfs code
     if (dfs_codes[min_dfs_codes->size() - 1] != (*min_dfs_codes)[min_dfs_codes->size() - 1]) {
       return false;
@@ -225,8 +221,8 @@ bool GSpan::is_projection_min(const DfsCodes &dfs_codes, const Projection &proje
 
   if (judge_forward(right_most_path, projection, min_label, projection_map_forward)) {
     ProjectionMapForward::iterator it = projection_map_forward.begin();
-    min_dfs_codes->push_back(dfs_code_t((it->first).from, (it->first).to,
-      (it->first).from_label, (it->first).edge_label, (it->first).to_label));
+    min_dfs_codes->emplace_back((it->first).from, (it->first).to,
+      (it->first).from_label, (it->first).edge_label, (it->first).to_label);
     // Dfs code not equals to min dfs code
     if (dfs_codes[min_dfs_codes->size() - 1] != (*min_dfs_codes)[min_dfs_codes->size() - 1]) {
       return false;
