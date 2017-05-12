@@ -1,27 +1,58 @@
+#include <history.h>
+#include <graph.h>
 #include <algorithm>
-#include "history.h"
 
-namespace gspan {
-	void History::build()
-	{
-		_m_has_edges.resize(_m_graph.get_nedges() + 1);
-		_m_has_vertice.resize(_m_graph.size() + 1);
+namespace gbolt {
 
-		const struct pre_dfs_t *start = _m_start;
+// Reduce push back memory costs
+// while (cur_dfs != NULL) {
+//   edges_.push_back(cur_dfs->edge);
+//   has_edges_[cur_dfs->edge->id] = true;
+//   has_vertice_[cur_dfs->edge->from] = true;
+//   has_vertice_[cur_dfs->edge->to] = true;
+//   cur_dfs = cur_dfs->prev;
+// }
+void History::build(const struct prev_dfs_t &start, const Graph &graph) {
+  const struct prev_dfs_t *cur_dfs = &start;
+  memset(has_edges_, false, sizeof(bool) * graph.get_nedges() + 1);
+  memset(has_vertice_, false, sizeof(bool) * graph.size() + 1);
+  edge_size_ = 0;
 
-		while (start != NULL) {
-			_m_edges.push_back(start->edge);
+  // Reduce push back memory costs
+  while (cur_dfs != NULL) {
+    edges_[edge_size_++] = cur_dfs->edge;
+    has_edges_[cur_dfs->edge->id] = true;
+    has_vertice_[cur_dfs->edge->from] = true;
+    has_vertice_[cur_dfs->edge->to] = true;
+    cur_dfs = cur_dfs->prev;
+  }
+}
 
-			_m_has_edges[start->edge->id] = true;
+void History::build_edges(const struct prev_dfs_t &start, const Graph &graph) {
+  const struct prev_dfs_t *cur_dfs = &start;
+  memset(has_edges_, false, sizeof(bool) * graph.get_nedges() + 1);
+  edge_size_ = 0;
 
-			_m_has_vertice[start->edge->from] = true;
+  // Reduce push back memory costs
+  while (cur_dfs != NULL) {
+    edges_[edge_size_++] = cur_dfs->edge;
+    has_edges_[cur_dfs->edge->id] = true;
+    cur_dfs = cur_dfs->prev;
+  }
+}
 
-			_m_has_vertice[start->edge->to] = true;
+void History::build_vertice(const struct prev_dfs_t &start, const Graph &graph) {
+  const struct prev_dfs_t *cur_dfs = &start;
+  memset(has_vertice_, false, sizeof(bool) * graph.size() + 1);
+  edge_size_ = 0;
 
-			start = start->prev;
-		}
+  // Reduce push back memory costs
+  while (cur_dfs != NULL) {
+    edges_[edge_size_++] = cur_dfs->edge;
+    has_vertice_[cur_dfs->edge->from] = true;
+    has_vertice_[cur_dfs->edge->to] = true;
+    cur_dfs = cur_dfs->prev;
+  }
+}
 
-		//important
-		std::reverse(_m_edges.begin(), _m_edges.end());
-	}
-}//namespace gspan
+}  // namespace gbolt

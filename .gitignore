@@ -125,3 +125,6 @@ sftp-config.json
 ### NotepadPP ###
 # Notepad++ backups #
 *.bak
+
+### CMake ##
+build/*
