@@ -1,9 +1,14 @@
 ### Progress
 
+5/13/2017:
+
+- [ ] Interfaces?
+- [ ] Reading graph in parallel?
+
 5/12/2017:
 
-- [ ] Check correctness
-- [ ] Document
+- [x] Check correctness
+- [x] Document
 
 5/9/2017:
 
