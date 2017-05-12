@@ -1,4 +1,4 @@
- GBolt
+GBolt
 ==============
 
 GBolt--very fast implementation for gSpan algorithm in data mining
@@ -53,3 +53,7 @@ Arguments help:
 Multi-thread support:
 
     export OMP_NUM_THREADS=<hardware threads num for recommendation>
+    
+## Extension
+
+GBolt is designed for efficiency, so we have not developed utilities for it. If you want `Python`, `C`, or Graphical interfaces, please contact us. We will be glad if you could contribute to ideas and codes for GBolt.
