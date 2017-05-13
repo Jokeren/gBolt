@@ -51,7 +51,6 @@ In **Table 1**'s *Subgraphs* field, we have included graphs that only contain a 
 
 Table 2. Multi-thread Scalability Comparison
 
-
 Threads  | gSpan Time/s | gBolt Time/s | Speedup | gSpan Scale | gBolt Scale 
 :-----:  | :--------:   | :--------:   | :---:   | :------: | :------: | 
 1        | 38.3         | 5.3          | 6.2x    |   1      |   1   | 
@@ -60,7 +59,6 @@ Threads  | gSpan Time/s | gBolt Time/s | Speedup | gSpan Scale | gBolt Scale
 8        | 13.7         | 0.85         | 15.1x   |   1.2    |   1.8 | 
 16       | 14.1         | 0.46         | 29.6x   |   0.97   |   1.8 | 
 32       | 15.0         | 0.40         | 36.5x   |   0.94   |   1.2 |
-
 
 **Table 2** shows the results of mining `data/Compound_422` with `support = 0.07`.
 
@@ -95,6 +93,8 @@ Multi-thread support:
     export OMP_NUM_THREADS=<hardware core num for recommendation>
     
 ## Reference
+
+Yan, Xifeng, and Jiawei Han. "gspan: Graph-based substructure pattern mining." Data Mining, 2002. ICDM 2003. Proceedings. 2002 IEEE International Conference on. IEEE, 2002.
     
 ## Extension
 
