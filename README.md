@@ -64,7 +64,7 @@ Threads  | gSpan Time/s | gBolt Time/s | Speedup | gSpan Scale | gBolt Scale
 
 ## Install
 
-#### Prerequisites
+### Prerequisites
 
 - *g++* or *icc* with **C++11** support.
 - *glog*: `sudo apt-get install libgoogle-glog-*` or install from [source](https://github.com/google/glog).
@@ -72,7 +72,7 @@ Threads  | gSpan Time/s | gBolt Time/s | Speedup | gSpan Scale | gBolt Scale
 - *cmake*: `sudo apt-get install cmake` or install from [source](https://cmake.org/).
 - *openmp* environment.
 
-#### Steps
+### Steps
 
     mkdir build && cd build
     cmake ..
