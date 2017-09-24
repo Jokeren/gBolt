@@ -84,7 +84,8 @@ void GBolt::project(const vector<Graph> &graphs) {
     }
   }
   // Mine subgraphs
-  int prev_id = -1;
+  int prev_graph_id = -1;
+  size_t prev_thread_id = omp_get_thread_num();
   DfsCodes dfs_codes;
   #pragma omp parallel
   #pragma omp single nowait
@@ -99,10 +100,10 @@ void GBolt::project(const vector<Graph> &graphs) {
       size_t from_label = (it->first).from_label;
       size_t edge_label = (it->first).edge_label;
       size_t to_label = (it->first).to_label;
-      #pragma omp task shared(graphs, projection, prev_id) firstprivate(dfs_codes, nsupport)
+      #pragma omp task shared(graphs, projection, prev_thread_id, prev_graph_id) firstprivate(dfs_codes, nsupport)
       {
         dfs_codes.emplace_back(0, 1, from_label, edge_label, to_label);
-        mine_subgraph(graphs, dfs_codes, projection, nsupport, prev_id);
+        mine_subgraph(graphs, dfs_codes, projection, nsupport, prev_thread_id, prev_graph_id);
       }
     }
   }

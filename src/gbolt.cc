@@ -31,21 +31,21 @@ int main(int argc, char *argv[]) {
   CPU_TIMER_START(elapsed, time_start);
   #endif
   Database::get_instance()->read_input(FLAGS_input_file, FLAGS_separator);
-
-  // Construct algorithm
   #ifdef GBOLT_PERFORMANCE
   CPU_TIMER_END(elapsed, time_start, time_end);
   LOG(INFO) << "gbolt read input time: " << elapsed;
   CPU_TIMER_START(elapsed, time_start);
   #endif
+  // Construct algorithm
   gbolt::GBolt gbolt(FLAGS_output_file, FLAGS_support);
   gbolt.execute();
-
+  #ifdef GBOLT_PERFORMANCE
+  CPU_TIMER_END(elapsed, time_start, time_end);
+  LOG(INFO) << "gbolt execute time: " << elapsed;
+  #endif
   // Save results
   if (FLAGS_output_file.size() != 0) {
     #ifdef GBOLT_PERFORMANCE
-    CPU_TIMER_END(elapsed, time_start, time_end);
-    LOG(INFO) << "gbolt execute time: " << elapsed;
     CPU_TIMER_START(elapsed, time_start);
     #endif
     gbolt.save(FLAGS_parent, FLAGS_pattern);

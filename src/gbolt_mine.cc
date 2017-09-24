@@ -40,7 +40,8 @@ void GBolt::find_frequent_nodes_and_edges(const vector<Graph> &graphs) {
   }
 }
 
-void GBolt::report(const DfsCodes &dfs_codes, const Projection &projection, size_t nsupport, int prev_id) {
+void GBolt::report(const DfsCodes &dfs_codes, const Projection &projection,
+  size_t nsupport, size_t prev_thread_id, int prev_graph_id) {
   std::stringstream ss;
   Graph graph;
   build_graph(dfs_codes, graph);
@@ -64,7 +65,7 @@ void GBolt::report(const DfsCodes &dfs_codes, const Projection &projection, size
   ss << std::endl;
   gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   Output *output = instance->output;
-  output->push_back(ss.str(), nsupport, output->size(), prev_id);
+  output->push_back(ss.str(), nsupport, output->size(), prev_thread_id, prev_graph_id);
 }
 
 void GBolt::save(bool output_parent, bool output_pattern) {
@@ -81,14 +82,16 @@ void GBolt::mine_subgraph(
   const DfsCodes &dfs_codes,
   const Projection &projection,
   size_t prev_nsupport,
-  int prev_id) {
+  size_t prev_thread_id,
+  int prev_graph_id) {
   if (!is_min(dfs_codes)) {
     return;
   }
-  report(dfs_codes, projection, prev_nsupport, prev_id);
-  gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
+  report(dfs_codes, projection, prev_nsupport, prev_thread_id, prev_graph_id);
+  prev_thread_id = omp_get_thread_num();
+  gbolt_instance_t *instance = gbolt_instances_ + prev_thread_id;
   Output *output = instance->output;
-  prev_id = output->size() - 1;
+  prev_graph_id = output->size() - 1;
 
   // Find right most path
   vector<size_t> right_most_path;
@@ -113,11 +116,11 @@ void GBolt::mine_subgraph(
     size_t from_label = (it->first).from_label;
     size_t edge_label = (it->first).edge_label;
     size_t to_label = (it->first).to_label;
-    #pragma omp task shared(graphs, dfs_codes, projection, prev_id) firstprivate(nsupport)
+    #pragma omp task shared(graphs, dfs_codes, projection, prev_thread_id, prev_graph_id) firstprivate(nsupport)
     {
       DfsCodes dfs_codes_copy(dfs_codes);
       dfs_codes_copy.emplace_back(from, to, from_label, edge_label, to_label);
-      mine_subgraph(graphs, dfs_codes_copy, projection, nsupport, prev_id);
+      mine_subgraph(graphs, dfs_codes_copy, projection, nsupport, prev_thread_id, prev_graph_id);
     }
   }
   for (ProjectionMapForward::reverse_iterator it = projection_map_forward.rbegin();
@@ -132,11 +135,11 @@ void GBolt::mine_subgraph(
     size_t from_label = (it->first).from_label;
     size_t edge_label = (it->first).edge_label;
     size_t to_label = (it->first).to_label;
-    #pragma omp task shared(graphs, dfs_codes, projection, prev_id) firstprivate(nsupport)
+    #pragma omp task shared(graphs, dfs_codes, projection, prev_thread_id, prev_graph_id) firstprivate(nsupport)
     {
       DfsCodes dfs_codes_copy(dfs_codes);
       dfs_codes_copy.emplace_back(from, to, from_label, edge_label, to_label);
-      mine_subgraph(graphs, dfs_codes_copy, projection, nsupport, prev_id);
+      mine_subgraph(graphs, dfs_codes_copy, projection, nsupport, prev_thread_id, prev_graph_id);
     }
   }
   #pragma omp taskwait
