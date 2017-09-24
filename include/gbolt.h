@@ -137,6 +137,7 @@ class GBolt {
   size_t nsupport_;
   gbolt_instance_t *gbolt_instances_;
 };
+
 }  // namespace gbolt
 
 #endif  // INCLUDE_GBOLT_H_

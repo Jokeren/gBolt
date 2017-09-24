@@ -134,5 +134,5 @@ void GBolt::get_other_forward(
     }
   }
 }
-}//namespace gbolt
 
+}  // namespace gbolt

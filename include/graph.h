@@ -172,6 +172,7 @@ class Graph {
   size_t nedges_;
   Vertice vertice_;
 };
+
 }  // namespace gbolt
 
 #endif  // INCLUDE_GRAPH_H_

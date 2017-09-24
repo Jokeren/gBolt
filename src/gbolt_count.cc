@@ -231,4 +231,3 @@ bool GBolt::is_projection_min(const DfsCodes &dfs_codes, const Projection &proje
 }
 
 }  // namespace gbolt
-
