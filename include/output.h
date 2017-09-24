@@ -22,7 +22,7 @@ class Output {
  private:
   vector<string> buffer_;
   vector<size_t> support_;
-  vector<int> thread_id_;
+  vector<size_t> thread_id_;
   vector<int> parent_id_;
   vector<size_t> graph_id_;
   const string output_file_;
