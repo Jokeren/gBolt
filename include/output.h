@@ -15,6 +15,8 @@ class Output {
     return support_.size();
   }
 
+  void push_back(const string &str, size_t nsupport, size_t graph_id);
+
   void push_back(const string &str, size_t nsupport, size_t graph_id, size_t thread_id, int parent_id);
 
   void save(bool output_parent = false, bool output_pattern = false);

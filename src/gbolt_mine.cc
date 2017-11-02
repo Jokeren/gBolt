@@ -68,12 +68,25 @@ void GBolt::report(const DfsCodes &dfs_codes, const Projection &projection,
   output->push_back(ss.str(), nsupport, output->size(), prev_thread_id, prev_graph_id);
 }
 
-void GBolt::save(bool output_parent, bool output_pattern) {
+void GBolt::save(bool output_parent, bool output_pattern, bool output_frequent_nodes) {
   #pragma omp parallel
   {
     gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
     Output *output = instance->output;
     output->save(output_parent, output_pattern);
+  }
+  if (output_frequent_nodes) {
+    // Save output for frequent nodes
+    string output_file_nodes = output_file_ + ".nodes";
+    output_frequent_nodes_ = new Output(output_file_nodes);
+
+    size_t graph_id = 0;
+    for (unordered_map<size_t, size_t>::iterator it = frequent_edge_labels_.begin();
+      it != frequent_edge_labels_.end(); ++it) {
+      string record = "v 0 " + std::to_string(it->first) + "\n";
+      output_frequent_nodes_->push_back(record, it->second, graph_id++);
+    }
+    output_frequent_nodes_->save(false, true);
   }
 }
 

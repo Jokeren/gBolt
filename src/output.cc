@@ -3,6 +3,12 @@
 
 namespace gbolt {
 
+void Output::push_back(const string &str, size_t nsupport, size_t graph_id) {
+  buffer_.push_back(str);
+  support_.push_back(nsupport);
+  graph_id_.push_back(graph_id);
+}
+
 void Output::push_back(const string &str, size_t nsupport, size_t graph_id, size_t thread_id, int parent_id) {
   buffer_.push_back(str);
   support_.push_back(nsupport);

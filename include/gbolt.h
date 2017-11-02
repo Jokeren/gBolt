@@ -32,11 +32,14 @@ class GBolt {
 
   void execute();
 
-  void save(bool output_parent = false, bool output_pattern = false);
+  void save(bool output_parent = false, bool output_pattern = false, bool output_frequent_nodes = false);
 
   ~GBolt() {
     if (gbolt_instances_ != 0) {
       delete[] gbolt_instances_;
+    }
+    if (output_frequent_nodes_ != 0) {
+      delete output_frequent_nodes_;
     }
   }
 
@@ -135,6 +138,7 @@ class GBolt {
   string output_file_;
   double support_;
   size_t nsupport_;
+  Output *output_frequent_nodes_;
   gbolt_instance_t *gbolt_instances_;
 };
 

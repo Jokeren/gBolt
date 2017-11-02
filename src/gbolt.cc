@@ -9,6 +9,7 @@ DEFINE_double(support, 1.0, "Minimum subgraph frequency: (0.0, 1.0)");
 DEFINE_string(separator, " ", "Graph data separator");
 DEFINE_bool(parent, false, "Output subgraph parent ids");
 DEFINE_bool(pattern, false, "Output subgraph patterns");
+DEFINE_bool(nodes, false, "Output frequent nodes");
 
 // Initialize instance
 using gbolt::Database;
@@ -48,7 +49,7 @@ int main(int argc, char *argv[]) {
     #ifdef GBOLT_PERFORMANCE
     CPU_TIMER_START(elapsed, time_start);
     #endif
-    gbolt.save(FLAGS_parent, FLAGS_pattern);
+    gbolt.save(FLAGS_parent, FLAGS_pattern, FLAGS_nodes);
     #ifdef GBOLT_PERFORMANCE
     CPU_TIMER_END(elapsed, time_start, time_end);
     LOG(INFO) << "gbolt save output time: " << elapsed;
