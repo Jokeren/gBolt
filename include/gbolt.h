@@ -28,7 +28,8 @@ struct gbolt_instance_t {
 class GBolt {
  public:
   GBolt(const string &output_file, double support) :
-    output_file_(output_file), support_(support), gbolt_instances_(0) {}
+    output_file_(output_file), support_(support),
+    output_frequent_nodes_(0), gbolt_instances_(0) {}
 
   void execute();
 
