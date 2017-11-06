@@ -6,7 +6,7 @@
 namespace gbolt {
 
 void GBolt::find_frequent_nodes_and_edges(const vector<Graph> &graphs) {
-  unordered_map<size_t, size_t> vertex_labels;
+  unordered_map<size_t, vector<size_t> > vertex_labels;
   unordered_map<size_t, size_t> edge_labels;
 
   for (size_t i = 0; i < graphs.size(); ++i) {
@@ -19,20 +19,19 @@ void GBolt::find_frequent_nodes_and_edges(const vector<Graph> &graphs) {
         edge_set.insert(vertex->edges[k].label);
       }
     }
-    for (unordered_set<size_t>::iterator it = vertex_set.begin(); it != vertex_set.end(); ++it) {
-      ++vertex_labels[*it];
+    for (auto it = vertex_set.begin(); it != vertex_set.end(); ++it) {
+      vertex_labels[*it].emplace_back(i);
     }
-    for (unordered_set<size_t>::iterator it = edge_set.begin(); it != edge_set.end(); ++it) {
+    for (auto it = edge_set.begin(); it != edge_set.end(); ++it) {
       ++edge_labels[*it];
     }
   }
-  for (unordered_map<size_t, size_t>::iterator it = vertex_labels.begin();
-    it != vertex_labels.end(); ++it) {
-    if (it->second >= nsupport_) {
+  for (auto it = vertex_labels.begin(); it != vertex_labels.end(); ++it) {
+    if (it->second.size() >= nsupport_) {
       frequent_vertex_labels_.insert(std::make_pair(it->first, it->second));
     }
   }
-  for (unordered_map<size_t, size_t>::iterator it = edge_labels.begin();
+  for (auto it = edge_labels.begin();
     it != edge_labels.end(); ++it) {
     if (it->second >= nsupport_) {
       frequent_edge_labels_.insert(std::make_pair(it->first, it->second));
@@ -81,10 +80,19 @@ void GBolt::save(bool output_parent, bool output_pattern, bool output_frequent_n
     output_frequent_nodes_ = new Output(output_file_nodes);
 
     size_t graph_id = 0;
-    for (unordered_map<size_t, size_t>::iterator it = frequent_vertex_labels_.begin();
+    for (auto it = frequent_vertex_labels_.begin();
       it != frequent_vertex_labels_.end(); ++it) {
-      string record = "v 0 " + std::to_string(it->first) + "\n";
-      output_frequent_nodes_->push_back(record, it->second, graph_id++);
+      std::stringstream ss;
+
+      ss << "v 0 " + std::to_string(it->first);
+      ss << std::endl;
+      ss << "x: ";
+      for (size_t i = 0; i < it->second.size(); ++i) {
+        ss << it->second[i] << " ";
+      }
+      ss << std::endl;
+
+      output_frequent_nodes_->push_back(ss.str(), it->second.size(), graph_id++);
     }
     output_frequent_nodes_->save(false, true);
   }
@@ -117,8 +125,7 @@ void GBolt::mine_subgraph(
   enumerate(graphs, dfs_codes, projection, right_most_path, min_label,
     projection_map_backward, projection_map_forward);
   // Recursive mining: first backward, last backward, and then last forward to the first forward
-  for (ProjectionMapBackward::iterator it = projection_map_backward.begin();
-    it != projection_map_backward.end(); ++it) {
+  for (auto it = projection_map_backward.begin(); it != projection_map_backward.end(); ++it) {
     Projection &projection = it->second;
     size_t nsupport = count_support(projection);
     if (nsupport < nsupport_) {
@@ -136,8 +143,7 @@ void GBolt::mine_subgraph(
       mine_subgraph(graphs, dfs_codes_copy, projection, nsupport, prev_thread_id, prev_graph_id);
     }
   }
-  for (ProjectionMapForward::reverse_iterator it = projection_map_forward.rbegin();
-    it != projection_map_forward.rend(); ++it) {
+  for (auto it = projection_map_forward.rbegin(); it != projection_map_forward.rend(); ++it) {
     Projection &projection = it->second;
     size_t nsupport = count_support(projection);
     if (nsupport < nsupport_) {

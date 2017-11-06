@@ -81,7 +81,7 @@ bool GBolt::is_min(const DfsCodes &dfs_codes) {
       }
     }
   }
-  ProjectionMap::iterator it = projection_map.begin();
+  auto it = projection_map.begin();
   min_dfs_codes->emplace_back(0, 1,
     (it->first).from_label, (it->first).edge_label, (it->first).to_label);
   if (dfs_codes[min_dfs_codes->size() - 1] != (*min_dfs_codes)[min_dfs_codes->size() - 1]) {
@@ -205,7 +205,7 @@ bool GBolt::is_projection_min(const DfsCodes &dfs_codes, const Projection &proje
   size_t min_label = (*min_dfs_codes)[0].from_label;
 
   if (judge_backward(right_most_path, projection, min_label, projection_map_backward)) {
-    ProjectionMapBackward::iterator it = projection_map_backward.begin();
+    auto it = projection_map_backward.begin();
     min_dfs_codes->emplace_back((it->first).from, (it->first).to,
       (it->first).from_label, (it->first).edge_label, (it->first).to_label);
     // Dfs code not equals to min dfs code
@@ -218,7 +218,7 @@ bool GBolt::is_projection_min(const DfsCodes &dfs_codes, const Projection &proje
   ProjectionMapForward projection_map_forward;
 
   if (judge_forward(right_most_path, projection, min_label, projection_map_forward)) {
-    ProjectionMapForward::iterator it = projection_map_forward.begin();
+    auto it = projection_map_forward.begin();
     min_dfs_codes->emplace_back((it->first).from, (it->first).to,
       (it->first).from_label, (it->first).edge_label, (it->first).to_label);
     // Dfs code not equals to min dfs code

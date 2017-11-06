@@ -90,7 +90,7 @@ void GBolt::project(const vector<Graph> &graphs) {
   #pragma omp parallel
   #pragma omp single nowait
   {
-    for (ProjectionMap::iterator it = projection_map.begin(); it != projection_map.end(); ++it) {
+    for (auto it = projection_map.begin(); it != projection_map.end(); ++it) {
       // Parital pruning, like apriori
       Projection &projection = it->second;
       size_t nsupport = count_support(projection);
