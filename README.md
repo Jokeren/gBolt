@@ -95,6 +95,10 @@ Multi-thread support:
 ## Reference
 
 Yan, Xifeng, and Jiawei Han. "gspan: Graph-based substructure pattern mining." Data Mining, 2002. ICDM 2003. Proceedings. 2002 IEEE International Conference on. IEEE, 2002.
+
+## Citation
+
+    @misc{zhou_2017, title={Jokeren/DataMining-gSpan}, url={https://github.com/Jokeren/DataMining-gSpan}, journal={GitHub}, author={Zhou, Keren}, year={2017}, month={Nov}} 
     
 ## Extension
 
