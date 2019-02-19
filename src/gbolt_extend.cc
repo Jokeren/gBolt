@@ -15,7 +15,7 @@ void GBolt::enumerate(
   gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   History *history = instance->history;
   for (size_t i = 0; i < projection.size(); ++i) {
-    const Graph &graph = graphs[graph_id_to_seq_id_[projection[i].id]];
+    const Graph &graph = graphs[projection[i].id];
     history->build(projection[i], graph);
 
     get_backward(projection[i], graph, dfs_codes, right_most_path, projection_map_backward);

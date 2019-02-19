@@ -136,7 +136,6 @@ class GBolt {
   // Single instance of minigraph
   unordered_map<size_t, vector<size_t> > frequent_vertex_labels_;
   unordered_map<size_t, size_t> frequent_edge_labels_;
-  unordered_map<size_t, size_t> graph_id_to_seq_id_;
   string output_file_;
   double support_;
   size_t nsupport_;

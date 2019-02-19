@@ -71,7 +71,6 @@ void Database::construct_graphs(vector<Graph> &graphs) {
 void Database::construct_graphs(
   const unordered_map<size_t, std::vector<size_t> > &frequent_vertex_labels,
   const unordered_map<size_t, size_t> &frequent_edge_labels,
-  unordered_map<size_t, size_t> &graph_id_to_seq_id,
   vector<Graph> &graphs) {
   vector<size_t> labels;
   unordered_map<size_t, size_t> id_map;
@@ -91,9 +90,7 @@ void Database::construct_graphs(
         labels.clear();
         id_map.clear();
       }
-      size_t graph_id = atoi(input_[i][2].c_str());
-      graphs[graph_index].set_id(graph_id);
-      graph_id_to_seq_id[graph_id] = graph_index;
+      graphs[graph_index].set_id(atoi(input_[i][2].c_str()));
     } else if (input_[i][0] == "v") {
       size_t id = atoi(input_[i][1].c_str());
       size_t label = atoi(input_[i][2].c_str());

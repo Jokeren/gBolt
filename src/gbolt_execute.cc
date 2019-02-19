@@ -21,7 +21,7 @@ void GBolt::execute() {
   find_frequent_nodes_and_edges(graphs);
 
   // Phase 2: prune the initial graph by frequent labels
-  database->construct_graphs(frequent_vertex_labels_, frequent_edge_labels_, graph_id_to_seq_id_, prune_graphs);
+  database->construct_graphs(frequent_vertex_labels_, frequent_edge_labels_, prune_graphs);
   #ifdef GBOLT_PERFORMANCE
   CPU_TIMER_END(elapsed, time_start, time_end);
   LOG(INFO) << "gbolt construct graph time: " << elapsed;
