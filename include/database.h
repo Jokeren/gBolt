@@ -25,7 +25,6 @@ class Database {
   void construct_graphs(
     const unordered_map<size_t, std::vector<size_t> > &frequent_vertex_labels,
     const unordered_map<size_t, size_t> &frequent_edge_labels,
-    unordered_map<size_t, size_t> &graph_id_to_seq_id,
     vector<Graph> &graphs);
 
   ~Database() {
