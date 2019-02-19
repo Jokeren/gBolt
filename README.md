@@ -92,6 +92,26 @@ Multi-thread support:
 
     export OMP_NUM_THREADS=<hardware core num for recommendation>
     
+## Input Specification
+
+Examples:
+
+    ./extern/data
+    
+Format:
+
+    t # <graph-id>
+    v <vertex-id> <vertex-label>
+    ...
+    e <vertex-id> <vertex-id> <edge-label>
+    ...
+    
+1. `<graph-id>` must be contiguous without gaps, which means *gbolt* only supports `t # <id>` followed by `t # <id + 1>`.
+
+2. `<vertex-id>` must be contiguous without gaps, which means *gbolt* only supports `v # <id> <label>` followed by `v # <id + 1> <label>`.
+
+3. All the `<id>` and `<label>` fields are non-negative integers.
+    
 ## Reference
 
 Yan, Xifeng, and Jiawei Han. "gspan: Graph-based substructure pattern mining." Data Mining, 2002. ICDM 2003. Proceedings. 2002 IEEE International Conference on. IEEE, 2002.
