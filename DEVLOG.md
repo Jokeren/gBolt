@@ -2,10 +2,11 @@
 
 2/20/2019:
 
+- [ ] Reduce memory overhead
 - [ ] Build everything in a single command
 - [ ] Use hpctraceviewer to improve OpenMP performance
+- [x] Change repo name
 - [ ] Travis CI
-- [ ] Change repo name
 
 5/13/2017:
 
