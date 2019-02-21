@@ -1,5 +1,12 @@
 ### Progress
 
+2/20/2019:
+
+- [ ] Build everything in a single command
+- [ ] Use hpctraceviewer to improve OpenMP performance
+- [ ] Travis CI
+- [ ] Change repo name
+
 5/13/2017:
 
 - [ ] Interfaces?
