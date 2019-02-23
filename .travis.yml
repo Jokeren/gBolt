@@ -1,6 +1,9 @@
 language: c++
 submodules:
   - g++
+branches:
+  only:
+    - gbolt-1.0
 git:
   submodules: true
 before_script:
