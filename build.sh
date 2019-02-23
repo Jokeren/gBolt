@@ -11,7 +11,6 @@ make install
 
 # gflags
 cd ../gflags
-git checkout v2.0
 ./configure --prefix=${PWD}/../../install/gflags --enable-shared
 make -j4
 make install
