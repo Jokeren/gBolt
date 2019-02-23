@@ -61,19 +61,19 @@ class GBolt {
     const vector<Graph> &graphs,
     const DfsCodes &dfs_codes,
     const Projection &projection,
-    size_t prev_nsupport,
-    size_t prev_thread_id,
+    int prev_nsupport,
+    int prev_thread_id,
     int prev_graph_id);
 
   // Extend
-  void build_right_most_path(const DfsCodes &dfs_codes, vector<size_t> &right_most_path);
+  void build_right_most_path(const DfsCodes &dfs_codes, vector<int> &right_most_path);
 
   void enumerate(
     const vector<Graph> &graphs,
     const DfsCodes &dfs_codes,
     const Projection &projection,
-    const vector<size_t> &right_most_path,
-    size_t min_label,
+    const vector<int> &right_most_path,
+    int min_label,
     ProjectionMapBackward &projection_map_backward,
     ProjectionMapForward &projection_map_forward);
 
@@ -86,27 +86,27 @@ class GBolt {
     const struct prev_dfs_t &prev_dfs,
     const Graph &graph,
     const DfsCodes &dfs_codes,
-    const vector<size_t> &right_most_path,
-    size_t min_label,
+    const vector<int> &right_most_path,
+    int min_label,
     ProjectionMapForward& projection_map_forward);
 
   void get_other_forward(
     const struct prev_dfs_t &prev_dfs,
     const Graph &graph,
     const DfsCodes &dfs_codes,
-    const vector<size_t> &right_most_path,
-    size_t min_label,
+    const vector<int> &right_most_path,
+    int min_label,
     ProjectionMapForward& projection_map_forward);
 
   void get_backward(
     const struct prev_dfs_t &prev_dfs,
     const Graph &graph,
     const DfsCodes &dfs_codes,
-    const vector<size_t> &right_most_path,
+    const vector<int> &right_most_path,
     ProjectionMapBackward& projection_map_backward);
 
   // Count
-  size_t count_support(const Projection &projection);
+  int count_support(const Projection &projection);
 
   void build_graph(const DfsCodes &dfs_codes, Graph &graph);
 
@@ -115,30 +115,30 @@ class GBolt {
   bool is_projection_min(const DfsCodes &dfs_codes, const Projection &projection);
 
   bool judge_backward(
-    const vector<size_t> &right_most_path,
+    const vector<int> &right_most_path,
     const Projection &projection,
-    size_t min_label,
+    int min_label,
     ProjectionMapBackward &projection_map_backward);
 
   bool judge_forward(
-    const vector<size_t> &right_most_path,
+    const vector<int> &right_most_path,
     const Projection &projection,
-    size_t min_label,
+    int min_label,
     ProjectionMapForward &projection_map_forward);
 
   // Report
   void report(const DfsCodes &dfs_codes, const Projection &projection,
-    size_t nsupport, size_t prev_thread_id, int prev_graph_id);
+    int nsupport, int prev_thread_id, int prev_graph_id);
 
  private:
   // Graphs after reconstructing
   vector<Graph> graphs_;
   // Single instance of minigraph
-  unordered_map<size_t, vector<size_t> > frequent_vertex_labels_;
-  unordered_map<size_t, size_t> frequent_edge_labels_;
+  unordered_map<int, vector<int> > frequent_vertex_labels_;
+  unordered_map<int, int> frequent_edge_labels_;
   string output_file_;
   double support_;
-  size_t nsupport_;
+  int nsupport_;
   Output *output_frequent_nodes_;
   gbolt_instance_t *gbolt_instances_;
 };

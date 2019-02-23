@@ -3,13 +3,13 @@
 
 namespace gbolt {
 
-void Output::push_back(const string &str, size_t nsupport, size_t graph_id) {
+void Output::push_back(const string &str, int nsupport, int graph_id) {
   buffer_.push_back(str);
   support_.push_back(nsupport);
   graph_id_.push_back(graph_id);
 }
 
-void Output::push_back(const string &str, size_t nsupport, size_t graph_id, size_t thread_id, int parent_id) {
+void Output::push_back(const string &str, int nsupport, int graph_id, int thread_id, int parent_id) {
   buffer_.push_back(str);
   support_.push_back(nsupport);
   graph_id_.push_back(graph_id);
@@ -20,7 +20,7 @@ void Output::push_back(const string &str, size_t nsupport, size_t graph_id, size
 void Output::save(bool output_parent, bool output_pattern) {
   std::ofstream out(output_file_.c_str());
 
-  for (size_t i = 0; i < buffer_.size(); ++i) {
+  for (auto i = 0; i < buffer_.size(); ++i) {
     out << "t # " << graph_id_[i] << " * " << support_[i] << std::endl;
     if (output_parent == true) {
       if (parent_id_[i] == -1)

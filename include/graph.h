@@ -8,22 +8,22 @@ namespace gbolt {
 
 // Direct edge structure
 struct edge_t {
-  edge_t(size_t from, size_t label, size_t to, size_t id) :
+  edge_t(int from, int label, int to, int id) :
     from(from), label(label), to(to), id(id) {}
 
-  size_t from;
-  size_t label;
-  size_t to;
-  size_t id;
+  int from;
+  int label;
+  int to;
+  int id;
 };
 typedef vector<const struct edge_t *> Edges;
 
 // dfs projection links
 struct prev_dfs_t {
-  prev_dfs_t(size_t id, const struct edge_t *edge, const struct prev_dfs_t *prev) :
+  prev_dfs_t(int id, const struct edge_t *edge, const struct prev_dfs_t *prev) :
     id(id), edge(edge), prev(prev) {}
 
-  size_t id;
+  int id;
   const struct edge_t *edge;
   const struct prev_dfs_t *prev;
 };
@@ -31,7 +31,7 @@ typedef vector<struct prev_dfs_t> Projection;
 
 // dfs codes forward and backward compare
 struct dfs_code_t {
-  dfs_code_t(size_t from, size_t to, size_t from_label, size_t edge_label, size_t to_label) :
+  dfs_code_t(int from, int to, int from_label, int edge_label, int to_label) :
     from(from), to(to),
     from_label(from_label), edge_label(edge_label), to_label(to_label) {}
 
@@ -49,11 +49,11 @@ struct dfs_code_t {
       (to_label != t.to_label);
   }
 
-  size_t from;
-  size_t to;
-  size_t from_label;
-  size_t edge_label;
-  size_t to_label;
+  int from;
+  int to;
+  int from_label;
+  int edge_label;
+  int to_label;
 };
 typedef vector<struct dfs_code_t> DfsCodes;
 
@@ -97,10 +97,10 @@ struct dfs_code_forward_compare_t {
 
 struct vertex_t {
   vertex_t() {}
-  vertex_t(size_t id, size_t label) : id(id), label(label) {}
+  vertex_t(int id, int label) : id(id), label(label) {}
 
-  size_t id;
-  size_t label;
+  int id;
+  int label;
   vector<struct edge_t> edges;
 };
 typedef vector<struct vertex_t> Vertice;
@@ -109,27 +109,27 @@ class Graph {
  public:
   Graph() : id_(0), nedges_(0) {}
 
-  size_t size() const {
+  int size() const {
     return vertice_.size();
   }
 
-  void resize(size_t s) {
+  void resize(int s) {
     vertice_.resize(s);
   }
 
-  void set_id(size_t id) {
+  void set_id(int id) {
     id_ = id;
   }
 
-  size_t get_id() const {
+  int get_id() const {
     return id_;
   }
 
-  void set_nedges(size_t nedges) {
+  void set_nedges(int nedges) {
     nedges_ = nedges;
   }
 
-  size_t get_nedges() const {
+  int get_nedges() const {
     return nedges_;
   }
 
@@ -145,19 +145,19 @@ class Graph {
     return &vertice_;
   }
 
-  struct vertex_t get_vertex(size_t index) {
+  struct vertex_t get_vertex(int index) {
     return vertice_[index];
   }
 
-  const struct vertex_t get_vertex(size_t index) const {
+  const struct vertex_t get_vertex(int index) const {
     return vertice_[index];
   }
 
-  struct vertex_t *get_p_vertex(size_t index) {
+  struct vertex_t *get_p_vertex(int index) {
     return &vertice_[index];
   }
 
-  const struct vertex_t *get_p_vertex(size_t index) const {
+  const struct vertex_t *get_p_vertex(int index) const {
     return &vertice_[index];
   }
 
@@ -168,8 +168,8 @@ class Graph {
   }
 
  private:
-  size_t id_;
-  size_t nedges_;
+  int id_;
+  int nedges_;
   Vertice vertice_;
 };
 

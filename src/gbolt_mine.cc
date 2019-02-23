@@ -6,16 +6,16 @@
 namespace gbolt {
 
 void GBolt::find_frequent_nodes_and_edges(const vector<Graph> &graphs) {
-  unordered_map<size_t, vector<size_t> > vertex_labels;
-  unordered_map<size_t, size_t> edge_labels;
+  unordered_map<int, vector<int> > vertex_labels;
+  unordered_map<int, int> edge_labels;
 
-  for (size_t i = 0; i < graphs.size(); ++i) {
-    unordered_set<size_t> vertex_set;
-    unordered_set<size_t> edge_set;
-    for (size_t j = 0; j < graphs[i].size(); ++j) {
+  for (auto i = 0; i < graphs.size(); ++i) {
+    unordered_set<int> vertex_set;
+    unordered_set<int> edge_set;
+    for (auto j = 0; j < graphs[i].size(); ++j) {
       const struct vertex_t *vertex = graphs[i].get_p_vertex(j);
       vertex_set.insert(vertex->label);
-      for (size_t k = 0; k < (vertex->edges).size(); ++k) {
+      for (auto k = 0; k < (vertex->edges).size(); ++k) {
         edge_set.insert(vertex->edges[k].label);
       }
     }
@@ -40,22 +40,22 @@ void GBolt::find_frequent_nodes_and_edges(const vector<Graph> &graphs) {
 }
 
 void GBolt::report(const DfsCodes &dfs_codes, const Projection &projection,
-  size_t nsupport, size_t prev_thread_id, int prev_graph_id) {
+  int nsupport, int prev_thread_id, int prev_graph_id) {
   std::stringstream ss;
   Graph graph;
   build_graph(dfs_codes, graph);
 
-  for (size_t i = 0; i < graph.size(); ++i) {
+  for (auto i = 0; i < graph.size(); ++i) {
     const struct vertex_t *vertex = graph.get_p_vertex(i);
     ss << "v " << vertex->id << " " << vertex->label << std::endl;
   }
-  for (size_t i = 0; i < dfs_codes.size(); ++i) {
+  for (auto i = 0; i < dfs_codes.size(); ++i) {
     ss << "e " << dfs_codes[i].from << " " << dfs_codes[i].to
       << " " << dfs_codes[i].edge_label << std::endl;
   }
   ss << "x: ";
-  size_t prev = 0;
-  for (size_t i = 0; i < projection.size(); ++i) {
+  int prev = 0;
+  for (auto i = 0; i < projection.size(); ++i) {
     if (i == 0 || projection[i].id != prev) {
       prev = projection[i].id;
       ss << prev << " ";
@@ -79,7 +79,7 @@ void GBolt::save(bool output_parent, bool output_pattern, bool output_frequent_n
     string output_file_nodes = output_file_ + ".nodes";
     output_frequent_nodes_ = new Output(output_file_nodes);
 
-    size_t graph_id = 0;
+    int graph_id = 0;
     for (auto it = frequent_vertex_labels_.begin();
       it != frequent_vertex_labels_.end(); ++it) {
       std::stringstream ss;
@@ -87,7 +87,7 @@ void GBolt::save(bool output_parent, bool output_pattern, bool output_frequent_n
       ss << "v 0 " + std::to_string(it->first);
       ss << std::endl;
       ss << "x: ";
-      for (size_t i = 0; i < it->second.size(); ++i) {
+      for (auto i = 0; i < it->second.size(); ++i) {
         ss << it->second[i] << " ";
       }
       ss << std::endl;
@@ -102,8 +102,8 @@ void GBolt::mine_subgraph(
   const vector<Graph> &graphs,
   const DfsCodes &dfs_codes,
   const Projection &projection,
-  size_t prev_nsupport,
-  size_t prev_thread_id,
+  int prev_nsupport,
+  int prev_thread_id,
   int prev_graph_id) {
   if (!is_min(dfs_codes)) {
     return;
@@ -115,9 +115,9 @@ void GBolt::mine_subgraph(
   prev_graph_id = output->size() - 1;
 
   // Find right most path
-  vector<size_t> right_most_path;
+  vector<int> right_most_path;
   build_right_most_path(dfs_codes, right_most_path);
-  size_t min_label = dfs_codes[0].from_label;
+  int min_label = dfs_codes[0].from_label;
 
   // Enumerate backward paths and forward paths by different rules
   ProjectionMapBackward projection_map_backward;
@@ -127,15 +127,15 @@ void GBolt::mine_subgraph(
   // Recursive mining: first backward, last backward, and then last forward to the first forward
   for (auto it = projection_map_backward.begin(); it != projection_map_backward.end(); ++it) {
     Projection &projection = it->second;
-    size_t nsupport = count_support(projection);
+    int nsupport = count_support(projection);
     if (nsupport < nsupport_) {
       continue;
     }
-    size_t from = (it->first).from;
-    size_t to = (it->first).to;
-    size_t from_label = (it->first).from_label;
-    size_t edge_label = (it->first).edge_label;
-    size_t to_label = (it->first).to_label;
+    int from = (it->first).from;
+    int to = (it->first).to;
+    int from_label = (it->first).from_label;
+    int edge_label = (it->first).edge_label;
+    int to_label = (it->first).to_label;
     #pragma omp task shared(graphs, dfs_codes, projection, prev_thread_id, prev_graph_id) firstprivate(nsupport)
     {
       DfsCodes dfs_codes_copy(dfs_codes);
@@ -145,15 +145,15 @@ void GBolt::mine_subgraph(
   }
   for (auto it = projection_map_forward.rbegin(); it != projection_map_forward.rend(); ++it) {
     Projection &projection = it->second;
-    size_t nsupport = count_support(projection);
+    int nsupport = count_support(projection);
     if (nsupport < nsupport_) {
       continue;
     }
-    size_t from = (it->first).from;
-    size_t to = (it->first).to;
-    size_t from_label = (it->first).from_label;
-    size_t edge_label = (it->first).edge_label;
-    size_t to_label = (it->first).to_label;
+    int from = (it->first).from;
+    int to = (it->first).to;
+    int from_label = (it->first).from_label;
+    int edge_label = (it->first).edge_label;
+    int to_label = (it->first).to_label;
     #pragma omp task shared(graphs, dfs_codes, projection, prev_thread_id, prev_graph_id) firstprivate(nsupport)
     {
       DfsCodes dfs_codes_copy(dfs_codes);
