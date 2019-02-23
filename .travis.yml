@@ -1,0 +1,9 @@
+language: c++
+submodules:
+  - g++
+git:
+  submodules: true
+before_script:
+  - ./build.sh
+script:
+  - ./test/Compound_422.sh
