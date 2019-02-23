@@ -26,18 +26,12 @@ configure_file(
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h
 set(GBOLT_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
+set(GLOG_DIR "${PROJECT_SOURCE_DIR}/install/glog")
+set(GFLAGS_DIR "${PROJECT_SOURCE_DIR}/install/gflags")
+
+INCLUDE_DIRECTORIES(${GBOLT_INCLUDE_DIR} ${GLOG_DIR}/include ${GFLAGS_DIR}/include)
+
 set(GBOLT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
-
-include_directories(${GBOLT_INCLUDE_DIR})
-
-set(HEADERS
-  "${GBOLT_INCLUDE_DIR}/common.h"
-  "${GBOLT_INCLUDE_DIR}/database.h"
-  "${GBOLT_INCLUDE_DIR}/graph.h"
-  "${GBOLT_INCLUDE_DIR}/gboltspan.h"
-  "${GBOLT_INCLUDE_DIR}/history.h"
-  "${GBOLT_INCLUDE_DIR}/output.h")
-
 set(SOURCES
   "${GBOLT_SOURCE_DIR}/history.cc"
   "${GBOLT_SOURCE_DIR}/database.cc"
@@ -50,4 +44,15 @@ set(SOURCES
  
 # add the executable
 add_executable(gbolt ${SOURCES})
-TARGET_LINK_LIBRARIES(gbolt -lglog -lgflags)
+
+find_library(GLOG NAMES glog PATHS ${GLOG_DIR} PATH_SUFFIXES lib NO_DEFAULT_PATH)
+if (NOT GLOG)
+  message(FATAL_ERROR "glog not found")
+endif()
+
+find_library(GFLAGS NAMES gflags PATHS ${GFLAGS_DIR} PATH_SUFFIXES lib NO_DEFAULT_PATH)
+if (NOT GFLAGS)
+  message(FATAL_ERROR "gflags not found")
+endif()
+
+TARGET_LINK_LIBRARIES(gbolt ${GLOG} ${GFLAGS})
