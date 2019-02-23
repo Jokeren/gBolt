@@ -6,6 +6,7 @@ branches:
     - gbolt-1.0
 git:
   submodules: true
+  depth: 1
 before_script:
   - ./build.sh
 script:
