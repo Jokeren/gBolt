@@ -1,6 +1,8 @@
 ***gBolt***
 ==============
 
+[![Build Status](https://travis-ci.org/Jokeren/gBolt.svg?branch=gbolt-1.0)](https://travis-ci.org/Jokeren/gBolt)
+
 ***gBolt***--very fast implementation for gSpan algorithm in data mining
 
 ## Features
