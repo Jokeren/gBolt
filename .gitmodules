@@ -4,3 +4,6 @@
 [submodule "extern/glog"]
 	path = extern/glog
 	url = https://github.com/google/glog.git
+[submodule "extern/jemalloc"]
+	path = extern/jemalloc
+	url = https://github.com/jemalloc/jemalloc.git
