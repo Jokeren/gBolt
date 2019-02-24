@@ -8,9 +8,9 @@ void GBolt::build_right_most_path(const DfsCodes &dfs_codes, vector<int> &right_
   int prev_id = -1;
 
   for (auto i = dfs_codes.size(); i > 0; --i) {
-    if (dfs_codes[i - 1].from < dfs_codes[i - 1].to &&
-        (right_most_path.empty() || prev_id == static_cast<int>(dfs_codes[i - 1].to))) {
-      prev_id = dfs_codes[i - 1].from;
+    if (dfs_codes[i - 1]->from < dfs_codes[i - 1]->to &&
+        (right_most_path.empty() || prev_id == static_cast<int>(dfs_codes[i - 1]->to))) {
+      prev_id = dfs_codes[i - 1]->from;
       right_most_path.push_back(i - 1);
     }
   }
@@ -35,18 +35,18 @@ void GBolt::build_graph(const DfsCodes &dfs_codes, Graph &graph) {
 
   for (auto i = 0; i < dfs_codes.size(); ++i) {
     // Push vertice
-    vertice->resize(std::max(dfs_codes[i].from + 1, static_cast<int>(vertice->size())));
-    vertice->resize(std::max(dfs_codes[i].to + 1, static_cast<int>(vertice->size())));
-    (*vertice)[dfs_codes[i].from].label = dfs_codes[i].from_label;
-    (*vertice)[dfs_codes[i].from].id = dfs_codes[i].from;
-    (*vertice)[dfs_codes[i].to].label = dfs_codes[i].to_label;
-    (*vertice)[dfs_codes[i].to].id = dfs_codes[i].to;
+    vertice->resize(std::max(dfs_codes[i]->from + 1, static_cast<int>(vertice->size())));
+    vertice->resize(std::max(dfs_codes[i]->to + 1, static_cast<int>(vertice->size())));
+    (*vertice)[dfs_codes[i]->from].label = dfs_codes[i]->from_label;
+    (*vertice)[dfs_codes[i]->from].id = dfs_codes[i]->from;
+    (*vertice)[dfs_codes[i]->to].label = dfs_codes[i]->to_label;
+    (*vertice)[dfs_codes[i]->to].id = dfs_codes[i]->to;
     // Push an edge
-    struct edge_t edge(dfs_codes[i].from, dfs_codes[i].edge_label, dfs_codes[i].to, edge_id);
+    struct edge_t edge(dfs_codes[i]->from, dfs_codes[i]->edge_label, dfs_codes[i]->to, edge_id);
     (*vertice)[edge.from].edges.emplace_back(
-      dfs_codes[i].from, dfs_codes[i].edge_label, dfs_codes[i].to, edge_id);
+      dfs_codes[i]->from, dfs_codes[i]->edge_label, dfs_codes[i]->to, edge_id);
     (*vertice)[edge.to].edges.emplace_back(
-      dfs_codes[i].to, dfs_codes[i].edge_label, dfs_codes[i].from, edge_id);
+      dfs_codes[i]->to, dfs_codes[i]->edge_label, dfs_codes[i]->from, edge_id);
     ++edge_id;
   }
   graph.set_nedges(edge_id);
@@ -82,9 +82,8 @@ bool GBolt::is_min(const DfsCodes &dfs_codes) {
     }
   }
   auto it = projection_map.begin();
-  min_dfs_codes->emplace_back(0, 1,
-    (it->first).from_label, (it->first).edge_label, (it->first).to_label);
-  if (dfs_codes[min_dfs_codes->size() - 1] != (*min_dfs_codes)[min_dfs_codes->size() - 1]) {
+  min_dfs_codes->push_back(&(it->first));
+  if (*(dfs_codes[min_dfs_codes->size() - 1]) != *((*min_dfs_codes)[min_dfs_codes->size() - 1])) {
     return false;
   }
   return is_projection_min(dfs_codes, it->second);
@@ -118,8 +117,8 @@ bool GBolt::judge_backward(
             (last_node->edges[k].label > edge->label ||
              (last_node->edges[k].label == edge->label &&
               last_node->label >= to_node->label))) {
-          int from_id = (*min_dfs_codes)[right_most_path[0]].to;
-          int to_id = (*min_dfs_codes)[right_most_path[i - 1]].from;
+          int from_id = (*min_dfs_codes)[right_most_path[0]]->to;
+          int to_id = (*min_dfs_codes)[right_most_path[i - 1]]->from;
           struct dfs_code_t dfs_code(from_id, to_id,
             last_node->label, (last_node->edges[k]).label, from_node->label);
           projection_map_backward[dfs_code].emplace_back(0, &(last_node->edges[k]), &(projection[j]));
@@ -154,7 +153,7 @@ bool GBolt::judge_forward(
       const struct vertex_t *to_node = min_graph->get_p_vertex(edge->to);
       if (history->has_vertice(edge->to) || to_node->label < min_label)
         continue;
-      int to_id = (*min_dfs_codes)[right_most_path[0]].to;
+      int to_id = (*min_dfs_codes)[right_most_path[0]]->to;
       struct dfs_code_t dfs_code(to_id, to_id + 1, last_node->label, edge->label, to_node->label);
       projection_map_forward[dfs_code].emplace_back(0, edge, &(projection[i]));
     }
@@ -176,8 +175,8 @@ bool GBolt::judge_forward(
           if (cur_edge->label < cur_node->edges[k].label ||
               (cur_edge->label == cur_node->edges[k].label &&
                cur_to->label <= to_node->label)) {
-            int from_id = (*min_dfs_codes)[right_most_path[i]].from;
-            int to_id = (*min_dfs_codes)[right_most_path[0]].to;
+            int from_id = (*min_dfs_codes)[right_most_path[i]]->from;
+            int to_id = (*min_dfs_codes)[right_most_path[0]]->to;
             struct dfs_code_t dfs_code(from_id, to_id + 1,
               cur_node->label, cur_node->edges[k].label, to_node->label);
             projection_map_forward[dfs_code].emplace_back(0, &(cur_node->edges[k]), &(projection[j]));
@@ -202,14 +201,13 @@ bool GBolt::is_projection_min(const DfsCodes &dfs_codes, const Projection &proje
   ProjectionMapBackward projection_map_backward;
 
   build_right_most_path((*min_dfs_codes), right_most_path);
-  int min_label = (*min_dfs_codes)[0].from_label;
+  int min_label = (*min_dfs_codes)[0]->from_label;
 
   if (judge_backward(right_most_path, projection, min_label, projection_map_backward)) {
     auto it = projection_map_backward.begin();
-    min_dfs_codes->emplace_back((it->first).from, (it->first).to,
-      (it->first).from_label, (it->first).edge_label, (it->first).to_label);
+    min_dfs_codes->emplace_back(&(it->first));
     // Dfs code not equals to min dfs code
-    if (dfs_codes[min_dfs_codes->size() - 1] != (*min_dfs_codes)[min_dfs_codes->size() - 1]) {
+    if (*(dfs_codes[min_dfs_codes->size() - 1]) != *((*min_dfs_codes)[min_dfs_codes->size() - 1])) {
       return false;
     }
     return is_projection_min(dfs_codes, it->second);
@@ -219,10 +217,9 @@ bool GBolt::is_projection_min(const DfsCodes &dfs_codes, const Projection &proje
 
   if (judge_forward(right_most_path, projection, min_label, projection_map_forward)) {
     auto it = projection_map_forward.begin();
-    min_dfs_codes->emplace_back((it->first).from, (it->first).to,
-      (it->first).from_label, (it->first).edge_label, (it->first).to_label);
+    min_dfs_codes->emplace_back(&(it->first));
     // Dfs code not equals to min dfs code
-    if (dfs_codes[min_dfs_codes->size() - 1] != (*min_dfs_codes)[min_dfs_codes->size() - 1]) {
+    if (*(dfs_codes[min_dfs_codes->size() - 1]) != *((*min_dfs_codes)[min_dfs_codes->size() - 1])) {
       return false;
     }
     return is_projection_min(dfs_codes, it->second);

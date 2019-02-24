@@ -94,7 +94,7 @@ void Database::construct_graphs(
     } else if (input_[i][0] == "v") {
       int id = atoi(input_[i][1].c_str());
       int label = atoi(input_[i][2].c_str());
-      labels.push_back(label);
+      labels.emplace_back(label);
       // Find a node with frequent label
       if (frequent_vertex_labels.find(label) != frequent_vertex_labels.end()) {
         vertice->emplace_back(vertex_id, label);

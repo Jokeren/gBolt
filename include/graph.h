@@ -55,7 +55,7 @@ struct dfs_code_t {
   int edge_label;
   int to_label;
 };
-typedef vector<struct dfs_code_t> DfsCodes;
+typedef vector<const struct dfs_code_t *> DfsCodes;
 
 struct dfs_code_project_compare_t {
   bool operator() (const struct dfs_code_t &first, const struct dfs_code_t &second) {

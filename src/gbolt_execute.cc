@@ -103,7 +103,7 @@ void GBolt::project(const vector<Graph> &graphs) {
       int to_label = (it->first).to_label;
       #pragma omp task shared(graphs, projection, prev_thread_id, prev_graph_id) firstprivate(dfs_codes, nsupport)
       {
-        dfs_codes.emplace_back(0, 1, from_label, edge_label, to_label);
+        dfs_codes.emplace_back(&(it->first));
         mine_subgraph(graphs, dfs_codes, projection, nsupport, prev_thread_id, prev_graph_id);
       }
     }

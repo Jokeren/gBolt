@@ -50,8 +50,8 @@ void GBolt::report(const DfsCodes &dfs_codes, const Projection &projection,
     ss << "v " << vertex->id << " " << vertex->label << std::endl;
   }
   for (auto i = 0; i < dfs_codes.size(); ++i) {
-    ss << "e " << dfs_codes[i].from << " " << dfs_codes[i].to
-      << " " << dfs_codes[i].edge_label << std::endl;
+    ss << "e " << dfs_codes[i]->from << " " << dfs_codes[i]->to
+      << " " << dfs_codes[i]->edge_label << std::endl;
   }
   ss << "x: ";
   int prev = 0;
@@ -117,7 +117,7 @@ void GBolt::mine_subgraph(
   // Find right most path
   vector<int> right_most_path;
   build_right_most_path(dfs_codes, right_most_path);
-  int min_label = dfs_codes[0].from_label;
+  int min_label = dfs_codes[0]->from_label;
 
   // Enumerate backward paths and forward paths by different rules
   ProjectionMapBackward projection_map_backward;
@@ -139,7 +139,7 @@ void GBolt::mine_subgraph(
     #pragma omp task shared(graphs, dfs_codes, projection, prev_thread_id, prev_graph_id) firstprivate(nsupport)
     {
       DfsCodes dfs_codes_copy(dfs_codes);
-      dfs_codes_copy.emplace_back(from, to, from_label, edge_label, to_label);
+      dfs_codes_copy.emplace_back(&(it->first));
       mine_subgraph(graphs, dfs_codes_copy, projection, nsupport, prev_thread_id, prev_graph_id);
     }
   }
@@ -157,7 +157,7 @@ void GBolt::mine_subgraph(
     #pragma omp task shared(graphs, dfs_codes, projection, prev_thread_id, prev_graph_id) firstprivate(nsupport)
     {
       DfsCodes dfs_codes_copy(dfs_codes);
-      dfs_codes_copy.emplace_back(from, to, from_label, edge_label, to_label);
+      dfs_codes_copy.emplace_back(&(it->first));
       mine_subgraph(graphs, dfs_codes_copy, projection, nsupport, prev_thread_id, prev_graph_id);
     }
   }

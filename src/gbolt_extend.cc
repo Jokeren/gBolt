@@ -59,8 +59,8 @@ void GBolt::get_backward(
           (last_node->edges[j].label > edge->label ||
            (last_node->edges[j].label == edge->label &&
             last_node->label >= to_node->label))) {
-        int from_id = dfs_codes[right_most_path[0]].to;
-        int to_id = dfs_codes[right_most_path[i - 1]].from;
+        int from_id = dfs_codes[right_most_path[0]]->to;
+        int to_id = dfs_codes[right_most_path[i - 1]]->from;
         struct dfs_code_t dfs_code(from_id, to_id,
           last_node->label, (last_node->edges[j]).label, from_node->label);
         projection_map_backward[dfs_code].
@@ -92,7 +92,7 @@ void GBolt::get_first_forward(
     // No, we cannot, for this time, the extending id is greater the the last node
     if (history->has_vertice(edge->to) || to_node->label < min_label)
       continue;
-    int to_id = dfs_codes[right_most_path[0]].to;
+    int to_id = dfs_codes[right_most_path[0]]->to;
     struct dfs_code_t dfs_code(to_id, to_id + 1,
       last_node->label, edge->label, to_node->label);
     projection_map_forward[dfs_code].
@@ -124,8 +124,8 @@ void GBolt::get_other_forward(
       if (cur_edge->label < cur_node->edges[j].label ||
           (cur_edge->label == cur_node->edges[j].label &&
            cur_to->label <= to_node->label)) {
-        int from_id = dfs_codes[right_most_path[i]].from;
-        int to_id = dfs_codes[right_most_path[0]].to;
+        int from_id = dfs_codes[right_most_path[i]]->from;
+        int to_id = dfs_codes[right_most_path[0]]->to;
         struct dfs_code_t dfs_code(from_id, to_id + 1, cur_node->label,
           cur_node->edges[j].label, to_node->label);
         projection_map_forward[dfs_code].
