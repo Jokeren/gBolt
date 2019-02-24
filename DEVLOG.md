@@ -2,11 +2,14 @@
 
 2/20/2019:
 
-- [ ] Reduce memory overhead
-- [ ] Build everything in a single command
+- [x] Reduce memory overhead
+  - Dfs code pointer optimization 0.3x
+  - Flatten tree optimization
+- [x] Build everything in a single command
 - [ ] Use hpctraceviewer to improve OpenMP performance
 - [x] Change repo name
-- [ ] Travis CI
+- [x] Travis CI
+- [ ] Deterministic map
 
 5/13/2017:
 
