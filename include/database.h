@@ -37,7 +37,7 @@ class Database {
  private:
   static Database *instance_;
   vector<vector<string> > input_;
-  int num_graph_;
+  int num_graph_ = 0;
 };
 
 }  // namespace gbolt

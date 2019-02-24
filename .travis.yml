@@ -18,6 +18,6 @@ before_script:
   # Export CC and CXX to tell cmake which compiler to use
   - export CC=gcc-7
   - export CXX=g++-7
-  - ./build.sh
+  - ./script/build.sh
 script:
   - ./script/Compound_422.sh

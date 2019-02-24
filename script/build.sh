@@ -1,3 +1,4 @@
+cd ..
 PWD=`pwd`
 rm -rf install
 mkdir install

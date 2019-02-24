@@ -27,6 +27,7 @@ configure_file(
 set(GBOLT_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
 set(GLOG_DIR "${PROJECT_SOURCE_DIR}/install/glog")
 set(GFLAGS_DIR "${PROJECT_SOURCE_DIR}/install/gflags")
+set(JEMALLOC_DIR "/home/kz21/Install/jemalloc")
 
 INCLUDE_DIRECTORIES(${GBOLT_INCLUDE_DIR} ${GLOG_DIR}/include ${GFLAGS_DIR}/include)
 
@@ -54,4 +55,9 @@ if (NOT GFLAGS)
   message(FATAL_ERROR "gflags not found")
 endif()
 
-TARGET_LINK_LIBRARIES(gbolt ${GLOG} ${GFLAGS})
+find_library(JEMALLOC NAMES jemalloc PATHS ${JEMALLOC_DIR} PATH_SUFFIXES lib NO_DEFAULT_PATH)
+if (NOT JEMALLOC)
+  message(FATAL_ERROR "jemalloc not found")
+endif()
+
+TARGET_LINK_LIBRARIES(gbolt ${GLOG} ${GFLAGS} ${JEMALLOC})
