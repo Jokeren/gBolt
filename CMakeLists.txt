@@ -1,14 +1,13 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 3.1)
 project (gbolt)
 # The version number.
-set(GBOLT_VERSION_MAJOR 0)
-set(GBOLT_VERSION_MINOR 1)
+set(GBOLT_VERSION_MAJOR 1)
+set(GBOLT_VERSION_MINOR 0)
 set(GBOLT_PERFORMANCE 1)
 
 # Mode
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall -g -std=c++11")
-set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -std=c++11")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O3 -g -std=c++11")
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Packages
 find_package(OpenMP)
