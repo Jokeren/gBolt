@@ -1,27 +1,16 @@
 #include <gbolt.h>
 #include <history.h>
+#include <path.h>
 #include <algorithm>
 
 namespace gbolt {
-
-void GBolt::build_right_most_path(const DfsCodes &dfs_codes, vector<int> &right_most_path) {
-  int prev_id = -1;
-
-  for (auto i = dfs_codes.size(); i > 0; --i) {
-    if (dfs_codes[i - 1]->from < dfs_codes[i - 1]->to &&
-        (right_most_path.empty() || prev_id == static_cast<int>(dfs_codes[i - 1]->to))) {
-      prev_id = dfs_codes[i - 1]->from;
-      right_most_path.push_back(i - 1);
-    }
-  }
-}
 
 int GBolt::count_support(const Projection &projection) {
   int prev_id = -1;
   int size = 0;
 
   for (auto i = 0; i < projection.size(); ++i) {
-    if (prev_id != static_cast<int>(projection[i].id)) {
+    if (prev_id != projection[i].id) {
       prev_id = projection[i].id;
       ++size;
     }
@@ -86,11 +75,14 @@ bool GBolt::is_min(const DfsCodes &dfs_codes) {
   if (*(dfs_codes[min_dfs_codes->size() - 1]) != *((*min_dfs_codes)[min_dfs_codes->size() - 1])) {
     return false;
   }
-  return is_projection_min(dfs_codes, it->second);
+  Path<int> *right_most_path = instance->right_most_path;
+  right_most_path->reset();
+  build_right_most_path(*min_dfs_codes, *right_most_path);
+  return is_projection_min(dfs_codes, it->second, *right_most_path);
 }
 
 bool GBolt::judge_backward(
-  const vector<int> &right_most_path,
+  const Path<int> &right_most_path,
   const Projection &projection,
   int min_label,
   ProjectionMapBackward &projection_map_backward) {
@@ -133,7 +125,7 @@ bool GBolt::judge_backward(
 
 
 bool GBolt::judge_forward(
-  const vector<int> &right_most_path,
+  const Path<int> &right_most_path,
   const Projection &projection,
   int min_label,
   ProjectionMapForward &projection_map_forward) {
@@ -194,13 +186,12 @@ bool GBolt::judge_forward(
     return false;
 }
 
-bool GBolt::is_projection_min(const DfsCodes &dfs_codes, const Projection &projection) {
+bool GBolt::is_projection_min(const DfsCodes &dfs_codes, const Projection &projection,
+  Path<int> &right_most_path) {
   gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   DfsCodes *min_dfs_codes = instance->min_dfs_codes;
-  vector<int> right_most_path;
   ProjectionMapBackward projection_map_backward;
 
-  build_right_most_path((*min_dfs_codes), right_most_path);
   int min_label = (*min_dfs_codes)[0]->from_label;
 
   if (judge_backward(right_most_path, projection, min_label, projection_map_backward)) {
@@ -210,7 +201,9 @@ bool GBolt::is_projection_min(const DfsCodes &dfs_codes, const Projection &proje
     if (*(dfs_codes[min_dfs_codes->size() - 1]) != *((*min_dfs_codes)[min_dfs_codes->size() - 1])) {
       return false;
     }
-    return is_projection_min(dfs_codes, it->second);
+    // Current dfs code is min
+    update_right_most_path((*min_dfs_codes), right_most_path);
+    return is_projection_min(dfs_codes, it->second, right_most_path);
   }
 
   ProjectionMapForward projection_map_forward;
@@ -222,7 +215,9 @@ bool GBolt::is_projection_min(const DfsCodes &dfs_codes, const Projection &proje
     if (*(dfs_codes[min_dfs_codes->size() - 1]) != *((*min_dfs_codes)[min_dfs_codes->size() - 1])) {
       return false;
     }
-    return is_projection_min(dfs_codes, it->second);
+    // Current dfs code is min
+    update_right_most_path((*min_dfs_codes), right_most_path);
+    return is_projection_min(dfs_codes, it->second, right_most_path);
   }
   return true;
 }

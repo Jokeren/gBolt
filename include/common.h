@@ -14,6 +14,8 @@
 
 #define FILE_MAX_LINE 1024
 
+#define DEFAULT_PATH_LEN 16
+
 #define CPU_TIMER_START(elapsed_time, t1) \
   do { \
     elapsed_time = 0.0; \

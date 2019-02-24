@@ -1,5 +1,6 @@
 #include <gbolt.h>
 #include <history.h>
+#include <path.h>
 #include <common.h>
 
 namespace gbolt {
@@ -8,7 +9,7 @@ void GBolt::enumerate(
   const vector<Graph> &graphs,
   const DfsCodes &dfs_codes,
   const Projection &projection,
-  const vector<int> &right_most_path,
+  const Path<int> &right_most_path,
   int min_label,
   ProjectionMapBackward &projection_map_backward,
   ProjectionMapForward &projection_map_forward) {
@@ -41,7 +42,7 @@ void GBolt::get_backward(
   const struct prev_dfs_t &prev_dfs,
   const Graph &graph,
   const DfsCodes &dfs_codes,
-  const vector<int> &right_most_path,
+  const Path<int> &right_most_path,
   ProjectionMapBackward &projection_map_backward) {
   gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   History *history = instance->history;
@@ -74,7 +75,7 @@ void GBolt::get_first_forward(
   const struct prev_dfs_t &prev_dfs,
   const Graph &graph,
   const DfsCodes &dfs_codes,
-  const vector<int> &right_most_path,
+  const Path<int> &right_most_path,
   int min_label,
   ProjectionMapForward &projection_map_forward) {
   gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
@@ -104,7 +105,7 @@ void GBolt::get_other_forward(
   const struct prev_dfs_t &prev_dfs,
   const Graph &graph,
   const DfsCodes &dfs_codes,
-  const vector<int> &right_most_path,
+  const Path<int> &right_most_path,
   int min_label,
   ProjectionMapForward &projection_map_forward) {
   gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();

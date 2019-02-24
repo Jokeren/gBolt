@@ -4,6 +4,7 @@
 #include <common.h>
 #include <graph.h>
 #include <history.h>
+#include <path.h>
 #include <output.h>
 #include <map>
 #include <vector>
@@ -12,16 +13,18 @@
 namespace gbolt {
 
 struct gbolt_instance_t {
-  Graph *min_graph = 0;
-  DfsCodes *min_dfs_codes = 0;
-  History *history = 0;
-  Output *output = 0;
+  Graph *min_graph = NULL;
+  DfsCodes *min_dfs_codes = NULL;
+  History *history = NULL;
+  Output *output = NULL;
+  Path<int> *right_most_path = NULL;
 
   ~gbolt_instance_t() {
     delete this->min_graph;
     delete this->min_dfs_codes;
     delete this->history;
     delete this->output;
+    delete this->right_most_path;
   }
 };
 
@@ -66,13 +69,33 @@ class GBolt {
     int prev_graph_id);
 
   // Extend
-  void build_right_most_path(const DfsCodes &dfs_codes, vector<int> &right_most_path);
+  void build_right_most_path(const DfsCodes &dfs_codes, Path<int> &right_most_path) {
+    int prev_id = -1;
+
+    for (auto i = dfs_codes.size(); i > 0; --i) {
+      if (dfs_codes[i - 1]->from < dfs_codes[i - 1]->to &&
+        (right_most_path.empty() || prev_id == dfs_codes[i - 1]->to)) {
+        prev_id = dfs_codes[i - 1]->from;
+        right_most_path.push_back(i - 1);
+      }
+    }
+  }
+
+  void update_right_most_path(const DfsCodes &dfs_codes, Path<int> &right_most_path) {
+    auto *last_dfs_code = dfs_codes.back();
+    // filter out a simple case
+    if (last_dfs_code->from > last_dfs_code->to) {
+      return;
+    }
+    right_most_path.reset();
+    build_right_most_path(dfs_codes, right_most_path);
+  }
 
   void enumerate(
     const vector<Graph> &graphs,
     const DfsCodes &dfs_codes,
     const Projection &projection,
-    const vector<int> &right_most_path,
+    const Path<int> &right_most_path,
     int min_label,
     ProjectionMapBackward &projection_map_backward,
     ProjectionMapForward &projection_map_forward);
@@ -86,7 +109,7 @@ class GBolt {
     const struct prev_dfs_t &prev_dfs,
     const Graph &graph,
     const DfsCodes &dfs_codes,
-    const vector<int> &right_most_path,
+    const Path<int> &right_most_path,
     int min_label,
     ProjectionMapForward& projection_map_forward);
 
@@ -94,7 +117,7 @@ class GBolt {
     const struct prev_dfs_t &prev_dfs,
     const Graph &graph,
     const DfsCodes &dfs_codes,
-    const vector<int> &right_most_path,
+    const Path<int> &right_most_path,
     int min_label,
     ProjectionMapForward& projection_map_forward);
 
@@ -102,7 +125,7 @@ class GBolt {
     const struct prev_dfs_t &prev_dfs,
     const Graph &graph,
     const DfsCodes &dfs_codes,
-    const vector<int> &right_most_path,
+    const Path<int> &right_most_path,
     ProjectionMapBackward& projection_map_backward);
 
   // Count
@@ -112,16 +135,19 @@ class GBolt {
 
   bool is_min(const DfsCodes &dfs_codes);
 
-  bool is_projection_min(const DfsCodes &dfs_codes, const Projection &projection);
+  bool is_projection_min(
+    const DfsCodes &dfs_codes,
+    const Projection &projection,
+    Path<int> &right_most_path);
 
   bool judge_backward(
-    const vector<int> &right_most_path,
+    const Path<int> &right_most_path,
     const Projection &projection,
     int min_label,
     ProjectionMapBackward &projection_map_backward);
 
   bool judge_forward(
-    const vector<int> &right_most_path,
+    const Path<int> &right_most_path,
     const Projection &projection,
     int min_label,
     ProjectionMapForward &projection_map_forward);
