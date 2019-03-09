@@ -3,6 +3,7 @@
 #include <path.h>
 #include <algorithm>
 
+
 namespace gbolt {
 
 int GBolt::count_support(const Projection &projection) {
@@ -55,6 +56,10 @@ bool GBolt::is_min(const DfsCodes &dfs_codes) {
   // Build min graph
   build_graph(dfs_codes, *min_graph);
 
+  Path<prev_dfs_t> min_projection;
+  struct dfs_code_t min_dfs_code;
+  bool first_dfs_code = true;
+
   for (auto i = 0; i < min_graph->size(); ++i) {
     const struct vertex_t *vertex = min_graph->get_p_vertex(i);
     Edges edges;
@@ -66,30 +71,41 @@ bool GBolt::is_min(const DfsCodes &dfs_codes) {
         const struct vertex_t *vertex_to = min_graph->get_p_vertex(edges[j]->to);
         struct dfs_code_t dfs_code(0, 1, vertex_from->label, edges[j]->label, vertex_to->label);
         // Push back all the graphs
-        projection_map[dfs_code].emplace_back(0, edges[j], (const prev_dfs_t *)NULL);
+        if (first_dfs_code || dfs_code_project_compare_(dfs_code, min_dfs_code)) {
+          first_dfs_code = false;
+          min_dfs_code = dfs_code;
+          min_projection.reset();
+        }
+        if (dfs_code == min_dfs_code) {
+          min_projection.resize(min_projection.size() + 1);
+          min_projection.back().id = 0;
+          min_projection.back().edge = edges[j];
+          min_projection.back().prev = (const prev_dfs_t *)NULL;
+        }
       }
     }
   }
-  auto it = projection_map.begin();
-  min_dfs_codes->push_back(&(it->first));
+  min_dfs_codes->push_back(&min_dfs_code);
   if (*(dfs_codes[min_dfs_codes->size() - 1]) != *((*min_dfs_codes)[min_dfs_codes->size() - 1])) {
     return false;
   }
   Path<int> *right_most_path = instance->right_most_path;
   right_most_path->reset();
   build_right_most_path(*min_dfs_codes, *right_most_path);
-  return is_projection_min(dfs_codes, it->second, *right_most_path);
+  return is_projection_min(dfs_codes, min_projection, *right_most_path);
 }
 
 bool GBolt::judge_backward(
   const Path<int> &right_most_path,
-  const Projection &projection,
+  const Path<prev_dfs_t> &projection,
   int min_label,
-  ProjectionMapBackward &projection_map_backward) {
+  Path<prev_dfs_t> &min_projection,
+  struct dfs_code_t &min_dfs_code) {
   gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   Graph *min_graph = instance->min_graph;
   DfsCodes *min_dfs_codes = instance->min_dfs_codes;
   History *history = instance->history;
+  bool first_dfs_code = true;
 
   // i > 1, because it cannot reach the path itself
   for (auto i = right_most_path.size(); i > 1; --i) {
@@ -113,11 +129,21 @@ bool GBolt::judge_backward(
           int to_id = (*min_dfs_codes)[right_most_path[i - 1]]->from;
           struct dfs_code_t dfs_code(from_id, to_id,
             last_node->label, (last_node->edges[k]).label, from_node->label);
-          projection_map_backward[dfs_code].emplace_back(0, &(last_node->edges[k]), &(projection[j]));
+          if (first_dfs_code || dfs_code_backward_compare_(dfs_code, min_dfs_code)) {
+            first_dfs_code = false;
+            min_dfs_code = dfs_code;
+            min_projection.reset();
+          }
+          if (dfs_code == min_dfs_code) {
+            min_projection.resize(min_projection.size() + 1);
+            min_projection.back().id = 0;
+            min_projection.back().edge = &(last_node->edges[k]);
+            min_projection.back().prev = &(projection[j]);
+          }
         }
       }
     }
-    if (projection_map_backward.size() != 0)
+    if (min_projection.size() != 0)
       return true;
   }
   return false;
@@ -126,13 +152,15 @@ bool GBolt::judge_backward(
 
 bool GBolt::judge_forward(
   const Path<int> &right_most_path,
-  const Projection &projection,
+  const Path<prev_dfs_t> &projection,
   int min_label,
-  ProjectionMapForward &projection_map_forward) {
+  Path<prev_dfs_t> &min_projection,
+  struct dfs_code_t &min_dfs_code) {
   gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   Graph *min_graph = instance->min_graph;
   History *history = instance->history;
   DfsCodes *min_dfs_codes = instance->min_dfs_codes;
+  bool first_dfs_code = true;
 
   for (auto i = 0; i < projection.size(); ++i) {
     history->build_vertice(projection[i], *min_graph);
@@ -147,11 +175,21 @@ bool GBolt::judge_forward(
         continue;
       int to_id = (*min_dfs_codes)[right_most_path[0]]->to;
       struct dfs_code_t dfs_code(to_id, to_id + 1, last_node->label, edge->label, to_node->label);
-      projection_map_forward[dfs_code].emplace_back(0, edge, &(projection[i]));
+      if (first_dfs_code || dfs_code_forward_compare_(dfs_code, min_dfs_code)) {
+        first_dfs_code = false;
+        min_dfs_code = dfs_code;
+        min_projection.reset();
+      }
+      if (dfs_code == min_dfs_code) {
+        min_projection.resize(min_projection.size() + 1);
+        min_projection.back().id = 0;
+        min_projection.back().edge = edge;
+        min_projection.back().prev = &(projection[i]);
+      }
     }
   }
 
-  if (projection_map_forward.size() == 0) {
+  if (min_projection.size() == 0) {
     for (auto i = 0; i < right_most_path.size(); ++i) {
       for (auto j = 0; j < projection.size(); ++j) {
         history->build_vertice(projection[j], *min_graph);
@@ -171,53 +209,60 @@ bool GBolt::judge_forward(
             int to_id = (*min_dfs_codes)[right_most_path[0]]->to;
             struct dfs_code_t dfs_code(from_id, to_id + 1,
               cur_node->label, cur_node->edges[k].label, to_node->label);
-            projection_map_forward[dfs_code].emplace_back(0, &(cur_node->edges[k]), &(projection[j]));
+            if (first_dfs_code || dfs_code_forward_compare_(dfs_code, min_dfs_code)) {
+              first_dfs_code = false;
+              min_dfs_code = dfs_code;
+              min_projection.reset();
+            }
+            if (dfs_code == min_dfs_code) {
+              min_projection.resize(min_projection.size() + 1);
+              min_projection.back().id = 0;
+              min_projection.back().edge = &(cur_node->edges[k]);
+              min_projection.back().prev = &(projection[j]);
+            }
           }
         }
       }
-      if (projection_map_forward.size() != 0) {
+      if (min_projection.size() != 0) {
         break;
       }
     }
   }
-  if (projection_map_forward.size() != 0)
+  if (min_projection.size() != 0)
     return true;
   else 
     return false;
 }
 
-bool GBolt::is_projection_min(const DfsCodes &dfs_codes, const Projection &projection,
+bool GBolt::is_projection_min(const DfsCodes &dfs_codes, const Path<prev_dfs_t> &projection,
   Path<int> &right_most_path) {
   gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
   DfsCodes *min_dfs_codes = instance->min_dfs_codes;
-  ProjectionMapBackward projection_map_backward;
+  Path<prev_dfs_t> min_projection;
+  struct dfs_code_t min_dfs_code;
 
   int min_label = (*min_dfs_codes)[0]->from_label;
 
-  if (judge_backward(right_most_path, projection, min_label, projection_map_backward)) {
-    auto it = projection_map_backward.begin();
-    min_dfs_codes->emplace_back(&(it->first));
+  if (judge_backward(right_most_path, projection, min_label, min_projection, min_dfs_code)) {
+    min_dfs_codes->emplace_back(&min_dfs_code);
     // Dfs code not equals to min dfs code
     if (*(dfs_codes[min_dfs_codes->size() - 1]) != *((*min_dfs_codes)[min_dfs_codes->size() - 1])) {
       return false;
     }
     // Current dfs code is min
     update_right_most_path((*min_dfs_codes), right_most_path);
-    return is_projection_min(dfs_codes, it->second, right_most_path);
+    return is_projection_min(dfs_codes, min_projection, right_most_path);
   }
 
-  ProjectionMapForward projection_map_forward;
-
-  if (judge_forward(right_most_path, projection, min_label, projection_map_forward)) {
-    auto it = projection_map_forward.begin();
-    min_dfs_codes->emplace_back(&(it->first));
+  if (judge_forward(right_most_path, projection, min_label, min_projection, min_dfs_code)) {
+    min_dfs_codes->emplace_back(&min_dfs_code);
     // Dfs code not equals to min dfs code
     if (*(dfs_codes[min_dfs_codes->size() - 1]) != *((*min_dfs_codes)[min_dfs_codes->size() - 1])) {
       return false;
     }
     // Current dfs code is min
     update_right_most_path((*min_dfs_codes), right_most_path);
-    return is_projection_min(dfs_codes, it->second, right_most_path);
+    return is_projection_min(dfs_codes, min_projection, right_most_path);
   }
   return true;
 }

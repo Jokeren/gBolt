@@ -22,6 +22,8 @@ typedef vector<const struct edge_t *> Edges;
 
 // dfs projection links
 struct prev_dfs_t {
+  prev_dfs_t() : id(0), edge(NULL), prev(NULL) {}
+
   prev_dfs_t(int id, const struct edge_t *edge, const struct prev_dfs_t *prev) :
     id(id), edge(edge), prev(prev) {}
 
@@ -33,6 +35,8 @@ typedef vector<struct prev_dfs_t> Projection;
 
 // dfs codes forward and backward compare
 struct dfs_code_t {
+  dfs_code_t() : from(0), to(0), from_label(0), edge_label(0), to_label(0) {}
+
   dfs_code_t(int from, int to, int from_label, int edge_label, int to_label) :
     from(from), to(to),
     from_label(from_label), edge_label(edge_label), to_label(to_label) {}
@@ -49,6 +53,12 @@ struct dfs_code_t {
     return (from != t.from) || (to != t.to) ||
       (from_label != t.from_label) || (edge_label != t.edge_label) ||
       (to_label != t.to_label);
+  }
+
+  bool operator == (const struct dfs_code_t &t) const {
+    return (from == t.from) && (to == t.to) &&
+      (from_label == t.from_label) && (edge_label == t.edge_label) &&
+      (to_label == t.to_label);
   }
 
   int from;

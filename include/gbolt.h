@@ -137,20 +137,22 @@ class GBolt {
 
   bool is_projection_min(
     const DfsCodes &dfs_codes,
-    const Projection &projection,
+    const Path<prev_dfs_t> &projection,
     Path<int> &right_most_path);
 
   bool judge_backward(
     const Path<int> &right_most_path,
-    const Projection &projection,
+    const Path<prev_dfs_t> &projection,
     int min_label,
-    ProjectionMapBackward &projection_map_backward);
+    Path<prev_dfs_t> &min_projection,
+    struct dfs_code_t &min_dfs_code);
 
   bool judge_forward(
     const Path<int> &right_most_path,
-    const Projection &projection,
+    const Path<prev_dfs_t> &projection,
     int min_label,
-    ProjectionMapForward &projection_map_forward);
+    Path<prev_dfs_t> &min_projection,
+    struct dfs_code_t &min_dfs_code);
 
   // Report
   void report(const DfsCodes &dfs_codes, const Projection &projection,
@@ -167,6 +169,9 @@ class GBolt {
   int nsupport_;
   Output *output_frequent_nodes_;
   gbolt_instance_t *gbolt_instances_;
+  dfs_code_project_compare_t dfs_code_project_compare_;
+  dfs_code_forward_compare_t dfs_code_forward_compare_;
+  dfs_code_backward_compare_t dfs_code_backward_compare_;
 };
 
 }  // namespace gbolt

@@ -2,14 +2,34 @@
 
 2/20/2019:
 
+- [ ] Projection mini opt
+- [ ] Customized data structure
+  - Use Path to replace vector
+  - Use Rope to replace Path
+- [ ] Software simplicity
+  - Use header only repo to replace gflags
+  - Use customized logs
+  - Compatible with CMake-2.8
+- [ ] Test harness
+  - Test basic data structures
 - [x] Reduce memory overhead
-  - Dfs code pointer optimization 0.3x
-  - Flatten tree optimization
+  - Dfs code pointer optimization
+  - Reuse right most path
+  - jemalloc option
 - [x] Build everything in a single command
-- [ ] Use hpctraceviewer to improve OpenMP performance
+- [x] Use hpctraceviewer to improve OpenMP performance
 - [x] Change repo name
 - [x] Travis CI
-- [ ] Deterministic map
+- [ ] Deterministic map for debugging
+- [ ] Python interfaces
+  - Merge results
+  - Graph data structure
+  - Execution
+- [x] Valgrind sanity check
+- [ ] Docs
+  - Optimizations
+  - Customized data structures
+  - Test results
 
 5/13/2017:
 

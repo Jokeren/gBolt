@@ -28,12 +28,20 @@ class Path {
     return entries_[--index_];
   }
 
-  T operator[](size_t index) {
+  T &operator[](size_t index) {
     return entries_[index];
   }
 
-  T operator[](size_t index) const {
+  const T &operator[](size_t index) const {
     return entries_[index];
+  }
+
+  T &back() {
+    return entries_[index_ - 1];
+  }
+
+  const T &back() const {
+    return entries_[index_ - 1];
   }
 
   void reset() {
@@ -52,12 +60,21 @@ class Path {
     return this->index_ == 0;
   }
 
+  void resize(size_t size) {
+    index_ = size;
+    if (index_ == capacity_) {
+      reserve(capacity_ * 2);
+    }
+  }
+
   void reserve(size_t new_capacity) {
-    T *new_entries = new T[new_capacity]();
-    std::copy(entries_, entries_ + capacity_, new_entries);
-    delete [] entries_;
-    entries_ = new_entries;
-    capacity_ = new_capacity;
+    if (new_capacity > capacity_) {
+      T *new_entries = new T[new_capacity]();
+      std::copy(entries_, entries_ + capacity_, new_entries);
+      delete [] entries_;
+      entries_ = new_entries;
+      capacity_ = new_capacity;
+    }
   }
 
   ~Path() {
