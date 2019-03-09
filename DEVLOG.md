@@ -2,8 +2,8 @@
 
 2/20/2019:
 
-- [ ] Projection mini opt
-- [ ] Customized data structure
+- [x] Projection mini opt
+- [x] Customized data structure
   - Use Path to replace vector
   - Use Rope to replace Path
 - [ ] Software simplicity
@@ -30,6 +30,7 @@
   - Optimizations
   - Customized data structures
   - Test results
+- [ ] Research problem: build graph on-the-fly or only in check?
 
 5/13/2017:
 
