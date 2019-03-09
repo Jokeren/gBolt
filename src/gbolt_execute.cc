@@ -59,6 +59,7 @@ void GBolt::init_instances(const vector<Graph> &graphs) {
     gbolt_instances_[i].min_graph = new Graph();
     gbolt_instances_[i].min_dfs_codes = new DfsCodes();
     gbolt_instances_[i].right_most_path = new Path<int>(DEFAULT_PATH_LEN);
+    gbolt_instances_[i].min_projection = new Path<prev_dfs_t>(DEFAULT_PATH_LEN);
   }
 }
 

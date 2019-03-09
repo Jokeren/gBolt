@@ -18,6 +18,7 @@ struct gbolt_instance_t {
   History *history = NULL;
   Output *output = NULL;
   Path<int> *right_most_path = NULL;
+  Path<prev_dfs_t> *min_projection = NULL;
 
   ~gbolt_instance_t() {
     delete this->min_graph;
@@ -25,6 +26,7 @@ struct gbolt_instance_t {
     delete this->history;
     delete this->output;
     delete this->right_most_path;
+    delete this->min_projection;
   }
 };
 
@@ -137,22 +139,32 @@ class GBolt {
 
   bool is_projection_min(
     const DfsCodes &dfs_codes,
-    const Path<prev_dfs_t> &projection,
-    Path<int> &right_most_path);
+    const Graph &min_graph,
+    History &history,
+    DfsCodes &min_dfs_codes,
+    Path<int> &right_most_path,
+    Path<prev_dfs_t> &projection,
+    size_t projection_start_index);
 
   bool judge_backward(
     const Path<int> &right_most_path,
-    const Path<prev_dfs_t> &projection,
-    int min_label,
-    Path<prev_dfs_t> &min_projection,
-    struct dfs_code_t &min_dfs_code);
+    const Graph &min_graph,
+    History &history,
+    dfs_code_t &min_dfs_code,
+    DfsCodes &min_dfs_codes,
+    Path<prev_dfs_t> &projection,
+    size_t projection_start_index,
+    size_t projection_end_index);
 
   bool judge_forward(
     const Path<int> &right_most_path,
-    const Path<prev_dfs_t> &projection,
-    int min_label,
-    Path<prev_dfs_t> &min_projection,
-    struct dfs_code_t &min_dfs_code);
+    const Graph &min_graph,
+    History &history,
+    dfs_code_t &min_dfs_code,
+    DfsCodes &min_dfs_codes,
+    Path<prev_dfs_t> &projection,
+    size_t projection_start_index,
+    size_t projection_end_index);
 
   // Report
   void report(const DfsCodes &dfs_codes, const Projection &projection,
