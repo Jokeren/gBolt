@@ -17,8 +17,8 @@ Database *Database::instance_ = new Database();
 
 int main(int argc, char *argv[]) {
   std::string version_string = GBOLT_VERSION_MAJOR + "." + GBOLT_VERSION_MINOR;
-  gflags::SetVersionString(version_string);
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
+  google::SetVersionString(version_string);
+  google::ParseCommandLineFlags(&argc, &argv, true);
   if (FLAGS_input_file == "") {
     LOG(FATAL) << "Input file should not be empty";
   }
