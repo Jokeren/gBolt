@@ -50,9 +50,9 @@ class GBolt {
   }
 
  private:
-  typedef map<struct dfs_code_t, Projection, struct dfs_code_project_compare_t> ProjectionMap;
-  typedef map<struct dfs_code_t, Projection, struct dfs_code_backward_compare_t> ProjectionMapBackward;
-  typedef map<struct dfs_code_t, Projection, struct dfs_code_forward_compare_t> ProjectionMapForward;
+  typedef map<dfs_code_t, Projection, dfs_code_project_compare_t> ProjectionMap;
+  typedef map<dfs_code_t, Projection, dfs_code_backward_compare_t> ProjectionMapBackward;
+  typedef map<dfs_code_t, Projection, dfs_code_forward_compare_t> ProjectionMapForward;
 
  private:
   // Mine
@@ -98,37 +98,37 @@ class GBolt {
     const DfsCodes &dfs_codes,
     const Projection &projection,
     const Path<int> &right_most_path,
-    int min_label,
     ProjectionMapBackward &projection_map_backward,
     ProjectionMapForward &projection_map_forward);
 
   bool get_forward_init(
-    const struct vertex_t &vertex,
+    const vertex_t &vertex,
     const Graph &graph,
     Edges &edges);
 
   void get_first_forward(
-    const struct prev_dfs_t &prev_dfs,
+    const prev_dfs_t &prev_dfs,
+    const History &history,
     const Graph &graph,
     const DfsCodes &dfs_codes,
     const Path<int> &right_most_path,
-    int min_label,
-    ProjectionMapForward& projection_map_forward);
+    ProjectionMapForward &projection_map_forward);
 
   void get_other_forward(
-    const struct prev_dfs_t &prev_dfs,
+    const prev_dfs_t &prev_dfs,
+    const History &history,
     const Graph &graph,
     const DfsCodes &dfs_codes,
     const Path<int> &right_most_path,
-    int min_label,
-    ProjectionMapForward& projection_map_forward);
+    ProjectionMapForward &projection_map_forward);
 
   void get_backward(
-    const struct prev_dfs_t &prev_dfs,
+    const prev_dfs_t &prev_dfs,
+    const History &history,
     const Graph &graph,
     const DfsCodes &dfs_codes,
     const Path<int> &right_most_path,
-    ProjectionMapBackward& projection_map_backward);
+    ProjectionMapBackward &projection_map_backward);
 
   // Count
   int count_support(const Projection &projection);

@@ -152,7 +152,6 @@ bool GBolt::judge_backward(
   return false;
 }
 
-
 bool GBolt::judge_forward(
   const Path<int> &right_most_path,
   const Graph &min_graph,

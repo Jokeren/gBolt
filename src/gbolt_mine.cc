@@ -119,12 +119,11 @@ void GBolt::mine_subgraph(
   Path<int> *right_most_path = instance->right_most_path;
   right_most_path->reset();
   build_right_most_path(dfs_codes, *right_most_path);
-  int min_label = dfs_codes[0]->from_label;
 
   // Enumerate backward paths and forward paths by different rules
   ProjectionMapBackward projection_map_backward;
   ProjectionMapForward projection_map_forward;
-  enumerate(graphs, dfs_codes, projection, *right_most_path, min_label,
+  enumerate(graphs, dfs_codes, projection, *right_most_path,
     projection_map_backward, projection_map_forward);
   // Recursive mining: first backward, last backward, and then last forward to the first forward
   for (auto it = projection_map_backward.begin(); it != projection_map_backward.end(); ++it) {
