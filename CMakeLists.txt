@@ -25,10 +25,10 @@ configure_file(
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h
 set(GBOLT_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
-set(GFLAGS_DIR "${PROJECT_SOURCE_DIR}/install/gflags")
+set(CXXOPTS_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/extern/cxxopts/include")
 set(JEMALLOC_DIR "/home/kz21/Install/jemalloc")
 
-INCLUDE_DIRECTORIES(${GBOLT_INCLUDE_DIR} ${GFLAGS_DIR}/include)
+INCLUDE_DIRECTORIES(${GBOLT_INCLUDE_DIR} ${CXXOPTS_INCLUDE_DIR})
 
 set(GBOLT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
 set(SOURCES
@@ -44,14 +44,9 @@ set(SOURCES
 # add the executable
 add_executable(gbolt ${SOURCES})
 
-find_library(GFLAGS NAMES gflags PATHS ${GFLAGS_DIR} PATH_SUFFIXES lib NO_DEFAULT_PATH)
-if (NOT GFLAGS)
-  message(FATAL_ERROR "gflags not found")
-endif()
-
 find_library(JEMALLOC NAMES jemalloc PATHS ${JEMALLOC_DIR} PATH_SUFFIXES lib NO_DEFAULT_PATH)
 if (NOT JEMALLOC)
   message(FATAL_ERROR "jemalloc not found")
 endif()
 
-TARGET_LINK_LIBRARIES(gbolt ${GLOG} ${GFLAGS} ${JEMALLOC})
+TARGET_LINK_LIBRARIES(gbolt ${JEMALLOC})
