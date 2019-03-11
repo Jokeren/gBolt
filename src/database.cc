@@ -3,6 +3,7 @@
 #include <common.h>
 #include <fstream>
 #include <cstdlib>
+#include <cstring>
 
 namespace gbolt {
 
@@ -11,7 +12,7 @@ void Database::read_input(const string &input_file, const string &separator) {
   char line[FILE_MAX_LINE];
 
   if (!fin.is_open()) {
-    LOG(FATAL) << "Open file: " << input_file << " error!";
+    LOG_ERROR("Open file error! %s", input_file.c_str());
   }
 
   int num_line = 0;
@@ -61,7 +62,7 @@ void Database::construct_graphs(vector<Graph> &graphs) {
       (*vertice)[to].edges.emplace_back(to, label, from, edge_id);
       ++edge_id;
     } else {
-      LOG(ERROR) << "Reading input error!";
+      LOG_ERROR("Reading input error!");
     }
   }
   graphs[graph_index].set_nedges(edge_id);
@@ -120,7 +121,7 @@ void Database::construct_graphs(
         ++edge_id;
       }
     } else {
-      LOG(ERROR) << "Reading input error!";
+      LOG_ERROR("Reading input error!");
     }
   }
   graphs[graph_index].set_nedges(edge_id);

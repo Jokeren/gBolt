@@ -3,7 +3,6 @@
 
 #include <sys/time.h>
 #include <omp.h>
-#include <glog/logging.h>
 #include <config.h>
 #include <map>
 #include <unordered_map>
@@ -28,6 +27,28 @@
     elapsed_time = (t2.tv_sec - t1.tv_sec) * 1000.0; \
     elapsed_time += (t2.tv_usec - t1.tv_usec) / 1000.0; \
     elapsed_time /= 1000.0; \
+  } while (0)
+
+#define LOG_INFO(...) \
+  do { \
+    fprintf(stdout, "INFO: "); \
+    fprintf(stdout, __VA_ARGS__); \
+    fprintf(stdout, "\n"); \
+  } while (0)
+
+#define LOG_WARNING(...) \
+  do { \
+    fprintf(stderr, "ERROR: "); \
+    fprintf(stderr, __VA_ARGS__); \
+    fprintf(stderr, "\n"); \
+  } while (0)
+
+#define LOG_ERROR(...) \
+  do { \
+    fprintf(stderr, "ERROR: "); \
+    fprintf(stderr, __VA_ARGS__); \
+    fprintf(stderr, "\n"); \
+    exit(1); \
   } while (0)
 
 namespace gbolt {

@@ -25,11 +25,10 @@ configure_file(
 # add the binary tree to the search path for include files
 # so that we will find TutorialConfig.h
 set(GBOLT_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
-set(GLOG_DIR "${PROJECT_SOURCE_DIR}/install/glog")
 set(GFLAGS_DIR "${PROJECT_SOURCE_DIR}/install/gflags")
 set(JEMALLOC_DIR "/home/kz21/Install/jemalloc")
 
-INCLUDE_DIRECTORIES(${GBOLT_INCLUDE_DIR} ${GLOG_DIR}/include ${GFLAGS_DIR}/include)
+INCLUDE_DIRECTORIES(${GBOLT_INCLUDE_DIR} ${GFLAGS_DIR}/include)
 
 set(GBOLT_SOURCE_DIR "${PROJECT_SOURCE_DIR}/src")
 set(SOURCES
@@ -44,11 +43,6 @@ set(SOURCES
  
 # add the executable
 add_executable(gbolt ${SOURCES})
-
-find_library(GLOG NAMES glog PATHS ${GLOG_DIR} PATH_SUFFIXES lib NO_DEFAULT_PATH)
-if (NOT GLOG)
-  message(FATAL_ERROR "glog not found")
-endif()
 
 find_library(GFLAGS NAMES gflags PATHS ${GFLAGS_DIR} PATH_SUFFIXES lib NO_DEFAULT_PATH)
 if (NOT GFLAGS)

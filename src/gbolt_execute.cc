@@ -24,7 +24,7 @@ void GBolt::execute() {
   database->construct_graphs(frequent_vertex_labels_, frequent_edge_labels_, prune_graphs);
   #ifdef GBOLT_PERFORMANCE
   CPU_TIMER_END(elapsed, time_start, time_end);
-  LOG(INFO) << "gbolt construct graph time: " << elapsed;
+  LOG_INFO("gbolt construct graph time: %f", elapsed);
   CPU_TIMER_START(elapsed, time_start);
   #endif
 
@@ -33,7 +33,7 @@ void GBolt::execute() {
   project(prune_graphs);
   #ifdef GBOLT_PERFORMANCE
   CPU_TIMER_END(elapsed, time_start, time_end);
-  LOG(INFO) << "gbolt mine graph time: " << elapsed;
+  LOG_INFO("gbolt mine graph time: %f", elapsed);
   #endif
 }
 
@@ -52,7 +52,7 @@ void GBolt::init_instances(const vector<Graph> &graphs) {
 
   // Init an instance for each thread
   for (auto i = 0; i < num_threads; ++i) {
-    LOG(INFO) << "gbolt thread " << i << " create";
+    LOG_INFO("gbolt create thread %d", i);
     string output_file_thread = output_file_ + ".t" + std::to_string(i);
     gbolt_instances_[i].history = new History(max_edges, max_vertice);
     gbolt_instances_[i].output = new Output(output_file_thread);
