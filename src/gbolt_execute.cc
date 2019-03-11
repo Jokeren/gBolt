@@ -71,17 +71,17 @@ void GBolt::project(const vector<Graph> &graphs) {
     const Graph &graph = graphs[i];
 
     for (auto j = 0; j < graph.size(); ++j) {
-      const struct vertex_t *vertex = graph.get_p_vertex(j);
+      const vertex_t *vertex = graph.get_p_vertex(j);
       Edges edges;
 
       if (get_forward_init(*vertex, graph, edges)) {
         for (auto k = 0; k < edges.size(); ++k) {
-          const struct vertex_t *vertex_from = graph.get_p_vertex(edges[k]->from);
-          const struct vertex_t *vertex_to = graph.get_p_vertex(edges[k]->to);
+          const vertex_t *vertex_from = graph.get_p_vertex(edges[k]->from);
+          const vertex_t *vertex_to = graph.get_p_vertex(edges[k]->to);
           // Push dfs code according to the same edge label
-          struct dfs_code_t dfs_code(0, 1, vertex_from->label, edges[k]->label, vertex_to->label);
+          dfs_code_t dfs_code(0, 1, vertex_from->label, edges[k]->label, vertex_to->label);
           // Push all the graphs
-          projection_map[dfs_code].emplace_back(graphs[i].get_id(), edges[k], (const struct prev_dfs_t *)NULL);
+          projection_map[dfs_code].emplace_back(graphs[i].get_id(), edges[k], (const prev_dfs_t *)NULL);
         }
       }
     }
