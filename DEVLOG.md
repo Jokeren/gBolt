@@ -10,8 +10,6 @@
   - Use header only repo to replace gflags
   - Use customized logs
   - Compatible with CMake-2.8
-- [ ] Test harness
-  - Test basic data structures
 - [x] Reduce memory overhead
   - Dfs code pointer optimization
   - Reuse right most path
@@ -30,7 +28,9 @@
   - Optimizations
   - Customized data structures
   - Test results
-- [ ] Research problem: build graph on-the-fly or only in check?
+- [ ] Research problems
+  - Build graph on-the-fly or only in check?
+  - Sparse graph mining
 
 5/13/2017:
 
