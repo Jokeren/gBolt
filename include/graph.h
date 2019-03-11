@@ -2,6 +2,7 @@
 #define INCLUDE_GRAPH_H_
 
 #include <common.h>
+#include <path.h>
 #include <vector>
 
 namespace gbolt {
@@ -18,20 +19,32 @@ struct edge_t {
   int to;
   int id;
 };
-typedef vector<const struct edge_t *> Edges;
+typedef vector<const edge_t *> Edges;
+
+// dfs projection links
+struct min_prev_dfs_t {
+  min_prev_dfs_t() : edge(NULL), prev(-1) {}
+
+  min_prev_dfs_t(const edge_t *edge, int prev) :
+    edge(edge), prev(prev) {}
+
+  const edge_t *edge;
+  int prev;
+};
+typedef Path<min_prev_dfs_t> MinProjection;
 
 // dfs projection links
 struct prev_dfs_t {
   prev_dfs_t() : id(0), edge(NULL), prev(NULL) {}
 
-  prev_dfs_t(int id, const struct edge_t *edge, const struct prev_dfs_t *prev) :
+  prev_dfs_t(int id, const edge_t *edge, const prev_dfs_t *prev) :
     id(id), edge(edge), prev(prev) {}
 
   int id;
-  const struct edge_t *edge;
-  const struct prev_dfs_t *prev;
+  const edge_t *edge;
+  const prev_dfs_t *prev;
 };
-typedef vector<struct prev_dfs_t> Projection;
+typedef vector<prev_dfs_t> Projection;
 
 // dfs codes forward and backward compare
 struct dfs_code_t {
@@ -49,13 +62,13 @@ struct dfs_code_t {
     this->to_label = other.to_label;
   }
 
-  bool operator != (const struct dfs_code_t &t) const {
+  bool operator != (const dfs_code_t &t) const {
     return (from != t.from) || (to != t.to) ||
       (from_label != t.from_label) || (edge_label != t.edge_label) ||
       (to_label != t.to_label);
   }
 
-  bool operator == (const struct dfs_code_t &t) const {
+  bool operator == (const dfs_code_t &t) const {
     return (from == t.from) && (to == t.to) &&
       (from_label == t.from_label) && (edge_label == t.edge_label) &&
       (to_label == t.to_label);
@@ -67,10 +80,10 @@ struct dfs_code_t {
   int edge_label;
   int to_label;
 };
-typedef vector<const struct dfs_code_t *> DfsCodes;
+typedef vector<const dfs_code_t *> DfsCodes;
 
 struct dfs_code_project_compare_t {
-  bool operator() (const struct dfs_code_t &first, const struct dfs_code_t &second) {
+  bool operator() (const dfs_code_t &first, const dfs_code_t &second) {
     if (first.from_label != second.from_label) {
       return first.from_label < second.from_label;
     } else {
@@ -84,7 +97,7 @@ struct dfs_code_project_compare_t {
 };
 
 struct dfs_code_backward_compare_t {
-  bool operator() (const struct dfs_code_t &first, const struct dfs_code_t &second) {
+  bool operator() (const dfs_code_t &first, const dfs_code_t &second) {
     if (first.to != second.to) {
       return first.to < second.to;
     } else {
@@ -94,7 +107,7 @@ struct dfs_code_backward_compare_t {
 };
 
 struct dfs_code_forward_compare_t {
-  bool operator() (const struct dfs_code_t &first, const struct dfs_code_t &second) {
+  bool operator() (const dfs_code_t &first, const dfs_code_t &second) {
     if (first.from != second.from) {
       return first.from > second.from;
     } else {
@@ -113,9 +126,9 @@ struct vertex_t {
 
   int id;
   int label;
-  vector<struct edge_t> edges;
+  vector<edge_t> edges;
 };
-typedef vector<struct vertex_t> Vertice;
+typedef vector<vertex_t> Vertice;
 
 class Graph {
  public:
@@ -157,19 +170,19 @@ class Graph {
     return &vertice_;
   }
 
-  struct vertex_t get_vertex(int index) {
+  vertex_t get_vertex(int index) {
     return vertice_[index];
   }
 
-  const struct vertex_t get_vertex(int index) const {
+  const vertex_t get_vertex(int index) const {
     return vertice_[index];
   }
 
-  struct vertex_t *get_p_vertex(int index) {
+  vertex_t *get_p_vertex(int index) {
     return &vertice_[index];
   }
 
-  const struct vertex_t *get_p_vertex(int index) const {
+  const vertex_t *get_p_vertex(int index) const {
     return &vertice_[index];
   }
 

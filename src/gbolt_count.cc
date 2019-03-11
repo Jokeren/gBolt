@@ -50,7 +50,7 @@ bool GBolt::is_min(const DfsCodes &dfs_codes) {
   Graph *min_graph = instance->min_graph;
   DfsCodes *min_dfs_codes = instance->min_dfs_codes;
   History *history = instance->history;
-  Path<prev_dfs_t> *min_projection = instance->min_projection;
+  MinProjection *min_projection = instance->min_projection;
   Path<int> *right_most_path = instance->right_most_path;
 
   // Clear cache data structures
@@ -82,9 +82,8 @@ bool GBolt::is_min(const DfsCodes &dfs_codes) {
         }
         if (dfs_code == min_dfs_code) {
           min_projection->resize(min_projection->size() + 1);
-          min_projection->back().id = 0;
           min_projection->back().edge = edges[j];
-          min_projection->back().prev = (const prev_dfs_t *)NULL;
+          min_projection->back().prev = -1;
         }
       }
     }
@@ -104,7 +103,7 @@ bool GBolt::judge_backward(
   History &history,
   dfs_code_t &min_dfs_code,
   DfsCodes &min_dfs_codes,
-  Path<prev_dfs_t> &projection,
+  MinProjection &projection,
   size_t projection_start_index,
   size_t projection_end_index) {
   int min_label = min_dfs_codes[0]->from_label;
@@ -113,7 +112,7 @@ bool GBolt::judge_backward(
   // i > 1, because it cannot reach the path itself
   for (auto i = right_most_path.size(); i > 1; --i) {
     for (auto j = projection_start_index; j < projection_end_index; ++j) {
-      history.build_edges(projection[j], min_graph);
+      history.build_edges_min(projection, min_graph, j);
 
       const edge_t *edge = history.get_p_edge(right_most_path[i - 1]);
       const edge_t *last_edge = history.get_p_edge(right_most_path[0]);
@@ -139,9 +138,8 @@ bool GBolt::judge_backward(
           }
           if (dfs_code == min_dfs_code) {
             projection.resize(projection.size() + 1);
-            projection.back().id = 0;
             projection.back().edge = &(last_node->edges[k]);
-            projection.back().prev = &(projection[j]);
+            projection.back().prev = j;
           }
         }
       }
@@ -158,14 +156,14 @@ bool GBolt::judge_forward(
   History &history,
   dfs_code_t &min_dfs_code,
   DfsCodes &min_dfs_codes,
-  Path<prev_dfs_t> &projection,
+  MinProjection &projection,
   size_t projection_start_index,
   size_t projection_end_index) {
   int min_label = min_dfs_codes[0]->from_label;
   bool first_dfs_code = true;
 
   for (auto i = projection_start_index; i < projection_end_index; ++i) {
-    history.build_vertice(projection[i], min_graph);
+    history.build_vertice_min(projection, min_graph, i);
 
     const edge_t *last_edge = history.get_p_edge(right_most_path[0]);
     const vertex_t *last_node = min_graph.get_p_vertex(last_edge->to);
@@ -184,9 +182,8 @@ bool GBolt::judge_forward(
       }
       if (dfs_code == min_dfs_code) {
         projection.resize(projection.size() + 1);
-        projection.back().id = 0;
         projection.back().edge = edge;
-        projection.back().prev = &(projection[i]);
+        projection.back().prev = i;
       }
     }
   }
@@ -194,7 +191,7 @@ bool GBolt::judge_forward(
   if (projection.size() == projection_end_index) {
     for (auto i = 0; i < right_most_path.size(); ++i) {
       for (auto j = projection_start_index; j < projection_end_index; ++j) {
-        history.build_vertice(projection[j], min_graph);
+        history.build_vertice_min(projection, min_graph, j);
 
         const edge_t *cur_edge = history.get_p_edge(right_most_path[i]);
         const vertex_t *cur_node = min_graph.get_p_vertex(cur_edge->from);
@@ -218,9 +215,8 @@ bool GBolt::judge_forward(
             }
             if (dfs_code == min_dfs_code) {
               projection.resize(projection.size() + 1);
-              projection.back().id = 0;
               projection.back().edge = &(cur_node->edges[k]);
-              projection.back().prev = &(projection[j]);
+              projection.back().prev = j;
             }
           }
         }
@@ -242,7 +238,7 @@ bool GBolt::is_projection_min(
   History &history,
   DfsCodes &min_dfs_codes,
   Path<int> &right_most_path,
-  Path<prev_dfs_t> &projection,
+  MinProjection &projection,
   size_t projection_start_index) {
   dfs_code_t min_dfs_code;
   size_t projection_end_index = projection.size();

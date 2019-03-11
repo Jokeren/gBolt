@@ -18,7 +18,11 @@ class History {
 
   void build_edges(const struct prev_dfs_t &start, const Graph &graph);
 
+  void build_edges_min(const MinProjection &projection, const Graph &graph, int start);
+
   void build_vertice(const struct prev_dfs_t &start, const Graph &graph);
+
+  void build_vertice_min(const MinProjection &projection, const Graph &graph, int start);
 
   bool has_edges(int index) const {
     return has_edges_[index];

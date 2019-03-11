@@ -18,7 +18,7 @@ struct gbolt_instance_t {
   History *history = NULL;
   Output *output = NULL;
   Path<int> *right_most_path = NULL;
-  Path<prev_dfs_t> *min_projection = NULL;
+  MinProjection *min_projection = NULL;
 
   ~gbolt_instance_t() {
     delete this->min_graph;
@@ -143,7 +143,7 @@ class GBolt {
     History &history,
     DfsCodes &min_dfs_codes,
     Path<int> &right_most_path,
-    Path<prev_dfs_t> &projection,
+    MinProjection &projection,
     size_t projection_start_index);
 
   bool judge_backward(
@@ -152,7 +152,7 @@ class GBolt {
     History &history,
     dfs_code_t &min_dfs_code,
     DfsCodes &min_dfs_codes,
-    Path<prev_dfs_t> &projection,
+    MinProjection &projection,
     size_t projection_start_index,
     size_t projection_end_index);
 
@@ -162,7 +162,7 @@ class GBolt {
     History &history,
     dfs_code_t &min_dfs_code,
     DfsCodes &min_dfs_codes,
-    Path<prev_dfs_t> &projection,
+    MinProjection &projection,
     size_t projection_start_index,
     size_t projection_end_index);
 
