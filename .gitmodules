@@ -1,6 +1,3 @@
-[submodule "extern/gflags"]
-	path = extern/gflags
-	url = https://github.com/gflags/gflags.git
 [submodule "extern/jemalloc"]
 	path = extern/jemalloc
 	url = https://github.com/jemalloc/jemalloc.git
