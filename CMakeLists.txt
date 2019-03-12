@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.1)
+cmake_minimum_required (VERSION 2.6)
 project (gbolt)
 # The version number.
 set(GBOLT_VERSION_MAJOR 1)
@@ -6,8 +6,9 @@ set(GBOLT_VERSION_MINOR 0)
 set(GBOLT_PERFORMANCE 1)
 
 # Mode
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_BUILD_TYPE RelWithDebInfo)
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -std=c++11")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O3 -g -std=c++11")
 
 # Packages
 find_package(OpenMP)
@@ -26,7 +27,6 @@ configure_file(
 # so that we will find TutorialConfig.h
 set(GBOLT_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/include")
 set(CXXOPTS_INCLUDE_DIR "${PROJECT_SOURCE_DIR}/extern/cxxopts/include")
-set(JEMALLOC_DIR "/home/kz21/Install/jemalloc")
 
 INCLUDE_DIRECTORIES(${GBOLT_INCLUDE_DIR} ${CXXOPTS_INCLUDE_DIR})
 
@@ -45,8 +45,7 @@ set(SOURCES
 add_executable(gbolt ${SOURCES})
 
 find_library(JEMALLOC NAMES jemalloc PATHS ${JEMALLOC_DIR} PATH_SUFFIXES lib NO_DEFAULT_PATH)
-if (NOT JEMALLOC)
-  message(FATAL_ERROR "jemalloc not found")
+if (JEMALLOC)
+  TARGET_LINK_LIBRARIES(gbolt ${JEMALLOC})
 endif()
 
-TARGET_LINK_LIBRARIES(gbolt ${JEMALLOC})
