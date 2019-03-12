@@ -4,6 +4,7 @@ project (gbolt)
 set(GBOLT_VERSION_MAJOR 1)
 set(GBOLT_VERSION_MINOR 0)
 set(GBOLT_PERFORMANCE 1)
+set(GBOLT_SERIAL 0)
 
 # Mode
 set(CMAKE_BUILD_TYPE RelWithDebInfo)

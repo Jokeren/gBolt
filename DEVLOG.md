@@ -6,10 +6,9 @@
 - [x] Customized data structure
   - Use Path to replace vector
   - Use Rope to replace Path
-- [ ] Software simplicity
+- [x] Software simplicity
   - Use header only repo to replace gflags
   - Use customized logs
-  - Compatible with CMake-2.8
 - [x] Reduce memory overhead
   - Dfs code pointer optimization
   - Reuse right most path

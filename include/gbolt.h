@@ -64,8 +64,8 @@ class GBolt {
 
   void mine_subgraph(
     const vector<Graph> &graphs,
-    const DfsCodes &dfs_codes,
     const Projection &projection,
+    DfsCodes &dfs_codes,
     int prev_nsupport,
     int prev_thread_id,
     int prev_graph_id);
