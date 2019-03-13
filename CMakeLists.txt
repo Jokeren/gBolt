@@ -3,8 +3,12 @@ project (gbolt)
 # The version number.
 set(GBOLT_VERSION_MAJOR 1)
 set(GBOLT_VERSION_MINOR 0)
-set(GBOLT_PERFORMANCE 1)
-set(GBOLT_SERIAL 0)
+
+option(GBOLT_PERFORMANCE "Performance Mode" ON)
+option(GBOLT_SERIAL "Serial Mode" OFF)
+if(GBOLT_PERFORMANCE)
+  add_definitions(-DGBOLT_PERFORMANCE)
+endif(GBOLT_PERFORMANCE)
 
 # Mode
 set(CMAKE_BUILD_TYPE RelWithDebInfo)
@@ -12,10 +16,14 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -std=c++11")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -O3 -g -std=c++11")
 
 # Packages
-find_package(OpenMP)
-if (OPENMP_FOUND)
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-endif()
+if(GBOLT_SERIAL)
+  add_definitions(-DGBOLT_SERIAL)
+else()
+  find_package(OpenMP)
+  if (OPENMP_FOUND)
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  endif()
+endif(GBOLT_SERIAL)
  
 # configure a header file to pass some of the CMake settings
 # to the source code

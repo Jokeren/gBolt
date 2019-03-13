@@ -70,11 +70,20 @@ void Database::construct_graphs(vector<Graph> &graphs) {
 
 // Construct graph by labels
 void Database::construct_graphs(
+  #ifdef GBOLT_PERFORMANCE
   const unordered_map<int, std::vector<int> > &frequent_vertex_labels,
   const unordered_map<int, int> &frequent_edge_labels,
+  #else
+  const map<int, std::vector<int> > &frequent_vertex_labels,
+  const map<int, int> &frequent_edge_labels,
+  #endif
   vector<Graph> &graphs) {
   vector<int> labels;
+  #ifdef GBOLT_PERFORMANCE
   unordered_map<int, int> id_map;
+  #else
+  map<int, int> id_map;
+  #endif
   int graph_index = 0;
   int edge_id = 0;
   int vertex_id = 0;

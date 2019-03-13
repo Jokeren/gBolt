@@ -46,13 +46,13 @@ int main(int argc, char *argv[]) {
     LOG_ERROR("Support value should be less than 1.0 and greater than 0.0");
   }
   // Read input
-  #if GBOLT_PERFORMANCE == 1
+  #ifdef GBOLT_PERFORMANCE
   struct timeval time_start, time_end;
   double elapsed = 0.0;
   CPU_TIMER_START(elapsed, time_start);
   #endif
   Database::get_instance()->read_input(input, mark);
-  #if GBOLT_PERFORMANCE == 1
+  #ifdef GBOLT_PERFORMANCE
   CPU_TIMER_END(elapsed, time_start, time_end);
   LOG_INFO("gbolt read input time: %f", elapsed);
   CPU_TIMER_START(elapsed, time_start);
@@ -60,17 +60,17 @@ int main(int argc, char *argv[]) {
   // Construct algorithm
   gbolt::GBolt gbolt(output, support);
   gbolt.execute();
-  #if GBOLT_PERFORMANCE == 1
+  #ifdef GBOLT_PERFORMANCE
   CPU_TIMER_END(elapsed, time_start, time_end);
   LOG_INFO("gbolt execute time: %f", elapsed);
   #endif
   // Save results
   if (output.size() != 0) {
-    #if GBOLT_PERFORMANCE == 1
+    #ifdef GBOLT_PERFORMANCE
     CPU_TIMER_START(elapsed, time_start);
     #endif
     gbolt.save(parents, dfs, nodes);
-    #if GBOLT_PERFORMANCE == 1
+    #ifdef GBOLT_PERFORMANCE
     CPU_TIMER_END(elapsed, time_start, time_end);
     LOG_INFO("gbolt save output time: %f", elapsed);
     #endif

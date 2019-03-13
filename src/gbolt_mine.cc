@@ -63,7 +63,7 @@ void GBolt::report(const DfsCodes &dfs_codes, const Projection &projection,
     }
   }
   ss << std::endl;
-  #if GBOLT_SERIAL == 1
+  #ifdef GBOLT_SERIAL
   gbolt_instance_t *instance = gbolt_instances_;
   #else
   gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
@@ -73,7 +73,7 @@ void GBolt::report(const DfsCodes &dfs_codes, const Projection &projection,
 }
 
 void GBolt::save(bool output_parent, bool output_pattern, bool output_frequent_nodes) {
-  #if GBOLT_SERIAL == 1
+  #ifdef GBOLT_SERIAL
   Output *output = gbolt_instances_->output;
   output->save(output_parent, output_pattern);
   #else
@@ -119,7 +119,7 @@ void GBolt::mine_subgraph(
     return;
   }
   report(dfs_codes, projection, prev_nsupport, prev_thread_id, prev_graph_id);
-  #if GBOLT_SERIAL == 1
+  #ifdef GBOLT_SERIAL
   prev_thread_id = 0;
   #else
   prev_thread_id = omp_get_thread_num();
@@ -150,7 +150,7 @@ void GBolt::mine_subgraph(
     int from_label = (it->first).from_label;
     int edge_label = (it->first).edge_label;
     int to_label = (it->first).to_label;
-    #if GBOLT_SERIAL == 1
+    #ifdef GBOLT_SERIAL
     dfs_codes.emplace_back(&(it->first));
     mine_subgraph(graphs, projection, dfs_codes, nsupport, prev_thread_id, prev_graph_id);
     dfs_codes.pop_back();
@@ -173,7 +173,7 @@ void GBolt::mine_subgraph(
     int from_label = (it->first).from_label;
     int edge_label = (it->first).edge_label;
     int to_label = (it->first).to_label;
-    #if GBOLT_SERIAL == 1
+    #ifdef GBOLT_SERIAL
     dfs_codes.emplace_back(&(it->first));
     mine_subgraph(graphs, projection, dfs_codes, nsupport, prev_thread_id, prev_graph_id);
     dfs_codes.pop_back();
@@ -185,7 +185,7 @@ void GBolt::mine_subgraph(
     }
     #endif
   }
-  #if GBOLT_SERIAL == 0
+  #ifndef GBOLT_SERIAL
   #pragma omp taskwait
   #endif
 }

@@ -46,7 +46,11 @@ bool GBolt::is_min(const DfsCodes &dfs_codes) {
     return true;
 
   // Reuse memory, TODO: necessary or not? just set an index?
+  #ifdef GBOLT_SERIAL
+  gbolt_instance_t *instance = gbolt_instances_;
+  #else
   gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
+  #endif
   Graph *min_graph = instance->min_graph;
   DfsCodes *min_dfs_codes = instance->min_dfs_codes;
   History *history = instance->history;

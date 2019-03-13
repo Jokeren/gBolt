@@ -174,8 +174,13 @@ class GBolt {
   // Graphs after reconstructing
   vector<Graph> graphs_;
   // Single instance of minigraph
+  #ifdef GBOLT_PERFORMANCE
   unordered_map<int, vector<int> > frequent_vertex_labels_;
   unordered_map<int, int> frequent_edge_labels_;
+  #else
+  map<int, vector<int> > frequent_vertex_labels_;
+  map<int, int> frequent_edge_labels_;
+  #endif
   string output_file_;
   double support_;
   int nsupport_;

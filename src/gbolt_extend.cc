@@ -12,7 +12,11 @@ void GBolt::enumerate(
   const Path<int> &right_most_path,
   ProjectionMapBackward &projection_map_backward,
   ProjectionMapForward &projection_map_forward) {
+  #ifdef GBOLT_SERIAL
+  gbolt_instance_t *instance = gbolt_instances_;
+  #else
   gbolt_instance_t *instance = gbolt_instances_ + omp_get_thread_num();
+  #endif
   History *history = instance->history;
   for (auto i = 0; i < projection.size(); ++i) {
     const Graph &graph = graphs[projection[i].id];

@@ -2,7 +2,9 @@
 #define INCLUDE_COMMON_H_
 
 #include <sys/time.h>
+#ifndef GBOLT_SERIAL
 #include <omp.h>
+#endif
 #include <config.h>
 #include <map>
 #include <unordered_map>
