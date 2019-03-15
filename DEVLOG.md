@@ -17,7 +17,7 @@
 - [x] Use hpctraceviewer to improve OpenMP performance
 - [x] Change repo name
 - [x] Travis CI
-- [ ] Deterministic map for debugging
+- [x] Deterministic map for debugging
 - [ ] Python interfaces
   - Merge results
   - Graph data structure

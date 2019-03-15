@@ -155,10 +155,11 @@ void GBolt::mine_subgraph(
     mine_subgraph(graphs, projection, dfs_codes, nsupport, prev_thread_id, prev_graph_id);
     dfs_codes.pop_back();
     #else
-    #pragma omp task shared(graphs, projection, prev_thread_id, prev_graph_id) firstprivate(dfs_codes, nsupport)
+    #pragma omp task shared(graphs, dfs_codes, projection, prev_thread_id, prev_graph_id) firstprivate(nsupport)
     {
-      dfs_codes.emplace_back(&(it->first));
-      mine_subgraph(graphs, projection, dfs_codes, nsupport, prev_thread_id, prev_graph_id);
+      DfsCodes dfs_codes_copy(dfs_codes);
+      dfs_codes_copy.emplace_back(&(it->first));
+      mine_subgraph(graphs, projection, dfs_codes_copy, nsupport, prev_thread_id, prev_graph_id);
     }
     #endif
   }
@@ -178,10 +179,11 @@ void GBolt::mine_subgraph(
     mine_subgraph(graphs, projection, dfs_codes, nsupport, prev_thread_id, prev_graph_id);
     dfs_codes.pop_back();
     #else
-    #pragma omp task shared(graphs, projection, prev_thread_id, prev_graph_id) firstprivate(dfs_codes, nsupport)
+    #pragma omp task shared(graphs, dfs_codes, projection, prev_thread_id, prev_graph_id) firstprivate(nsupport)
     {
-      dfs_codes.emplace_back(&(it->first));
-      mine_subgraph(graphs, projection, dfs_codes, nsupport, prev_thread_id, prev_graph_id);
+      DfsCodes dfs_codes_copy(dfs_codes);
+      dfs_codes_copy.emplace_back(&(it->first));
+      mine_subgraph(graphs, projection, dfs_codes_copy, nsupport, prev_thread_id, prev_graph_id);
     }
     #endif
   }
