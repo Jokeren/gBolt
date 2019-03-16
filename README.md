@@ -110,9 +110,11 @@ Format:
     
 1. `<graph-id>` must be contiguous without gaps, which means *gbolt* only supports `t # <id>` followed by `t # <id + 1>`.
 
-2. `<vertex-id>` must be contiguous without gaps, which means *gbolt* only supports `v # <id> <label>` followed by `v # <id + 1> <label>`.
+2. `<vertex-id>` must be contiguous without gaps, which means *gbolt* only supports `v # <id>` followed by `v # <id + 1>`.
 
-3. All the `<id>` and `<label>` fields are non-negative integers.
+3. All the `<id>` fields must be non-negative integers starting from 0. 
+
+4. All the `<label>` fields must be non-negative integers. 
     
 ## Reference
 
