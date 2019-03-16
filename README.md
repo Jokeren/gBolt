@@ -24,7 +24,7 @@
 
 ***gBolt*** is ***light-weight*** because it:
 
-1. Can be installed without any heavy third-party library.
+1. Can be installed without any heavy third-party library;
 2. Delivers cross-platform performance without utilizing architectural features.
 
 ***gBolt*** is ***correct*** because:
@@ -34,45 +34,49 @@
 
 ## Install
 
-### Required
+***Required***:
 
 - *cmake*: `sudo apt-get install cmake` or install from [source](https://cmake.org/).
 - *gcc >= 4.9*
 
-### Optional
+***Optional***:
 
 - *jemalloc*: install from [source](https://github.com/jemalloc/jemalloc).
 - *OpenMP Environment*: enable multi-threading
 
-### Steps
+***Steps***:
 
     mkdir build && cd build
     cmake ..
     make
     
-### Build Options
+***Build Options***:
+    
+- `-DGBOLT_SERIAL=ON`: serial execution without *OpenMP*
+- `-DGBOLT_PERFORMANCE=ON`: display simple performance information and use hash map
+- `-DJEMALLOC_DIR=/path/to/dir`: use jemalloc for memory management   
     
 ## Usage
 
-Run an example:
+***Run an example***:
 
-    ./build/gbolt -input_file extern/data/Chemical_340 -support 0.2 
+    ./build/gbolt -i extern/data/Chemical_340 -s 0.2 
     
-Arguments help:
+***Arguments help***:
 
-    ./build/gbolt -helpshort
+    ./build/gbolt -h
 
-Multi-thread support:
+***Multi-threading config***:
 
     export OMP_NUM_THREADS=<hardware core num for recommendation>
     
 ## Input Specification
 
-Examples:
+***Examples***:
 
     ./extern/data
     
-Format:
+***Format***:
 
     t # <graph-id>
     v <vertex-id> <vertex-label>
@@ -80,9 +84,9 @@ Format:
     e <vertex-id> <vertex-id> <edge-label>
     ...
     
-1. `<graph-id>` must be contiguous without gaps, which means *gbolt* only supports `t # <id>` followed by `t # <id + 1>`.
+1. `<graph-id>` must be contiguous without gaps, which means ***gBolt*** only supports `t # <id>` followed by `t # <id + 1>`.
 
-2. `<vertex-id>` must be contiguous without gaps, which means *gbolt* only supports `v # <id>` followed by `v # <id + 1>`.
+2. `<vertex-id>` must be contiguous without gaps, which means ***gBolt*** only supports `v # <id>` followed by `v # <id + 1>`.
 
 3. All the `<id>` fields must be non-negative integers starting from 0. 
 
@@ -94,8 +98,8 @@ Yan, Xifeng, and Jiawei Han. "gspan: Graph-based substructure pattern mining." D
 
 ## Citation
 
-    @misc{zhou_2017, title={Jokeren/DataMining-gSpan}, url={https://github.com/Jokeren/DataMining-gSpan}, journal={GitHub}, author={Zhou, Keren}, year={2017}, month={Nov}} 
+    @misc{zhou_2019, title={Jokeren/gBolt}, url={https://github.com/Jokeren/gBolt}, journal={GitHub}, author={Zhou, Keren}, year={2019}, month={March}} 
     
 ## Extension
 
-***gBolt*** is designed for efficiency, so we have not developed utilities for it. If you want `Python`, `C`, or Graphical interfaces, please contact us. We will be glad if you could contribute ideas and codes for ***gBolt***.
+***gBolt*** is designed for efficiency, so we have not developed utilities for it. If you would like to implement `Python`, `C`, or graphical interfaces, we are glad if you could contribute codes for ***gBolt***.
