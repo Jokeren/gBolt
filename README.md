@@ -54,7 +54,8 @@
     
 - `-DGBOLT_SERIAL=ON`: serial execution without *OpenMP*
 - `-DGBOLT_PERFORMANCE=ON`: display simple performance information and use hash map
-- `-DJEMALLOC_DIR=/path/to/dir`: use jemalloc for memory management   
+- `-DJEMALLOC_DIR=/path/to/dir`: use jemalloc for memory management
+- `-DCMAKE_BUILD_TYPE=[Release][RelWithDebInfo]`: config build type
     
 ## Usage
 
