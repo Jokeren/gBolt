@@ -102,4 +102,4 @@ Yan, Xifeng, and Jiawei Han. "gspan: Graph-based substructure pattern mining." D
     
 ## Extension
 
-***gBolt*** is designed for efficiency, so we have not developed utilities for it. If you would like to implement `Python`, `C`, or graphical interfaces, we are glad if you could contribute codes for ***gBolt***.
+***gBolt*** is designed for efficiency, so we have not developed utilities for it. Your are welcome to implement `Python`, `C`, or graphical interfaces.
