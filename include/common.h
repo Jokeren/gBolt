@@ -33,6 +33,9 @@
 
 #define LOG_INFO(...) \
   do { \
+    struct timeval cur; \
+    gettimeofday(&cur, NULL); \
+    fprintf(stdout, "[%d:%d] ", cur.tv_sec, cur.tv_usec); \
     fprintf(stdout, "INFO: "); \
     fprintf(stdout, __VA_ARGS__); \
     fprintf(stdout, "\n"); \
@@ -40,6 +43,9 @@
 
 #define LOG_WARNING(...) \
   do { \
+    struct timeval cur; \
+    gettimeofday(&cur, NULL); \
+    fprintf(stdout, "[%d:%d] ", cur.tv_sec, cur.tv_usec); \
     fprintf(stderr, "ERROR: "); \
     fprintf(stderr, __VA_ARGS__); \
     fprintf(stderr, "\n"); \
@@ -47,6 +53,9 @@
 
 #define LOG_ERROR(...) \
   do { \
+    struct timeval cur; \
+    gettimeofday(&cur, NULL); \
+    fprintf(stdout, "[%f:%f] ", cur.tv_sec, cur.tv_usec); \
     fprintf(stderr, "ERROR: "); \
     fprintf(stderr, __VA_ARGS__); \
     fprintf(stderr, "\n"); \
