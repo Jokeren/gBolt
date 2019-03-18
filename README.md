@@ -2,6 +2,7 @@
 ==============
 
 [![Build Status](https://travis-ci.org/Jokeren/gBolt.svg?branch=gbolt-1.0)](https://travis-ci.org/Jokeren/gBolt)
+<a href="https://github.com/Jokeren/gBolt/tree/v1.0"><img src="https://img.shields.io/badge/v1.0-gBolt-brightgreen.svg"></a>
 
    * [<em><strong>gBolt</strong></em>](#gbolt)
       * [Features](#features)
