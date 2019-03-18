@@ -35,7 +35,7 @@ Threads  | gSpan Time/s | gBolt Time/s | Speedup | gSpan Scale | gBolt Scale
 32       | 63.2         | 1.12         | 56.4x   |   1.0   |   1.9 | 
 64       | 119.9        | 0.90         | 133.2x   |   0.5   |   1.2 |
 
-### Comparison with gaston
+### Comparison with [gaston](http://liacs.leidenuniv.nl/~nijssensgr/gaston/download.html)
 
 Table 3. Single Thread Performance Comparison
 
