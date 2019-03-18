@@ -1,5 +1,10 @@
 ### Progress
 
+3/17/2019 gBolt-2.0 aims:
+- [ ] Incorporate gaston
+- [ ] Test more datasets
+- [ ] Algorithm for large-scale graphs
+
 2/20/2019:
 
 - [x] Projection mini opt
