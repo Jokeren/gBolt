@@ -23,8 +23,13 @@ class Database {
 
   // Construct graph by frequent labels
   void construct_graphs(
-    const unordered_map<size_t, std::vector<size_t> > &frequent_vertex_labels,
-    const unordered_map<size_t, size_t> &frequent_edge_labels,
+  #ifdef GBOLT_PERFORMANCE
+    const unordered_map<int, std::vector<int> > &frequent_vertex_labels,
+    const unordered_map<int, int> &frequent_edge_labels,
+  #else
+    const map<int, std::vector<int> > &frequent_vertex_labels,
+    const map<int, int> &frequent_edge_labels,
+  #endif
     vector<Graph> &graphs);
 
   ~Database() {
@@ -37,7 +42,7 @@ class Database {
  private:
   static Database *instance_;
   vector<vector<string> > input_;
-  size_t num_graph_;
+  int num_graph_ = 0;
 };
 
 }  // namespace gbolt

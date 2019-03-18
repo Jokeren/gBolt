@@ -1,11 +1,40 @@
 ### Progress
 
+3/17/2019 gBolt-2.0 aims:
+- [ ] Incorporate gaston
+- [ ] Test more datasets
+- [ ] Algorithm for large-scale graphs
+
 2/20/2019:
 
-- [ ] Build everything in a single command
-- [ ] Use hpctraceviewer to improve OpenMP performance
-- [ ] Travis CI
-- [ ] Change repo name
+- [x] Projection mini opt
+- [x] Customized data structure
+  - Use Path to replace vector
+  - Use Rope to replace Path
+- [x] Software simplicity
+  - Use header only repo to replace gflags
+  - Use customized logs
+- [x] Reduce memory overhead
+  - Dfs code pointer optimization
+  - Reuse right most path
+  - jemalloc option
+- [x] Build everything in a single command
+- [x] Use hpctraceviewer to improve OpenMP performance
+- [x] Change repo name
+- [x] Travis CI
+- [x] Deterministic map for debugging
+- [ ] Python interfaces
+  - Merge results
+  - Graph data structure
+  - Execution
+- [x] Valgrind sanity check
+- [ ] Docs
+  - Optimizations
+  - Customized data structures
+  - Test results
+- [ ] Research problems
+  - Build graph on-the-fly or only in check?
+  - Sparse graph mining
 
 5/13/2017:
 

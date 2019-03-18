@@ -2,8 +2,9 @@
 #define INCLUDE_COMMON_H_
 
 #include <sys/time.h>
+#ifndef GBOLT_SERIAL
 #include <omp.h>
-#include <glog/logging.h>
+#endif
 #include <config.h>
 #include <map>
 #include <unordered_map>
@@ -13,6 +14,8 @@
 #include <vector>
 
 #define FILE_MAX_LINE 1024
+
+#define DEFAULT_PATH_LEN 16
 
 #define CPU_TIMER_START(elapsed_time, t1) \
   do { \
@@ -26,6 +29,37 @@
     elapsed_time = (t2.tv_sec - t1.tv_sec) * 1000.0; \
     elapsed_time += (t2.tv_usec - t1.tv_usec) / 1000.0; \
     elapsed_time /= 1000.0; \
+  } while (0)
+
+#define LOG_INFO(...) \
+  do { \
+    struct timeval cur; \
+    gettimeofday(&cur, NULL); \
+    fprintf(stdout, "[%d:%d] ", cur.tv_sec, cur.tv_usec); \
+    fprintf(stdout, "INFO: "); \
+    fprintf(stdout, __VA_ARGS__); \
+    fprintf(stdout, "\n"); \
+  } while (0)
+
+#define LOG_WARNING(...) \
+  do { \
+    struct timeval cur; \
+    gettimeofday(&cur, NULL); \
+    fprintf(stdout, "[%d:%d] ", cur.tv_sec, cur.tv_usec); \
+    fprintf(stderr, "ERROR: "); \
+    fprintf(stderr, __VA_ARGS__); \
+    fprintf(stderr, "\n"); \
+  } while (0)
+
+#define LOG_ERROR(...) \
+  do { \
+    struct timeval cur; \
+    gettimeofday(&cur, NULL); \
+    fprintf(stdout, "[%f:%f] ", cur.tv_sec, cur.tv_usec); \
+    fprintf(stderr, "ERROR: "); \
+    fprintf(stderr, __VA_ARGS__); \
+    fprintf(stderr, "\n"); \
+    exit(1); \
   } while (0)
 
 namespace gbolt {

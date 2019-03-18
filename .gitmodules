@@ -1,0 +1,6 @@
+[submodule "extern/jemalloc"]
+	path = extern/jemalloc
+	url = https://github.com/jemalloc/jemalloc.git
+[submodule "extern/cxxopts"]
+	path = extern/cxxopts
+	url = https://github.com/jarro2783/cxxopts.git

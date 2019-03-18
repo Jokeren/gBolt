@@ -24,7 +24,7 @@ void GBolt::execute() {
   database->construct_graphs(frequent_vertex_labels_, frequent_edge_labels_, prune_graphs);
   #ifdef GBOLT_PERFORMANCE
   CPU_TIMER_END(elapsed, time_start, time_end);
-  LOG(INFO) << "gbolt construct graph time: " << elapsed;
+  LOG_INFO("gbolt construct graph time: %f", elapsed);
   CPU_TIMER_START(elapsed, time_start);
   #endif
 
@@ -33,30 +33,39 @@ void GBolt::execute() {
   project(prune_graphs);
   #ifdef GBOLT_PERFORMANCE
   CPU_TIMER_END(elapsed, time_start, time_end);
-  LOG(INFO) << "gbolt mine graph time: " << elapsed;
+  LOG_INFO("gbolt mine graph time: %f", elapsed);
   #endif
 }
 
 void GBolt::init_instances(const vector<Graph> &graphs) {
-  size_t num_threads = omp_get_max_threads();
+  #ifdef GBOLT_SERIAL
+  int num_threads = 1;
+  #else
+  int num_threads = omp_get_max_threads();
+  #endif
   gbolt_instances_ = new gbolt_instance_t[num_threads];
 
   // Prepare history instance
-  size_t max_edges = 0;
-  size_t max_vertice = 0;
-  for (size_t i = 0; i < graphs.size(); ++i) {
+  int max_edges = 0;
+  int max_vertice = 0;
+  for (auto i = 0; i < graphs.size(); ++i) {
     max_edges = std::max(graphs[i].get_nedges(), max_edges);
-    max_vertice = std::max(graphs[i].get_p_vertice()->size(), max_vertice);
+    max_vertice = std::max(
+      static_cast<int>(graphs[i].get_p_vertice()->size()), max_vertice);
   }
 
   // Init an instance for each thread
-  for (size_t i = 0; i < num_threads; ++i) {
-    LOG(INFO) << "gbolt thread " << i << " create";
+  for (auto i = 0; i < num_threads; ++i) {
+    #ifdef GBOLT_PERFORMANCE
+    LOG_INFO("gbolt create thread %d", i);
+    #endif
     string output_file_thread = output_file_ + ".t" + std::to_string(i);
     gbolt_instances_[i].history = new History(max_edges, max_vertice);
     gbolt_instances_[i].output = new Output(output_file_thread);
     gbolt_instances_[i].min_graph = new Graph();
     gbolt_instances_[i].min_dfs_codes = new DfsCodes();
+    gbolt_instances_[i].right_most_path = new Path<int>(DEFAULT_PATH_LEN);
+    gbolt_instances_[i].min_projection = new MinProjection(DEFAULT_PATH_LEN);
   }
 }
 
@@ -64,50 +73,64 @@ void GBolt::project(const vector<Graph> &graphs) {
   ProjectionMap projection_map;
 
   // Construct the first edge
-  for (size_t i = 0; i < graphs.size(); ++i) {
+  for (auto i = 0; i < graphs.size(); ++i) {
     const Graph &graph = graphs[i];
 
-    for (size_t j = 0; j < graph.size(); ++j) {
-      const struct vertex_t *vertex = graph.get_p_vertex(j);
+    for (auto j = 0; j < graph.size(); ++j) {
+      const vertex_t *vertex = graph.get_p_vertex(j);
       Edges edges;
 
       if (get_forward_init(*vertex, graph, edges)) {
-        for (size_t k = 0; k < edges.size(); ++k) {
-          const struct vertex_t *vertex_from = graph.get_p_vertex(edges[k]->from);
-          const struct vertex_t *vertex_to = graph.get_p_vertex(edges[k]->to);
+        for (auto k = 0; k < edges.size(); ++k) {
+          const vertex_t *vertex_from = graph.get_p_vertex(edges[k]->from);
+          const vertex_t *vertex_to = graph.get_p_vertex(edges[k]->to);
           // Push dfs code according to the same edge label
-          struct dfs_code_t dfs_code(0, 1, vertex_from->label, edges[k]->label, vertex_to->label);
+          dfs_code_t dfs_code(0, 1, vertex_from->label, edges[k]->label, vertex_to->label);
           // Push all the graphs
-          projection_map[dfs_code].emplace_back(graphs[i].get_id(), edges[k], (const struct prev_dfs_t *)NULL);
+          projection_map[dfs_code].emplace_back(graphs[i].get_id(), edges[k], (const prev_dfs_t *)NULL);
         }
       }
     }
   }
   // Mine subgraphs
   int prev_graph_id = -1;
-  size_t prev_thread_id = omp_get_thread_num();
+  #ifdef GBOLT_SERIAL
+  int prev_thread_id = 1;
+  #else
+  int prev_thread_id = omp_get_thread_num();
+  #endif
   DfsCodes dfs_codes;
+  #ifndef GBOLT_SERIAL
   #pragma omp parallel
   #pragma omp single nowait
+  #endif
   {
     for (auto it = projection_map.begin(); it != projection_map.end(); ++it) {
       // Parital pruning, like apriori
       Projection &projection = it->second;
-      size_t nsupport = count_support(projection);
+      int nsupport = count_support(projection);
       if (nsupport < nsupport_) {
         continue;
       }
-      size_t from_label = (it->first).from_label;
-      size_t edge_label = (it->first).edge_label;
-      size_t to_label = (it->first).to_label;
+      int from_label = (it->first).from_label;
+      int edge_label = (it->first).edge_label;
+      int to_label = (it->first).to_label;
+      #ifdef GBOLT_SERIAL
+      dfs_codes.emplace_back(&(it->first));
+      mine_subgraph(graphs, projection, dfs_codes, nsupport, prev_thread_id, prev_graph_id);
+      dfs_codes.pop_back();
+      #else
       #pragma omp task shared(graphs, projection, prev_thread_id, prev_graph_id) firstprivate(dfs_codes, nsupport)
       {
-        dfs_codes.emplace_back(0, 1, from_label, edge_label, to_label);
-        mine_subgraph(graphs, dfs_codes, projection, nsupport, prev_thread_id, prev_graph_id);
+        dfs_codes.emplace_back(&(it->first));
+        mine_subgraph(graphs, projection, dfs_codes, nsupport, prev_thread_id, prev_graph_id);
       }
+      #endif
     }
   }
+  #ifndef GBOLT_SERIAL
   #pragma omp taskwait
+  #endif
 }
 
 }  // namespace gbolt
