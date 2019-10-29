@@ -56,6 +56,8 @@
 
 ***Steps***:
 
+    git clone --recursive https://github.com/Jokeren/gBolt.git
+    cd gBolt
     mkdir build && cd build
     cmake ..
     make
