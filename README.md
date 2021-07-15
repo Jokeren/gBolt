@@ -17,7 +17,7 @@
 
 ## Features
 
-***gBolt*** is up to 100x faster (see detailed [experiments](https://github.com/Jokeren/gBolt/blob/master/docs/experiments.md)) than [Yan's](https://www.cs.ucsb.edu/~xyan/software/gSpan.htm) original implementation with multi-threading on a single machine. ***gBolt*** also reduces more than 200 folds memory usage, running efficiently on personal computers.  
+***gBolt*** is up to 100x faster (see detailed [experiments](https://github.com/Jokeren/gBolt/blob/master/docs/experiments.md)) than [Yan's](https://sites.cs.ucsb.edu/~xyan/software/gSpan.htm) original implementation with multi-threading on a single machine. ***gBolt*** also reduces more than 200 folds memory usage, running efficiently on personal computers.  
 
 ***gBolt*** is ***fast*** because it:
 
